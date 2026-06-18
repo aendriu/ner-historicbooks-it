@@ -1,0 +1,1416 @@
+{
+  "book_name": "002_Bandello_Le_novelle_1_si286",
+  "total_chunks": 176,
+  "created_at": "2026-06-11T13:59:36.951600",
+  "explicit_chapters_found": 2,
+  "chunks": [
+    {
+      "chunk_id": 1,
+      "topic_hint": "Prefazione dell'autore sulla composizione delle novelle",
+      "char_start": 0,
+      "char_end": 4183,
+      "num_entities": 10,
+      "text_length": 4183
+    },
+    {
+      "chunk_id": 2,
+      "topic_hint": "Dedica alla contessa e lodi delle sue virtù (parte 1/2)",
+      "char_start": 4183,
+      "char_end": 6239,
+      "num_entities": 10,
+      "text_length": 2056
+    },
+    {
+      "chunk_id": 3,
+      "topic_hint": "Dedica alla contessa e lodi delle sue virtù (parte 2/2)",
+      "char_start": 6241,
+      "char_end": 10764,
+      "num_entities": 0,
+      "text_length": 4523
+    },
+    {
+      "chunk_id": 4,
+      "topic_hint": "Inizio Novella I: Buondelmonte e il matrimonio (parte 1/2)",
+      "char_start": 10763,
+      "char_end": 17777,
+      "num_entities": 10,
+      "text_length": 7014
+    },
+    {
+      "chunk_id": 5,
+      "topic_hint": "Inizio Novella I: Buondelmonte e il matrimonio (parte 2/2)",
+      "char_start": 17779,
+      "char_end": 24022,
+      "num_entities": 0,
+      "text_length": 6243
+    },
+    {
+      "chunk_id": 6,
+      "topic_hint": "Inizio Novella II: Ariabarzane e il re di Persia (parte 1/2)",
+      "char_start": 24018,
+      "char_end": 26217,
+      "num_entities": 10,
+      "text_length": 2199
+    },
+    {
+      "chunk_id": 7,
+      "topic_hint": "Inizio Novella II: Ariabarzane e il re di Persia (parte 2/2)",
+      "char_start": 26219,
+      "char_end": 30393,
+      "num_entities": 0,
+      "text_length": 4174
+    },
+    {
+      "chunk_id": 8,
+      "topic_hint": "La giostra e il premio del senescalco (parte 1/2)",
+      "char_start": 30392,
+      "char_end": 32554,
+      "num_entities": 10,
+      "text_length": 2162
+    },
+    {
+      "chunk_id": 9,
+      "topic_hint": "La giostra e il premio del senescalco (parte 2/2)",
+      "char_start": 32556,
+      "char_end": 36954,
+      "num_entities": 0,
+      "text_length": 4398
+    },
+    {
+      "chunk_id": 10,
+      "topic_hint": "La giostra e il comportamento del senescalco (parte 1/2)",
+      "char_start": 36953,
+      "char_end": 39064,
+      "num_entities": 10,
+      "text_length": 2111
+    },
+    {
+      "chunk_id": 11,
+      "topic_hint": "La giostra e il comportamento del senescalco (parte 2/2)",
+      "char_start": 39066,
+      "char_end": 43271,
+      "num_entities": 0,
+      "text_length": 4205
+    },
+    {
+      "chunk_id": 12,
+      "topic_hint": "Riflessione sulla gloria e l'onore (parte 1/2)",
+      "char_start": 43270,
+      "char_end": 47413,
+      "num_entities": 10,
+      "text_length": 4143
+    },
+    {
+      "chunk_id": 13,
+      "topic_hint": "Riflessione sulla gloria e l'onore (parte 2/2)",
+      "char_start": 47415,
+      "char_end": 54366,
+      "num_entities": 0,
+      "text_length": 6951
+    },
+    {
+      "chunk_id": 14,
+      "topic_hint": "Il re rimprovera Ariabarzane per la sua cortesia eccessiva",
+      "char_start": 54363,
+      "char_end": 59147,
+      "num_entities": 6,
+      "text_length": 4784
+    },
+    {
+      "chunk_id": 15,
+      "topic_hint": "Ariabarzane si ritira alle sue castella (parte 1/2)",
+      "char_start": 59147,
+      "char_end": 63583,
+      "num_entities": 10,
+      "text_length": 4436
+    },
+    {
+      "chunk_id": 16,
+      "topic_hint": "Ariabarzane si ritira alle sue castella (parte 2/2)",
+      "char_start": 63585,
+      "char_end": 67819,
+      "num_entities": 0,
+      "text_length": 4234
+    },
+    {
+      "chunk_id": 17,
+      "topic_hint": "Discorso sulla giustizia e il potere reale (parte 1/2)",
+      "char_start": 67817,
+      "char_end": 71887,
+      "num_entities": 7,
+      "text_length": 4070
+    },
+    {
+      "chunk_id": 18,
+      "topic_hint": "Discorso sulla giustizia e il potere reale (parte 2/2)",
+      "char_start": 71889,
+      "char_end": 76026,
+      "num_entities": 0,
+      "text_length": 4137
+    },
+    {
+      "chunk_id": 19,
+      "topic_hint": "La caccia del falcone e l'aquila (parte 1/2)",
+      "char_start": 76024,
+      "char_end": 82785,
+      "num_entities": 10,
+      "text_length": 6761
+    },
+    {
+      "chunk_id": 20,
+      "topic_hint": "La caccia del falcone e l'aquila (parte 2/2)",
+      "char_start": 82787,
+      "char_end": 89127,
+      "num_entities": 0,
+      "text_length": 6340
+    },
+    {
+      "chunk_id": 21,
+      "topic_hint": "Clemenza del re verso Ariabarzane",
+      "char_start": 89123,
+      "char_end": 93413,
+      "num_entities": 10,
+      "text_length": 4290
+    },
+    {
+      "chunk_id": 22,
+      "topic_hint": "Dedica e introduzione della novella di Pompeio (parte 1/2)",
+      "char_start": 93413,
+      "char_end": 95481,
+      "num_entities": 5,
+      "text_length": 2068
+    },
+    {
+      "chunk_id": 23,
+      "topic_hint": "Dedica e introduzione della novella di Pompeio (parte 2/2)",
+      "char_start": 95483,
+      "char_end": 100040,
+      "num_entities": 0,
+      "text_length": 4557
+    },
+    {
+      "chunk_id": 24,
+      "topic_hint": "Discussione sulle armi e il litigio coniugale (parte 1/2)",
+      "char_start": 100039,
+      "char_end": 104663,
+      "num_entities": 10,
+      "text_length": 4624
+    },
+    {
+      "chunk_id": 25,
+      "topic_hint": "Discussione sulle armi e il litigio coniugale (parte 2/2)",
+      "char_start": 104665,
+      "char_end": 108701,
+      "num_entities": 0,
+      "text_length": 4036
+    },
+    {
+      "chunk_id": 26,
+      "topic_hint": "Pompeio e la donna nella camera riccamente apparata",
+      "char_start": 108699,
+      "char_end": 112893,
+      "num_entities": 8,
+      "text_length": 4194
+    },
+    {
+      "chunk_id": 27,
+      "topic_hint": "Presentazione della medicina miracolosa agli ospiti (parte 1/2)",
+      "char_start": 112893,
+      "char_end": 116982,
+      "num_entities": 10,
+      "text_length": 4089
+    },
+    {
+      "chunk_id": 28,
+      "topic_hint": "Presentazione della medicina miracolosa agli ospiti (parte 2/2)",
+      "char_start": 116984,
+      "char_end": 123274,
+      "num_entities": 0,
+      "text_length": 6290
+    },
+    {
+      "chunk_id": 29,
+      "topic_hint": "Transizione narrativa: storia di Bianca Maria e il conte Sanseverino",
+      "char_start": 123271,
+      "char_end": 127394,
+      "num_entities": 10,
+      "text_length": 4123
+    },
+    {
+      "chunk_id": 30,
+      "topic_hint": "Bianca Maria decide di far uccidere il conte di Gaiazzo",
+      "char_start": 127394,
+      "char_end": 131683,
+      "num_entities": 10,
+      "text_length": 4289
+    },
+    {
+      "chunk_id": 31,
+      "topic_hint": "Confronto finale tra i due conti sulla malvagità della donna (parte 1/2)",
+      "char_start": 131683,
+      "char_end": 136124,
+      "num_entities": 10,
+      "text_length": 4441
+    },
+    {
+      "chunk_id": 32,
+      "topic_hint": "Confronto finale tra i due conti sulla malvagità della donna (parte 2/2)",
+      "char_start": 136126,
+      "char_end": 140266,
+      "num_entities": 0,
+      "text_length": 4140
+    },
+    {
+      "chunk_id": 33,
+      "topic_hint": "Morale della novella e transizione narrativa (parte 1/2)",
+      "char_start": 140264,
+      "char_end": 146985,
+      "num_entities": 10,
+      "text_length": 6721
+    },
+    {
+      "chunk_id": 34,
+      "topic_hint": "Morale della novella e transizione narrativa (parte 2/2)",
+      "char_start": 146987,
+      "char_end": 155349,
+      "num_entities": 0,
+      "text_length": 8362
+    },
+    {
+      "chunk_id": 35,
+      "topic_hint": "Bindoccia organizza l'inganno e seduce Niceno",
+      "char_start": 155344,
+      "char_end": 159573,
+      "num_entities": 10,
+      "text_length": 4229
+    },
+    {
+      "chunk_id": 36,
+      "topic_hint": "Bindoccia scoperta e nuovi stratagemmi di tradimento (parte 1/2)",
+      "char_start": 159573,
+      "char_end": 164258,
+      "num_entities": 10,
+      "text_length": 4685
+    },
+    {
+      "chunk_id": 37,
+      "topic_hint": "Bindoccia scoperta e nuovi stratagemmi di tradimento (parte 2/2)",
+      "char_start": 164260,
+      "char_end": 168343,
+      "num_entities": 0,
+      "text_length": 4083
+    },
+    {
+      "chunk_id": 38,
+      "topic_hint": "Confronto e risoluzione del tradimento (parte 1/2)",
+      "char_start": 168341,
+      "char_end": 178998,
+      "num_entities": 10,
+      "text_length": 10657
+    },
+    {
+      "chunk_id": 39,
+      "topic_hint": "Confronto e risoluzione del tradimento (parte 2/2)",
+      "char_start": 179000,
+      "char_end": 189853,
+      "num_entities": 0,
+      "text_length": 10853
+    },
+    {
+      "chunk_id": 40,
+      "topic_hint": "Transizione a storia di Porcellio (parte 1/2)",
+      "char_start": 189845,
+      "char_end": 192062,
+      "num_entities": 10,
+      "text_length": 2217
+    },
+    {
+      "chunk_id": 41,
+      "topic_hint": "Transizione a storia di Porcellio (parte 2/2)",
+      "char_start": 192064,
+      "char_end": 196342,
+      "num_entities": 0,
+      "text_length": 4278
+    },
+    {
+      "chunk_id": 42,
+      "topic_hint": "Confessione e guarigione del Porcellio (parte 1/2)",
+      "char_start": 196341,
+      "char_end": 200489,
+      "num_entities": 10,
+      "text_length": 4148
+    },
+    {
+      "chunk_id": 43,
+      "topic_hint": "Confessione e guarigione del Porcellio (parte 2/2)",
+      "char_start": 200491,
+      "char_end": 207013,
+      "num_entities": 0,
+      "text_length": 6522
+    },
+    {
+      "chunk_id": 44,
+      "topic_hint": "Storia d'amore di Baldoino e Giudit (parte 1/2)",
+      "char_start": 207010,
+      "char_end": 217636,
+      "num_entities": 10,
+      "text_length": 10626
+    },
+    {
+      "chunk_id": 45,
+      "topic_hint": "Storia d'amore di Baldoino e Giudit (parte 2/2)",
+      "char_start": 217638,
+      "char_end": 228303,
+      "num_entities": 0,
+      "text_length": 10665
+    },
+    {
+      "chunk_id": 46,
+      "topic_hint": "Dedica a Monsignor Pirro Gonzaga",
+      "char_start": 228295,
+      "char_end": 232608,
+      "num_entities": 10,
+      "text_length": 4313
+    },
+    {
+      "chunk_id": 47,
+      "topic_hint": "Dedica personale e gratitudine dell'autore (parte 1/2)",
+      "char_start": 232608,
+      "char_end": 239090,
+      "num_entities": 10,
+      "text_length": 6482
+    },
+    {
+      "chunk_id": 48,
+      "topic_hint": "Dedica personale e gratitudine dell'autore (parte 2/2)",
+      "char_start": 239092,
+      "char_end": 247790,
+      "num_entities": 0,
+      "text_length": 8698
+    },
+    {
+      "chunk_id": 49,
+      "topic_hint": "Riflessione morale sulla virtù femminile (parte 1/2)",
+      "char_start": 247785,
+      "char_end": 249865,
+      "num_entities": 10,
+      "text_length": 2080
+    },
+    {
+      "chunk_id": 50,
+      "topic_hint": "Riflessione morale sulla virtù femminile (parte 2/2)",
+      "char_start": 249867,
+      "char_end": 254586,
+      "num_entities": 0,
+      "text_length": 4719
+    },
+    {
+      "chunk_id": 51,
+      "topic_hint": "Aneddoto di Isabella d'Este a Borgonuovo (parte 1/2)",
+      "char_start": 254585,
+      "char_end": 263087,
+      "num_entities": 10,
+      "text_length": 8502
+    },
+    {
+      "chunk_id": 52,
+      "topic_hint": "Aneddoto di Isabella d'Este a Borgonuovo (parte 2/2)",
+      "char_start": 263089,
+      "char_end": 271651,
+      "num_entities": 0,
+      "text_length": 8562
+    },
+    {
+      "chunk_id": 53,
+      "topic_hint": "Scoperta e conseguenze: morte del marito e morale sulla ragione (parte 1/2)",
+      "char_start": 271645,
+      "char_end": 275785,
+      "num_entities": 10,
+      "text_length": 4140
+    },
+    {
+      "chunk_id": 54,
+      "topic_hint": "Scoperta e conseguenze: morte del marito e morale sulla ragione (parte 2/2)",
+      "char_start": 275787,
+      "char_end": 280276,
+      "num_entities": 0,
+      "text_length": 4489
+    },
+    {
+      "chunk_id": 55,
+      "topic_hint": "Maometto e la conquista di Costantinopoli: la greca e il tradimento (parte 1/2)",
+      "char_start": 280274,
+      "char_end": 286673,
+      "num_entities": 10,
+      "text_length": 6399
+    },
+    {
+      "chunk_id": 56,
+      "topic_hint": "Maometto e la conquista di Costantinopoli: la greca e il tradimento (parte 2/2)",
+      "char_start": 286675,
+      "char_end": 295033,
+      "num_entities": 0,
+      "text_length": 8358
+    },
+    {
+      "chunk_id": 57,
+      "topic_hint": "Esecuzione della greca e conclusione sulla crudeltà turca",
+      "char_start": 295028,
+      "char_end": 299143,
+      "num_entities": 10,
+      "text_length": 4115
+    },
+    {
+      "chunk_id": 58,
+      "topic_hint": "Storia della Pia e del lombardo (parte 1/2)",
+      "char_start": 299143,
+      "char_end": 303438,
+      "num_entities": 10,
+      "text_length": 4295
+    },
+    {
+      "chunk_id": 59,
+      "topic_hint": "Storia della Pia e del lombardo (parte 2/2)",
+      "char_start": 303440,
+      "char_end": 309708,
+      "num_entities": 0,
+      "text_length": 6268
+    },
+    {
+      "chunk_id": 60,
+      "topic_hint": "Fuga del Ghisi e vendetta del marito (parte 1/2)",
+      "char_start": 309705,
+      "char_end": 311842,
+      "num_entities": 10,
+      "text_length": 2137
+    },
+    {
+      "chunk_id": 61,
+      "topic_hint": "Fuga del Ghisi e vendetta del marito (parte 2/2)",
+      "char_start": 311844,
+      "char_end": 316141,
+      "num_entities": 0,
+      "text_length": 4297
+    },
+    {
+      "chunk_id": 62,
+      "topic_hint": "Caso dello Scarampo a Monferrato (parte 1/2)",
+      "char_start": 316140,
+      "char_end": 320188,
+      "num_entities": 10,
+      "text_length": 4048
+    },
+    {
+      "chunk_id": 63,
+      "topic_hint": "Caso dello Scarampo a Monferrato (parte 2/2)",
+      "char_start": 320190,
+      "char_end": 324479,
+      "num_entities": 0,
+      "text_length": 4289
+    },
+    {
+      "chunk_id": 64,
+      "topic_hint": "Transizione narrativa: storia di Napoli",
+      "char_start": 324477,
+      "char_end": 328536,
+      "num_entities": 10,
+      "text_length": 4059
+    },
+    {
+      "chunk_id": 65,
+      "topic_hint": "Pietro Minio riscatta Antonio dalla schiavitù (parte 1/2)",
+      "char_start": 328536,
+      "char_end": 330573,
+      "num_entities": 10,
+      "text_length": 2037
+    },
+    {
+      "chunk_id": 66,
+      "topic_hint": "Pietro Minio riscatta Antonio dalla schiavitù (parte 2/2)",
+      "char_start": 330575,
+      "char_end": 334755,
+      "num_entities": 0,
+      "text_length": 4180
+    },
+    {
+      "chunk_id": 67,
+      "topic_hint": "Dedica a Aldo Pio Manuzio",
+      "char_start": 334754,
+      "char_end": 339027,
+      "num_entities": 10,
+      "text_length": 4273
+    },
+    {
+      "chunk_id": 68,
+      "topic_hint": "Anseimo s'innamora di Luzia (parte 1/2)",
+      "char_start": 339027,
+      "char_end": 341082,
+      "num_entities": 10,
+      "text_length": 2055
+    },
+    {
+      "chunk_id": 69,
+      "topic_hint": "Anseimo s'innamora di Luzia (parte 2/2)",
+      "char_start": 341084,
+      "char_end": 345295,
+      "num_entities": 0,
+      "text_length": 4211
+    },
+    {
+      "chunk_id": 70,
+      "topic_hint": "Lo scambio notturno e l'inganno",
+      "char_start": 345294,
+      "char_end": 349746,
+      "num_entities": 10,
+      "text_length": 4452
+    },
+    {
+      "chunk_id": 71,
+      "topic_hint": "Aloise Foscari ferito e catturato",
+      "char_start": 349746,
+      "char_end": 354001,
+      "num_entities": 10,
+      "text_length": 4255
+    },
+    {
+      "chunk_id": 72,
+      "topic_hint": "Arresto di Girolamo e Anseimo nella notte",
+      "char_start": 354001,
+      "char_end": 358619,
+      "num_entities": 8,
+      "text_length": 4618
+    },
+    {
+      "chunk_id": 73,
+      "topic_hint": "Guarigione di Aloise e rapporto al duce (parte 1/2)",
+      "char_start": 358619,
+      "char_end": 360673,
+      "num_entities": 10,
+      "text_length": 2054
+    },
+    {
+      "chunk_id": 74,
+      "topic_hint": "Guarigione di Aloise e rapporto al duce (parte 2/2)",
+      "char_start": 360675,
+      "char_end": 364835,
+      "num_entities": 0,
+      "text_length": 4160
+    },
+    {
+      "chunk_id": 75,
+      "topic_hint": "Interrogatorio e custodia di Aloise Foscaro",
+      "char_start": 364834,
+      "char_end": 368907,
+      "num_entities": 9,
+      "text_length": 4073
+    },
+    {
+      "chunk_id": 76,
+      "topic_hint": "Consiglio dei Dieci e sospetti del principe (parte 1/2)",
+      "char_start": 368907,
+      "char_end": 370995,
+      "num_entities": 10,
+      "text_length": 2088
+    },
+    {
+      "chunk_id": 77,
+      "topic_hint": "Consiglio dei Dieci e sospetti del principe (parte 2/2)",
+      "char_start": 370997,
+      "char_end": 375338,
+      "num_entities": 0,
+      "text_length": 4341
+    },
+    {
+      "chunk_id": 78,
+      "topic_hint": "Le tre donne si recano a palazzo per la difesa (parte 1/2)",
+      "char_start": 375337,
+      "char_end": 381541,
+      "num_entities": 10,
+      "text_length": 6204
+    },
+    {
+      "chunk_id": 79,
+      "topic_hint": "Le tre donne si recano a palazzo per la difesa (parte 2/2)",
+      "char_start": 381543,
+      "char_end": 390609,
+      "num_entities": 0,
+      "text_length": 9066
+    },
+    {
+      "chunk_id": 80,
+      "topic_hint": "Discorso di madonna Gismonda sulla liberalità di Aloise (parte 1/2)",
+      "char_start": 390604,
+      "char_end": 392627,
+      "num_entities": 10,
+      "text_length": 2023
+    },
+    {
+      "chunk_id": 81,
+      "topic_hint": "Discorso di madonna Gismonda sulla liberalità di Aloise (parte 2/2)",
+      "char_start": 392629,
+      "char_end": 396871,
+      "num_entities": 0,
+      "text_length": 4242
+    },
+    {
+      "chunk_id": 82,
+      "topic_hint": "Transizione narrativa e lettera del principe (parte 1/2)",
+      "char_start": 396870,
+      "char_end": 398937,
+      "num_entities": 10,
+      "text_length": 2067
+    },
+    {
+      "chunk_id": 83,
+      "topic_hint": "Transizione narrativa e lettera del principe (parte 2/2)",
+      "char_start": 398939,
+      "char_end": 403230,
+      "num_entities": 0,
+      "text_length": 4291
+    },
+    {
+      "chunk_id": 84,
+      "topic_hint": "Conclusione della novella con il tradimento della donna (parte 1/2)",
+      "char_start": 403229,
+      "char_end": 411912,
+      "num_entities": 10,
+      "text_length": 8683
+    },
+    {
+      "chunk_id": 85,
+      "topic_hint": "Conclusione della novella con il tradimento della donna (parte 2/2)",
+      "char_start": 411914,
+      "char_end": 420691,
+      "num_entities": 0,
+      "text_length": 8777
+    },
+    {
+      "chunk_id": 86,
+      "topic_hint": "Dedica a Messer Paris Ceresaro e inizio Novella XVII",
+      "char_start": 420685,
+      "char_end": 424918,
+      "num_entities": 10,
+      "text_length": 4233
+    },
+    {
+      "chunk_id": 87,
+      "topic_hint": "Presentazione dei fratelli Losco e innamoramento di Lucrezia (parte 1/2)",
+      "char_start": 424918,
+      "char_end": 429023,
+      "num_entities": 10,
+      "text_length": 4105
+    },
+    {
+      "chunk_id": 88,
+      "topic_hint": "Presentazione dei fratelli Losco e innamoramento di Lucrezia (parte 2/2)",
+      "char_start": 429025,
+      "char_end": 435317,
+      "num_entities": 0,
+      "text_length": 6292
+    },
+    {
+      "chunk_id": 89,
+      "topic_hint": "Primo incontro notturno tra Lucrezia e Bernardino (parte 1/2)",
+      "char_start": 435314,
+      "char_end": 439938,
+      "num_entities": 10,
+      "text_length": 4624
+    },
+    {
+      "chunk_id": 90,
+      "topic_hint": "Primo incontro notturno tra Lucrezia e Bernardino (parte 2/2)",
+      "char_start": 439940,
+      "char_end": 444532,
+      "num_entities": 0,
+      "text_length": 4592
+    },
+    {
+      "chunk_id": 91,
+      "topic_hint": "Ritorno del marito e sofferenza di Lucrezia (parte 1/2)",
+      "char_start": 444530,
+      "char_end": 448756,
+      "num_entities": 10,
+      "text_length": 4226
+    },
+    {
+      "chunk_id": 92,
+      "topic_hint": "Ritorno del marito e sofferenza di Lucrezia (parte 2/2)",
+      "char_start": 448758,
+      "char_end": 452931,
+      "num_entities": 0,
+      "text_length": 4173
+    },
+    {
+      "chunk_id": 93,
+      "topic_hint": "Terzo incontro con messer Gregorio al posto di Bernardino (parte 1/2)",
+      "char_start": 452929,
+      "char_end": 459350,
+      "num_entities": 10,
+      "text_length": 6421
+    },
+    {
+      "chunk_id": 94,
+      "topic_hint": "Terzo incontro con messer Gregorio al posto di Bernardino (parte 2/2)",
+      "char_start": 459352,
+      "char_end": 468615,
+      "num_entities": 0,
+      "text_length": 9263
+    },
+    {
+      "chunk_id": 95,
+      "topic_hint": "Digressione morale sulle donne ingannate (parte 1/2)",
+      "char_start": 468610,
+      "char_end": 472707,
+      "num_entities": 10,
+      "text_length": 4097
+    },
+    {
+      "chunk_id": 96,
+      "topic_hint": "Digressione morale sulle donne ingannate (parte 2/2)",
+      "char_start": 472709,
+      "char_end": 476805,
+      "num_entities": 0,
+      "text_length": 4096
+    },
+    {
+      "chunk_id": 97,
+      "topic_hint": "Storia di Gualdrada e l'imperatore Ottone III (parte 1/2)",
+      "char_start": 476803,
+      "char_end": 478915,
+      "num_entities": 10,
+      "text_length": 2112
+    },
+    {
+      "chunk_id": 98,
+      "topic_hint": "Storia di Gualdrada e l'imperatore Ottone III (parte 2/2)",
+      "char_start": 478917,
+      "char_end": 482978,
+      "num_entities": 0,
+      "text_length": 4061
+    },
+    {
+      "chunk_id": 99,
+      "topic_hint": "Il complotto di Marco Antonio e l'avviso a Faustina",
+      "char_start": 482977,
+      "char_end": 487282,
+      "num_entities": 6,
+      "text_length": 4305
+    },
+    {
+      "chunk_id": 100,
+      "topic_hint": "Il tentativo di omicidio fallito",
+      "char_start": 487282,
+      "char_end": 491320,
+      "num_entities": 10,
+      "text_length": 4038
+    },
+    {
+      "chunk_id": 101,
+      "topic_hint": "La tempesta e il salvataggio di Cornelia (parte 1/2)",
+      "char_start": 491320,
+      "char_end": 493332,
+      "num_entities": 10,
+      "text_length": 2012
+    },
+    {
+      "chunk_id": 102,
+      "topic_hint": "La tempesta e il salvataggio di Cornelia (parte 2/2)",
+      "char_start": 493334,
+      "char_end": 497577,
+      "num_entities": 0,
+      "text_length": 4243
+    },
+    {
+      "chunk_id": 103,
+      "topic_hint": "La vita a Genova e il rimprovero di Faustina (parte 1/2)",
+      "char_start": 497576,
+      "char_end": 499705,
+      "num_entities": 10,
+      "text_length": 2129
+    },
+    {
+      "chunk_id": 104,
+      "topic_hint": "La vita a Genova e il rimprovero di Faustina (parte 2/2)",
+      "char_start": 499707,
+      "char_end": 503838,
+      "num_entities": 0,
+      "text_length": 4131
+    },
+    {
+      "chunk_id": 105,
+      "topic_hint": "Marco Antonio con moglie e amante a Genova (parte 1/2)",
+      "char_start": 503837,
+      "char_end": 508053,
+      "num_entities": 10,
+      "text_length": 4216
+    },
+    {
+      "chunk_id": 106,
+      "topic_hint": "Marco Antonio con moglie e amante a Genova (parte 2/2)",
+      "char_start": 508055,
+      "char_end": 512494,
+      "num_entities": 0,
+      "text_length": 4439
+    },
+    {
+      "chunk_id": 107,
+      "topic_hint": "La partenza di Marco Antonio e Cornelia",
+      "char_start": 512492,
+      "char_end": 516571,
+      "num_entities": 10,
+      "text_length": 4079
+    },
+    {
+      "chunk_id": 108,
+      "topic_hint": "Amore e morte di Galeazzo e Lucrezia (parte 1/2)",
+      "char_start": 516571,
+      "char_end": 520596,
+      "num_entities": 10,
+      "text_length": 4025
+    },
+    {
+      "chunk_id": 109,
+      "topic_hint": "Amore e morte di Galeazzo e Lucrezia (parte 2/2)",
+      "char_start": 520598,
+      "char_end": 526171,
+      "num_entities": 0,
+      "text_length": 5573
+    },
+    {
+      "chunk_id": 110,
+      "topic_hint": "Dedica della novella al lettore",
+      "char_start": 526169,
+      "char_end": 530381,
+      "num_entities": 10,
+      "text_length": 4212
+    },
+    {
+      "chunk_id": 111,
+      "topic_hint": "Decisione di Ulrico di servire il re (parte 1/2)",
+      "char_start": 530381,
+      "char_end": 534567,
+      "num_entities": 10,
+      "text_length": 4186
+    },
+    {
+      "chunk_id": 112,
+      "topic_hint": "Decisione di Ulrico di servire il re (parte 2/2)",
+      "char_start": 534569,
+      "char_end": 541195,
+      "num_entities": 0,
+      "text_length": 6626
+    },
+    {
+      "chunk_id": 113,
+      "topic_hint": "Il magico scatolino e la fedeltà coniugale",
+      "char_start": 541192,
+      "char_end": 545926,
+      "num_entities": 10,
+      "text_length": 4734
+    },
+    {
+      "chunk_id": 114,
+      "topic_hint": "La scommessa tra i due ungheresi e il re Mattia (parte 1/2)",
+      "char_start": 545926,
+      "char_end": 548025,
+      "num_entities": 10,
+      "text_length": 2099
+    },
+    {
+      "chunk_id": 115,
+      "topic_hint": "La scommessa tra i due ungheresi e il re Mattia (parte 2/2)",
+      "char_start": 548027,
+      "char_end": 552468,
+      "num_entities": 0,
+      "text_length": 4441
+    },
+    {
+      "chunk_id": 116,
+      "topic_hint": "Preparativi e viaggio del signor Alberto (parte 1/2)",
+      "char_start": 552467,
+      "char_end": 562899,
+      "num_entities": 10,
+      "text_length": 10432
+    },
+    {
+      "chunk_id": 117,
+      "topic_hint": "Preparativi e viaggio del signor Alberto (parte 2/2)",
+      "char_start": 562901,
+      "char_end": 575906,
+      "num_entities": 0,
+      "text_length": 13005
+    },
+    {
+      "chunk_id": 118,
+      "topic_hint": "Prigionia di Alberto e punizione di Uladislao (parte 1/2)",
+      "char_start": 575897,
+      "char_end": 582173,
+      "num_entities": 10,
+      "text_length": 6276
+    },
+    {
+      "chunk_id": 119,
+      "topic_hint": "Prigionia di Alberto e punizione di Uladislao (parte 2/2)",
+      "char_start": 582175,
+      "char_end": 590949,
+      "num_entities": 0,
+      "text_length": 8774
+    },
+    {
+      "chunk_id": 120,
+      "topic_hint": "Timbreo confronta Lionato e Fenicia sviene (parte 1/2)",
+      "char_start": 590944,
+      "char_end": 592945,
+      "num_entities": 10,
+      "text_length": 2001
+    },
+    {
+      "chunk_id": 121,
+      "topic_hint": "Timbreo confronta Lionato e Fenicia sviene (parte 2/2)",
+      "char_start": 592947,
+      "char_end": 597178,
+      "num_entities": 0,
+      "text_length": 4231
+    },
+    {
+      "chunk_id": 122,
+      "topic_hint": "Fenicia muore; epitaffio sulla tomba (parte 1/2)",
+      "char_start": 597177,
+      "char_end": 601727,
+      "num_entities": 10,
+      "text_length": 4550
+    },
+    {
+      "chunk_id": 123,
+      "topic_hint": "Fenicia muore; epitaffio sulla tomba (parte 2/2)",
+      "char_start": 601729,
+      "char_end": 605990,
+      "num_entities": 0,
+      "text_length": 4261
+    },
+    {
+      "chunk_id": 124,
+      "topic_hint": "Girondo confessa; perdono e riconciliazione (parte 1/2)",
+      "char_start": 605988,
+      "char_end": 610929,
+      "num_entities": 10,
+      "text_length": 4941
+    },
+    {
+      "chunk_id": 125,
+      "topic_hint": "Girondo confessa; perdono e riconciliazione (parte 2/2)",
+      "char_start": 610931,
+      "char_end": 615333,
+      "num_entities": 0,
+      "text_length": 4402
+    },
+    {
+      "chunk_id": 126,
+      "topic_hint": "Timbreo sposa Belfiore, sorella di Fenicia (parte 1/2)",
+      "char_start": 615331,
+      "char_end": 619655,
+      "num_entities": 10,
+      "text_length": 4324
+    },
+    {
+      "chunk_id": 127,
+      "topic_hint": "Timbreo sposa Belfiore, sorella di Fenicia (parte 2/2)",
+      "char_start": 619657,
+      "char_end": 626049,
+      "num_entities": 0,
+      "text_length": 6392
+    },
+    {
+      "chunk_id": 128,
+      "topic_hint": "Descrizione di Belfiore e il suo matrimonio (parte 1/2)",
+      "char_start": 626046,
+      "char_end": 632784,
+      "num_entities": 10,
+      "text_length": 6738
+    },
+    {
+      "chunk_id": 129,
+      "topic_hint": "Descrizione di Belfiore e il suo matrimonio (parte 2/2)",
+      "char_start": 632786,
+      "char_end": 638949,
+      "num_entities": 0,
+      "text_length": 6163
+    },
+    {
+      "chunk_id": 130,
+      "topic_hint": "Cerimonia a corte e epilogo felice",
+      "char_start": 638945,
+      "char_end": 643382,
+      "num_entities": 10,
+      "text_length": 4437
+    },
+    {
+      "chunk_id": 131,
+      "topic_hint": "Digressione geografica su Lombardia",
+      "char_start": 643382,
+      "char_end": 647658,
+      "num_entities": 10,
+      "text_length": 4276
+    },
+    {
+      "chunk_id": 132,
+      "topic_hint": "Storia d'amore di Bandelchil e Aioinda (parte 1/2)",
+      "char_start": 647658,
+      "char_end": 649690,
+      "num_entities": 10,
+      "text_length": 2032
+    },
+    {
+      "chunk_id": 133,
+      "topic_hint": "Storia d'amore di Bandelchil e Aioinda (parte 2/2)",
+      "char_start": 649692,
+      "char_end": 653780,
+      "num_entities": 0,
+      "text_length": 4088
+    },
+    {
+      "chunk_id": 134,
+      "topic_hint": "Novella del maggiordomo e della dama con i leoni (parte 1/2)",
+      "char_start": 653779,
+      "char_end": 657980,
+      "num_entities": 10,
+      "text_length": 4201
+    },
+    {
+      "chunk_id": 135,
+      "topic_hint": "Novella del maggiordomo e della dama con i leoni (parte 2/2)",
+      "char_start": 657982,
+      "char_end": 664467,
+      "num_entities": 0,
+      "text_length": 6485
+    },
+    {
+      "chunk_id": 136,
+      "topic_hint": "Morale sulla fine del male e dedica a Lodovico Tizzone (parte 1/2)",
+      "char_start": 664464,
+      "char_end": 668589,
+      "num_entities": 10,
+      "text_length": 4125
+    },
+    {
+      "chunk_id": 137,
+      "topic_hint": "Morale sulla fine del male e dedica a Lodovico Tizzone (parte 2/2)",
+      "char_start": 668591,
+      "char_end": 674822,
+      "num_entities": 0,
+      "text_length": 6231
+    },
+    {
+      "chunk_id": 138,
+      "topic_hint": "Novella sui furti e discussione in villa",
+      "char_start": 674819,
+      "char_end": 678910,
+      "num_entities": 10,
+      "text_length": 4091
+    },
+    {
+      "chunk_id": 139,
+      "topic_hint": "Proposta di riposo in villa senza fastidi",
+      "char_start": 678910,
+      "char_end": 683289,
+      "num_entities": 10,
+      "text_length": 4379
+    },
+    {
+      "chunk_id": 140,
+      "topic_hint": "Storia dell'architetto e il tesoro egizio",
+      "char_start": 683289,
+      "char_end": 687568,
+      "num_entities": 10,
+      "text_length": 4279
+    },
+    {
+      "chunk_id": 141,
+      "topic_hint": "La trappola e la morte dei fratelli ladri",
+      "char_start": 687568,
+      "char_end": 692289,
+      "num_entities": 7,
+      "text_length": 4721
+    },
+    {
+      "chunk_id": 142,
+      "topic_hint": "Il re scopre il furto e punisce il cadavere (parte 1/2)",
+      "char_start": 692289,
+      "char_end": 694341,
+      "num_entities": 10,
+      "text_length": 2052
+    },
+    {
+      "chunk_id": 143,
+      "topic_hint": "Il re scopre il furto e punisce il cadavere (parte 2/2)",
+      "char_start": 694343,
+      "char_end": 698648,
+      "num_entities": 0,
+      "text_length": 4305
+    },
+    {
+      "chunk_id": 144,
+      "topic_hint": "Stratagemma del giovane con gli otri di vino",
+      "char_start": 698647,
+      "char_end": 702884,
+      "num_entities": 10,
+      "text_length": 4237
+    },
+    {
+      "chunk_id": 145,
+      "topic_hint": "Ricompensa del re al giovane ladro (parte 1/2)",
+      "char_start": 702884,
+      "char_end": 707091,
+      "num_entities": 10,
+      "text_length": 4207
+    },
+    {
+      "chunk_id": 146,
+      "topic_hint": "Ricompensa del re al giovane ladro (parte 2/2)",
+      "char_start": 707093,
+      "char_end": 711222,
+      "num_entities": 0,
+      "text_length": 4129
+    },
+    {
+      "chunk_id": 147,
+      "topic_hint": "Antonio Bologna in casa di Alfonso Vesconte (parte 1/2)",
+      "char_start": 711220,
+      "char_end": 715497,
+      "num_entities": 10,
+      "text_length": 4277
+    },
+    {
+      "chunk_id": 148,
+      "topic_hint": "Antonio Bologna in casa di Alfonso Vesconte (parte 2/2)",
+      "char_start": 715499,
+      "char_end": 719703,
+      "num_entities": 0,
+      "text_length": 4204
+    },
+    {
+      "chunk_id": 149,
+      "topic_hint": "Riflessione sulla potenza dell'amore (parte 1/2)",
+      "char_start": 719701,
+      "char_end": 723919,
+      "num_entities": 10,
+      "text_length": 4218
+    },
+    {
+      "chunk_id": 150,
+      "topic_hint": "Riflessione sulla potenza dell'amore (parte 2/2)",
+      "char_start": 723921,
+      "char_end": 730627,
+      "num_entities": 0,
+      "text_length": 6706
+    },
+    {
+      "chunk_id": 151,
+      "topic_hint": "Inizio nuova novella: don Diego in Spagna (parte 1/2)",
+      "char_start": 730624,
+      "char_end": 737037,
+      "num_entities": 10,
+      "text_length": 6413
+    },
+    {
+      "chunk_id": 152,
+      "topic_hint": "Inizio nuova novella: don Diego in Spagna (parte 2/2)",
+      "char_start": 737039,
+      "char_end": 743477,
+      "num_entities": 0,
+      "text_length": 6438
+    },
+    {
+      "chunk_id": 153,
+      "topic_hint": "Don Diego con Ginevra la bionda in giardino",
+      "char_start": 743473,
+      "char_end": 747603,
+      "num_entities": 5,
+      "text_length": 4130
+    },
+    {
+      "chunk_id": 154,
+      "topic_hint": "Comparsa della giovane innamorata di don Diego",
+      "char_start": 747603,
+      "char_end": 751973,
+      "num_entities": 9,
+      "text_length": 4370
+    },
+    {
+      "chunk_id": 155,
+      "topic_hint": "Ginevra scopre il tradimento e si infuria (parte 1/2)",
+      "char_start": 751973,
+      "char_end": 754186,
+      "num_entities": 10,
+      "text_length": 2213
+    },
+    {
+      "chunk_id": 156,
+      "topic_hint": "Ginevra scopre il tradimento e si infuria (parte 2/2)",
+      "char_start": 754188,
+      "char_end": 758441,
+      "num_entities": 0,
+      "text_length": 4253
+    },
+    {
+      "chunk_id": 157,
+      "topic_hint": "Don Diego trasformato in eremita nella caverna",
+      "char_start": 758440,
+      "char_end": 762687,
+      "num_entities": 9,
+      "text_length": 4247
+    },
+    {
+      "chunk_id": 158,
+      "topic_hint": "Lettera di addio e pentimento di Ginevra (parte 1/2)",
+      "char_start": 762687,
+      "char_end": 764712,
+      "num_entities": 10,
+      "text_length": 2025
+    },
+    {
+      "chunk_id": 159,
+      "topic_hint": "Lettera di addio e pentimento di Ginevra (parte 2/2)",
+      "char_start": 764714,
+      "char_end": 769145,
+      "num_entities": 0,
+      "text_length": 4431
+    },
+    {
+      "chunk_id": 160,
+      "topic_hint": "Arrivo di Roderico riconosce don Diego (parte 1/2)",
+      "char_start": 769144,
+      "char_end": 771262,
+      "num_entities": 7,
+      "text_length": 2118
+    },
+    {
+      "chunk_id": 161,
+      "topic_hint": "Arrivo di Roderico riconosce don Diego (parte 2/2)",
+      "char_start": 771264,
+      "char_end": 775546,
+      "num_entities": 0,
+      "text_length": 4282
+    },
+    {
+      "chunk_id": 162,
+      "topic_hint": "Roderico persuade don Diego a partire (parte 1/2)",
+      "char_start": 775545,
+      "char_end": 786555,
+      "num_entities": 10,
+      "text_length": 11010
+    },
+    {
+      "chunk_id": 163,
+      "topic_hint": "Roderico persuade don Diego a partire (parte 2/2)",
+      "char_start": 786557,
+      "char_end": 799556,
+      "num_entities": 0,
+      "text_length": 12999
+    },
+    {
+      "chunk_id": 164,
+      "topic_hint": "Dedica a Ippolita Vesconte (parte 1/2)",
+      "char_start": 799547,
+      "char_end": 803765,
+      "num_entities": 10,
+      "text_length": 4218
+    },
+    {
+      "chunk_id": 165,
+      "topic_hint": "Dedica a Ippolita Vesconte (parte 2/2)",
+      "char_start": 803767,
+      "char_end": 807887,
+      "num_entities": 0,
+      "text_length": 4120
+    },
+    {
+      "chunk_id": 166,
+      "topic_hint": "Lettera di Camilla e partenza del marito (parte 1/2)",
+      "char_start": 807885,
+      "char_end": 812065,
+      "num_entities": 10,
+      "text_length": 4180
+    },
+    {
+      "chunk_id": 167,
+      "topic_hint": "Lettera di Camilla e partenza del marito (parte 2/2)",
+      "char_start": 812067,
+      "char_end": 818335,
+      "num_entities": 0,
+      "text_length": 6268
+    },
+    {
+      "chunk_id": 168,
+      "topic_hint": "Incontro notturno e fuga nel camino (parte 1/2)",
+      "char_start": 818332,
+      "char_end": 826706,
+      "num_entities": 10,
+      "text_length": 8374
+    },
+    {
+      "chunk_id": 169,
+      "topic_hint": "Incontro notturno e fuga nel camino (parte 2/2)",
+      "char_start": 826708,
+      "char_end": 835267,
+      "num_entities": 0,
+      "text_length": 8559
+    },
+    {
+      "chunk_id": 170,
+      "topic_hint": "Epilogo della vicenda e dedica al lettore",
+      "char_start": 835261,
+      "char_end": 839720,
+      "num_entities": 10,
+      "text_length": 4459
+    },
+    {
+      "chunk_id": 171,
+      "topic_hint": "Predicazione del frate a Forlì",
+      "char_start": 839720,
+      "char_end": 843954,
+      "num_entities": 10,
+      "text_length": 4234
+    },
+    {
+      "chunk_id": 172,
+      "topic_hint": "Trasferimento nel boschetto e richiesta di novella (parte 1/2)",
+      "char_start": 843954,
+      "char_end": 845955,
+      "num_entities": 10,
+      "text_length": 2001
+    },
+    {
+      "chunk_id": 173,
+      "topic_hint": "Trasferimento nel boschetto e richiesta di novella (parte 2/2)",
+      "char_start": 845957,
+      "char_end": 850421,
+      "num_entities": 0,
+      "text_length": 4464
+    },
+    {
+      "chunk_id": 174,
+      "topic_hint": "Aneddoto del Papa e i porri a Roma",
+      "char_start": 850420,
+      "char_end": 854613,
+      "num_entities": 10,
+      "text_length": 4193
+    },
+    {
+      "chunk_id": 175,
+      "topic_hint": "Ritorno alla marchesa nel giardino e fine volume (parte 1/2)",
+      "char_start": 854613,
+      "char_end": 856686,
+      "num_entities": 10,
+      "text_length": 2073
+    },
+    {
+      "chunk_id": 176,
+      "topic_hint": "Ritorno alla marchesa nel giardino e fine volume (parte 2/2)",
+      "char_start": 856688,
+      "char_end": 862576,
+      "num_entities": 0,
+      "text_length": 5888
+    }
+  ]
+}

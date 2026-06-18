@@ -1,0 +1,344 @@
+{
+  "book_name": "002_Bandello_Le_novelle_1_si286",
+  "total_chapters": 19,
+  "created_at": "2026-06-11T14:35:36.073295",
+  "chapters": [
+    {
+      "chapter_id": 0,
+      "title": "Sezione 1",
+      "chunk_ids": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
+      "char_start": 0,
+      "char_end": 39064
+    },
+    {
+      "chapter_id": 1,
+      "title": "Sezione 2",
+      "chunk_ids": [
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20
+      ],
+      "char_start": 39066,
+      "char_end": 89127
+    },
+    {
+      "chapter_id": 2,
+      "title": "Sezione 3",
+      "chunk_ids": [
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30
+      ],
+      "char_start": 89123,
+      "char_end": 131683
+    },
+    {
+      "chapter_id": 3,
+      "title": "Sezione 4",
+      "chunk_ids": [
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40
+      ],
+      "char_start": 131683,
+      "char_end": 192062
+    },
+    {
+      "chapter_id": 4,
+      "title": "Sezione 5",
+      "chunk_ids": [
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49,
+        50
+      ],
+      "char_start": 192064,
+      "char_end": 254586
+    },
+    {
+      "chapter_id": 5,
+      "title": "Sezione 6",
+      "chunk_ids": [
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57,
+        58,
+        59,
+        60
+      ],
+      "char_start": 254585,
+      "char_end": 311842
+    },
+    {
+      "chapter_id": 6,
+      "title": "Sezione 7",
+      "chunk_ids": [
+        61,
+        62,
+        63,
+        64,
+        65,
+        66,
+        67,
+        68,
+        69,
+        70
+      ],
+      "char_start": 311844,
+      "char_end": 349746
+    },
+    {
+      "chapter_id": 7,
+      "title": "Sezione 8",
+      "chunk_ids": [
+        71,
+        72,
+        73,
+        74,
+        75,
+        76,
+        77,
+        78,
+        79,
+        80
+      ],
+      "char_start": 349746,
+      "char_end": 392627
+    },
+    {
+      "chapter_id": 8,
+      "title": "Sezione 9",
+      "chunk_ids": [
+        81,
+        82,
+        83,
+        84,
+        85,
+        86,
+        87,
+        88,
+        89,
+        90
+      ],
+      "char_start": 392629,
+      "char_end": 444532
+    },
+    {
+      "chapter_id": 9,
+      "title": "Sezione 10",
+      "chunk_ids": [
+        91,
+        92,
+        93,
+        94,
+        95,
+        96,
+        97,
+        98,
+        99,
+        100
+      ],
+      "char_start": 444530,
+      "char_end": 491320
+    },
+    {
+      "chapter_id": 10,
+      "title": "Sezione 11",
+      "chunk_ids": [
+        101,
+        102,
+        103,
+        104,
+        105,
+        106,
+        107,
+        108,
+        109,
+        110
+      ],
+      "char_start": 491320,
+      "char_end": 530381
+    },
+    {
+      "chapter_id": 11,
+      "title": "Sezione 12",
+      "chunk_ids": [
+        111,
+        112,
+        113,
+        114,
+        115,
+        116,
+        117,
+        118,
+        119,
+        120
+      ],
+      "char_start": 530381,
+      "char_end": 592945
+    },
+    {
+      "chapter_id": 12,
+      "title": "Sezione 13",
+      "chunk_ids": [
+        121,
+        122,
+        123,
+        124,
+        125,
+        126,
+        127,
+        128,
+        129,
+        130
+      ],
+      "char_start": 592947,
+      "char_end": 643382
+    },
+    {
+      "chapter_id": 13,
+      "title": "Sezione 14",
+      "chunk_ids": [
+        131,
+        132,
+        133,
+        134,
+        135,
+        136,
+        137,
+        138,
+        139,
+        140
+      ],
+      "char_start": 643382,
+      "char_end": 687568
+    },
+    {
+      "chapter_id": 14,
+      "title": "Sezione 15",
+      "chunk_ids": [
+        141,
+        142,
+        143,
+        144,
+        145,
+        146,
+        147,
+        148,
+        149,
+        150
+      ],
+      "char_start": 687568,
+      "char_end": 730627
+    },
+    {
+      "chapter_id": 15,
+      "title": "Sezione 16",
+      "chunk_ids": [
+        151,
+        152,
+        153,
+        154,
+        155,
+        156,
+        157,
+        158,
+        159,
+        160
+      ],
+      "char_start": 730624,
+      "char_end": 771262
+    },
+    {
+      "chapter_id": 16,
+      "title": "Sezione 17",
+      "chunk_ids": [
+        161,
+        162,
+        163,
+        164,
+        165,
+        166,
+        167,
+        168,
+        169,
+        170
+      ],
+      "char_start": 771264,
+      "char_end": 839720
+    },
+    {
+      "chapter_id": 17,
+      "title": "Sezione 18",
+      "chunk_ids": [
+        171,
+        172,
+        173,
+        174,
+        175,
+        176,
+        177,
+        178,
+        179,
+        180
+      ],
+      "char_start": 839720,
+      "char_end": 856686
+    },
+    {
+      "chapter_id": 18,
+      "title": "Sezione 19",
+      "chunk_ids": [
+        181,
+        182,
+        183,
+        184,
+        185
+      ],
+      "char_start": 856688,
+      "char_end": 862576
+    }
+  ]
+}
