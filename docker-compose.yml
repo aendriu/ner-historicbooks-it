@@ -1,0 +1,59 @@
+services:
+  backend:
+    build:
+      context: ./backend
+    container_name: tirocinio-backend
+    ports:
+      - "8000:8000"
+    environment:
+      - OLLAMA_HOST=ollama
+      - OLLAMA_PORT=11434
+      - OLLAMA_MODEL=qwen2.5:3b
+      - NER_SCORE_THRESHOLD=0.65
+      - SEMANTIC_SIMILARITY_THRESHOLD=0.5
+      # AWS credentials for Bedrock (Claude Haiku summaries)
+      # Set these via environment or mount ~/.aws as a volume
+      - AWS_DEFAULT_REGION=eu-central-1
+    env_file:
+      - ./backend/.env
+    volumes:
+      - ./backend/data:/app/data
+      - ~/.aws:/root/.aws:ro        # Mount AWS credentials (read-only)
+    depends_on:
+      ollama:
+        condition: service_healthy
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+    container_name: tirocinio-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: tirocinio-ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    # Pull model on first start
+    entrypoint: >
+      sh -c "ollama serve &
+             sleep 5 &&
+             ollama pull qwen2.5:3b &&
+             wait"
+
+volumes:
+  ollama_data:

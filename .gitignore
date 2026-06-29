@@ -1,0 +1,63 @@
+# File di configurazione — .env.example è versionato, .env no
+.env
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Ambienti virtuali
+.venv/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Database locali
+*.sqlite3
+historicbooks.db
+
+# IDEs
+.idea/
+.vscode/
+*.swp
+
+# Dati e Pesi del Modello
+backend/data/
+model/data/
+*.pt
+*.bin
+*.safetensors
+*.h5
+*.ckpt
+
+# C build artifacts
+backend/app/ocr/c_cleaner/bin/
+backend/app/ocr/c_cleaner/src/*.o
+
+# Frontend build
+frontend/dist/
+frontend/node_modules/
+
+# Logs e file temporanei
+*.log
+crash.log
+backend/tmp_*/

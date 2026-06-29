@@ -1,8 +1,16 @@
 #!/bin/bash
 
+echo "Pulizia di vecchi processi in esecuzione..."
+pkill -f uvicorn || true
+pkill -f "ng serve" || true
+sleep 1
+
+# CONFIGURAZIONI (Modifica questo link ogni volta che riavvii Colab)
+export OLLAMA_HOST="https://cakes-vocal-ana-quote.trycloudflare.com"
+
 # 1. Avvia il backend mettendolo in esecuzione in background (usando la & finale)
 cd /home/aendriu/Para/Project/tirocinio/backend
-./venv/bin/uvicorn main:app --host 0.0.0.0 --port 8000 &
+./.venv/bin/python3 -m uvicorn app.main:app --host 0.0.0.0 --port 8000 &
 
 # 2. Salva il PID (Process ID) del backend appena avviato
 BACKEND_PID=$!
