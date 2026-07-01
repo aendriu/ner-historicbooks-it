@@ -5,7 +5,6 @@ import re
 from datetime import datetime
 import numpy as np
 from sentence_transformers import SentenceTransformer
-from sklearn.metrics.pairwise import cosine_similarity
 
 logger = logging.getLogger(__name__)
 
@@ -57,7 +56,9 @@ def find_semantic_boundaries(paragraphs):
     
     similarities = []
     for i in range(len(embeddings) - 1):
-        sim = cosine_similarity([embeddings[i]], [embeddings[i+1]])[0][0]
+        # Calcolo manuale della cosine similarity con numpy (evita la pesante dipendenza da scikit-learn)
+        v1, v2 = embeddings[i], embeddings[i+1]
+        sim = np.dot(v1, v2) / (np.linalg.norm(v1) * np.linalg.norm(v2))
         similarities.append(sim)
         
     boundaries = []
