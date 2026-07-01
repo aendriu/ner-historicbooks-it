@@ -10,7 +10,7 @@ pkill -f "ng serve" || true
 sleep 1
 
 # Carica configurazione
-ENV_FILE="backend/.env"
+ENV_FILE=".env"
 OLLAMA_HOST_VAL="localhost"
 OLLAMA_MODEL="qwen2.5:3b"
 
@@ -68,7 +68,7 @@ fi
 echo ""
 echo "[3/4] Avvio Backend API (FastAPI)..."
 cd backend
-./.venv/bin/python3 -m uvicorn app.main:app --host 0.0.0.0 --port 8000 &
+./.venv/bin/python3 -m uvicorn app.main:app --env-file ../.env --host 0.0.0.0 --port 8000 &
 BACKEND_PID=$!
 
 # Trappola per killare il backend quando premi Ctrl+C

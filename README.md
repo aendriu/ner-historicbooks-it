@@ -309,8 +309,8 @@ Produce il binario `backend/app/ocr/c_cleaner/bin/ocr_cleaner`.
 #### 3. Configura le variabili d'ambiente
 
 ```bash
-cp backend/.env.example backend/.env
-# Modifica backend/.env con il tuo editor
+cp .env.example .env
+# Modifica .env con il tuo editor
 ```
 
 #### 4. Installa e avvia Ollama
@@ -378,7 +378,7 @@ Al primo avvio, Ollama scaricherà automaticamente il modello `qwen2.5:3b` (~2 G
 
 ## Configurazione
 
-Tutte le impostazioni sono gestite tramite variabili d'ambiente nel file `backend/.env`:
+Tutte le impostazioni sono gestite tramite variabili d'ambiente nel file `.env`:
 
 ```env
 # ── Ollama (LLM per pulizia OCR) ─────────────────────────
@@ -398,6 +398,24 @@ SEMANTIC_SIMILARITY_THRESHOLD=0.5 # Soglia per confini di chunk
 # ── Database ──────────────────────────────────────────────
 DB_FILENAME=historicbooks.db
 ```
+
+---
+
+## Il Database (SQLite)
+
+Il progetto utilizza **SQLite** (`historicbooks.db`) tramite SQLAlchemy per l'orchestrazione.
+Il database **non memorizza i testi interi o le entità** (che peserebbero gigabyte e sono salvati come file JSON), ma agisce come un "quadro di comando" che tiene traccia dello stato di avanzamento e dei metadati.
+
+Il database contiene 3 tabelle principali (relazionali):
+
+1. **`books`**: Rappresenta un libro caricato.
+   - Tiene traccia dello stato della pipeline (`UPLOADED`, `OCR_CLEANING`, `NER_EXTRACTION`, `SEMANTIC_CHUNKING`, `COMPLETED`, ecc.).
+   - Salva i **percorsi assoluti** ai file sul disco rigido (es. `clean_file_path`, `ner_file_path`) funzionando come un indice per il filesystem locale.
+2. **`chapters`**: Collegata 1-a-N con `books`.
+   - Memorizza i metadati dei capitoli (titolo, numero).
+   - Salva i confini di testo (`char_start`, `char_end`) per estrarre velocemente il testo di un capitolo specifico senza leggere l'intero JSON.
+3. **`summaries`**: Collegata 1-a-1 con `chapters`.
+   - Memorizza il testo effettivo dei riassunti generati dall'AI, rendendoli interrogabili e collegandoli istantaneamente al frontend senza dover leggere la cartella dei riassunti.
 
 ---
 
