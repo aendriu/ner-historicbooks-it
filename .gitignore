@@ -41,7 +41,8 @@ historicbooks.db
 *.swp
 
 # Dati e Pesi del Modello
-backend/data/
+backend/data/*
+!backend/data/raw/
 model/data/
 *.pt
 *.bin
@@ -56,6 +57,7 @@ backend/app/ocr/c_cleaner/src/*.o
 # Frontend build
 frontend/dist/
 frontend/node_modules/
+frontend/.angular/
 
 # Logs e file temporanei
 *.log
