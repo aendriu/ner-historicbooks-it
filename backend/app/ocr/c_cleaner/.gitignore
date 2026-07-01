@@ -1,0 +1,16 @@
+# Executables
+bin/
+*.o
+
+# Data
+data/metadata/
+data/metadata_cleaned/
+*.json
+
+# Python
+__pycache__/
+*.pyc
+
+# IDEs
+.vscode/
+.idea/
