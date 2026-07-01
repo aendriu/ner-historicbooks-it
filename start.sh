@@ -66,7 +66,35 @@ else
 fi
 
 echo ""
-echo "[3/4] Avvio Backend API (FastAPI)..."
+echo "[3/4] Installazione dipendenze (se necessarie)..."
+
+# Controllo C Cleaner
+if [ ! -f "backend/app/ocr/c_cleaner/bin/ocr_cleaner" ]; then
+    echo "⚙️ Compilazione C Cleaner..."
+    cd backend/app/ocr/c_cleaner
+    make > /dev/null
+    cd ../../../../
+fi
+
+# Controllo Backend (.venv)
+cd backend
+if [ ! -d ".venv" ]; then
+    echo "🐍 Creazione ambiente virtuale Python e installazione librerie..."
+    python3 -m venv .venv
+    ./.venv/bin/pip install -r requirements.txt > /dev/null
+fi
+cd ..
+
+# Controllo Frontend (node_modules)
+cd frontend
+if [ ! -d "node_modules" ]; then
+    echo "📦 Installazione dipendenze Node.js (potrebbe richiedere qualche minuto)..."
+    npm install > /dev/null
+fi
+cd ..
+
+echo ""
+echo "[4/4] Avvio Applicazione..."
 cd backend
 ./.venv/bin/python3 -m uvicorn app.main:app --env-file ../.env --host 0.0.0.0 --port 8000 &
 BACKEND_PID=$!
@@ -74,7 +102,5 @@ BACKEND_PID=$!
 # Trappola per killare il backend quando premi Ctrl+C
 trap "kill $BACKEND_PID" EXIT
 
-echo ""
-echo "[4/4] Avvio Frontend (Angular)..."
 cd ../frontend/
 npm start
