@@ -137,7 +137,11 @@ Utilizza un modello **BERT fine-tuned** su testi storici italiani (`aendriu/bert
 | `FANT` | Personaggio fantastico | *Angelica*, *Gradasso* |
 
 **Processo**:
-1. Il testo viene diviso in chunk sovrapposti (2000 caratteri, 300 di overlap)
+1. Il testo viene segmentato in chunk elaborabili dal modello tramite un algoritmo a cascata:
+   - Individuazione automatica delle sezioni letterarie (Capitoli, Canti, ecc.) tramite RegEx.
+   - Divisione in paragrafi all'interno delle sezioni.
+   - Raggruppamento dei paragrafi in blocchi fino a un **massimo di 2000 caratteri** (per rispettare il limite dei 512 token di BERT ed evitare troncamenti). Se un singolo paragrafo supera il limite, viene ulteriormente diviso per frasi.
+   - Sovrapposizione ("overlap") di **300 caratteri** tra chunk consecutivi per evitare che le entità vengano tagliate a metà sui bordi.
 2. Ogni chunk viene processato dalla pipeline HuggingFace `token-classification`
 3. Le entità vengono validate: score ≥ 0.65, minimo 3 caratteri, rapporto alfanumerico ≥ 0.6
 4. Regole specifiche per tipo: `PER` richiede maiuscola, `FANT` richiede score ≥ 0.75, `DATE` validato con regex
