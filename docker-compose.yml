@@ -11,14 +11,10 @@ services:
       - OLLAMA_MODEL=qwen2.5:3b
       - NER_SCORE_THRESHOLD=0.65
       - SEMANTIC_SIMILARITY_THRESHOLD=0.5
-      # AWS credentials for Bedrock (Claude Haiku summaries)
-      # Set these via environment or mount ~/.aws as a volume
-      - AWS_DEFAULT_REGION=eu-central-1
     env_file:
       - ./backend/.env
     volumes:
       - ./backend/data:/app/data
-      - ~/.aws:/root/.aws:ro        # Mount AWS credentials (read-only)
     depends_on:
       ollama:
         condition: service_healthy

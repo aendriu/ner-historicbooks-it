@@ -438,8 +438,8 @@ Chart.register(...registerables);
                  class="chapter-item"
                  [class.active]="selectedSummaryChapter()?.id === ch.id"
                  (click)="selectedSummaryChapter.set(ch)">
-              <span [style.opacity]="ch.summaries?.length ? '1' : '0.4'">
-                {{ ch.summaries?.length ? '✅' : '○' }}
+              <span [style.opacity]="ch.summaries.length ? '1' : '0.4'">
+                {{ ch.summaries.length ? '✅' : '○' }}
               </span>
               {{ ch.title || 'Cap. ' + ch.chapter_id_num }}
             </div>
@@ -452,10 +452,10 @@ Chart.register(...registerables);
             </div>
             <ng-container *ngIf="selectedSummaryChapter()">
               <h3>{{ selectedSummaryChapter()!.title || 'Capitolo ' + selectedSummaryChapter()!.chapter_id_num }}</h3>
-              <div class="summary-card" *ngIf="selectedSummaryChapter()!.summaries?.length">
+              <div class="summary-card" *ngIf="selectedSummaryChapter()!.summaries.length">
                 <p class="summary-text">{{ selectedSummaryChapter()!.summaries[0].content }}</p>
               </div>
-              <div *ngIf="!selectedSummaryChapter()!.summaries?.length" class="summary-card">
+              <div *ngIf="!selectedSummaryChapter()!.summaries.length" class="summary-card">
                 <p class="no-summary">Nessun riassunto generato per questo capitolo. Completa la fase "Genera Riassunti" dalla Dashboard.</p>
               </div>
 

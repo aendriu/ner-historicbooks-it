@@ -16,7 +16,6 @@ Il sistema pulisce gli errori di digitalizzazione, estrae entità storiche (pers
   - [Fase 2 — Estrazione Entità (NER)](#fase-2--estrazione-entità-ner)
   - [Fase 3 — Chunking Semantico e Capitoli](#fase-3--chunking-semantico-e-capitoli)
   - [Fase 4 — Riassunti AI](#fase-4--riassunti-ai)
-- [Il Modello BERT](#il-modello-bert)
 - [Interfaccia Web](#interfaccia-web)
 - [Struttura del Progetto](#struttura-del-progetto)
 - [Prerequisiti](#prerequisiti)
@@ -69,9 +68,9 @@ Il dataset incluso contiene **189 testi** della letteratura italiana — dall'Or
 │  └──────────────────┘   └────────┬──────────┘   └────────────────────┘  │
 │                                  │                                       │
 │                          ┌───────┴────────┐                              │
-│                          │   AWS Bedrock   │                              │
-│                          │  Claude Haiku   │                              │
-│                          │  (Riassunti)    │                              │
+│                          │   SLM Locale    │                              │
+│                          │(WIP: Riassunti) │                              │
+│                          │                 │                              │
 │                          └────────────────┘                              │
 └─────────────────────────────────────────────────────────────────────────┘
 ```
@@ -81,7 +80,7 @@ Il dataset incluso contiene **189 testi** della letteratura italiana — dall'Or
 | **Frontend** | SPA Angular con dashboard di gestione, viewer con evidenziazione entità, grafici NER e lettore di riassunti |
 | **Backend** | API FastAPI che orchestra la pipeline, gestisce il database SQLite e serve i dati al frontend |
 | **Ollama** | Server LLM locale che esegue il modello `qwen2.5:3b` per la correzione intelligente degli errori OCR |
-| **AWS Bedrock** | Servizio cloud per la generazione dei riassunti narrativi tramite Claude Haiku |
+| **SLM Locale (WIP)** | Modello locale per la generazione dei riassunti (attualmente in sviluppo) |
 
 ---
 
@@ -165,43 +164,9 @@ Utilizza **SentenceTransformer** (`paraphrase-multilingual-MiniLM-L12-v2`) per s
 
 I chunk semantici vengono raggruppati sequenzialmente in macro-capitoli (ogni 8 chunk). Ogni capitolo viene salvato nel database con i suoi estremi di testo e i chunk corrispondenti vengono copiati in sottocartelle numerate.
 
-### Fase 4 — Riassunti AI
+### Fase 4 — Riassunti AI (Work in Progress)
 
-Per ogni capitolo, tutti i chunk vengono combinati con i rispettivi `topic_hint` e inviati a **Claude Haiku 4.5** (via AWS Bedrock, regione `eu-central-1`).
-
-Il prompt richiede un riassunto:
-- Coeso e discorsivo (2-4 paragrafi)
-- Che catturi eventi chiave, motivazioni dei personaggi e luoghi principali
-- Con tono neutro, narrativo e professionale
-- Senza riferimenti alla frammentazione del testo sorgente
-
-Parametri: `max_tokens: 1500`, `temperature: 0.3`.
-
----
-
-## Il Modello BERT
-
-Il modello NER è stato addestrato da zero come parte di questo progetto. Il processo completo si trova nella cartella `model/`.
-
-### Generazione del Dataset
-
-Il file `model/dataset_generator.py` usa **Claude Sonnet 4.5** (AWS Bedrock) per annotare automaticamente i testi:
-
-1. Seleziona paragrafi dai libri puliti con campionamento Round-Robin (distribuzione uniforme tra i libri)
-2. Invia ogni paragrafo a Claude con un prompt specializzato che richiede annotazioni XML (`<PER>Ludovico Ariosto</PER>`)
-3. Applica **data augmentation** scambiando le entità con alternative da un dizionario
-4. Converte le annotazioni XML in formato BIO standard (`B-PER`, `I-PER`, `O`)
-5. Produce file JSONL con split 80/10/10 (train/val/test)
-
-### Fine-Tuning
-
-Il notebook `model/train_and_evaluate.ipynb` effettua il fine-tuning:
-
-- **Modello base**: `dbmdz/bert-base-italian-cased` (BERT italiano)
-- **Task**: Token Classification (NER)
-- **Iperparametri**: 5 epoche, learning rate 2e-5, batch size 16, weight decay 0.01
-- **Valutazione**: seqeval (F1-Score, Precision, Recall) + test su dati "gold out-of-domain"
-- **Pubblicazione**: [`aendriu/bert-ner-italian-historical`](https://huggingface.co/aendriu/bert-ner-italian-historical) su HuggingFace Hub
+> ⚠️ **Fase in riscrittura**: L'utilizzo di AWS Bedrock e Claude Haiku è stato rimosso per mantenere il progetto 100% locale ed esente da API key esterne. Questa fase è attualmente un placeholder testuale in attesa dell'integrazione di un SLM (Small Language Model) locale dedicato alla sintesi testuale.
 
 ---
 
@@ -299,14 +264,8 @@ ner-historicbooks-it/
 │   ├── Dockerfile                    # Multi-stage: build Angular + Nginx
 │   └── nginx.conf                    # Routing SPA + reverse proxy /api/
 │
-├── model/                            # Training del modello NER
-│   ├── dataset_generator.py          # Annotazione automatica con Claude Sonnet
-│   ├── train_and_evaluate.ipynb      # Fine-tuning BERT (Google Colab)
-│   └── data/                         # Dataset: train.jsonl, val.jsonl, test_gold.jsonl
-│
 ├── docker-compose.yml                # 3 servizi: backend + frontend + ollama
-├── start.sh                          # Script avvio locale (sviluppo)
-└── VPN_USAGE.md                      # Guida deployment via VPN aziendale
+└── start.sh                          # Script avvio locale (sviluppo)
 ```
 
 ---
@@ -315,13 +274,14 @@ ner-historicbooks-it/
 
 | Strumento | Versione minima | Utilizzo |
 |-----------|:-:|---|
-| **Python** | 3.10+ | Backend API e pipeline NLP |
-| **Node.js** | 18+ | Build del frontend Angular |
-| **GCC + Make** | — | Compilazione del C cleaner |
-| **Ollama** | — | Esecuzione LLM locale per pulizia OCR |
-| **AWS CLI** | — | Credenziali per Claude Haiku (riassunti) |
+| **Docker + Docker Compose** | — | ✅ Raccomandato: avvia tutto con un solo comando |
+| **Python** | 3.10+ | Solo per sviluppo locale senza Docker |
+| **Node.js** | 18+ | Solo per sviluppo locale senza Docker |
+| **GCC + Make** | — | Solo per sviluppo locale senza Docker |
+| **Ollama** | — | Solo per sviluppo locale (in Docker è incluso) |
 
-> **Nota**: I modelli AI (`transformers`, `sentence-transformers`, `torch`) occupano ~2 GB e vengono scaricati automaticamente al primo avvio. Il modello NER BERT viene scaricato da HuggingFace Hub.
+> **🚀 Consiglio**: Usa **Docker Compose** (`docker compose up --build`) per evitare di installare manualmente Python, Node.js, GCC e Ollama. Un solo comando avvia tutto automaticamente.
+
 
 ---
 
@@ -363,15 +323,7 @@ curl -fsSL https://ollama.com/install.sh | sh
 ollama pull qwen2.5:3b
 ```
 
-#### 5. Configura AWS (per i riassunti)
-
-```bash
-aws configure
-# Regione: eu-central-1
-# Inserisci Access Key e Secret Key con accesso a Bedrock
-```
-
-#### 6. Installa le dipendenze
+#### 5. Installa le dipendenze
 
 ```bash
 # Backend
@@ -387,18 +339,15 @@ npm install
 cd ..
 ```
 
-#### 7. Avvia
+#### 6. Avvia
+
+Puoi avviare contemporaneamente backend e frontend con il comodo script:
 
 ```bash
-# Terminale 1 — Backend
-cd backend
-source .venv/bin/activate
-uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
-
-# Terminale 2 — Frontend
-cd frontend
-npm start
+bash start.sh
 ```
+
+*(In alternativa, puoi avviare i servizi separatamente in due terminali: `uvicorn app.main:app` nel backend e `npm start` nel frontend).*
 
 L'applicazione sarà disponibile su:
 
@@ -423,7 +372,7 @@ Al primo avvio, Ollama scaricherà automaticamente il modello `qwen2.5:3b` (~2 G
 | Frontend | http://localhost |
 | API Backend | http://localhost:8000 |
 
-> **AWS Bedrock**: Per i riassunti in Docker, monta le credenziali AWS come volume (già configurato in `docker-compose.yml` con `~/.aws:/root/.aws:ro`) oppure usa le variabili d'ambiente `AWS_ACCESS_KEY_ID` e `AWS_SECRET_ACCESS_KEY`.
+
 
 ---
 
@@ -574,9 +523,8 @@ I Promessi Sposi/
 | **Pulizia OCR (AI)** | Ollama + Qwen 2.5 3B | Correzione contestuale errori OCR |
 | **Pulizia OCR (regole)** | C nativo (gcc) | Euristiche deterministiche ad alte prestazioni |
 | **NER** | BERT fine-tuned (`dbmdz/bert-base-italian-cased`) | Estrazione entità storiche italiane |
-| **Generazione dataset** | Claude Sonnet 4.5 (AWS Bedrock) | Annotazione automatica dati di training |
 | **Embeddings** | SentenceTransformer (MiniLM-L12-v2) | Segmentazione semantica del testo |
-| **Riassunti** | Claude Haiku 4.5 (AWS Bedrock) | Generazione riassunti narrativi |
+| **Riassunti (WIP)** | SLM Locale (Placeholder) | Generazione riassunti narrativi (In sviluppo) |
 | **Frontend** | Angular 21 (standalone, signals) | Interfaccia web SPA |
 | **Grafici** | Chart.js 4.5 | Visualizzazione distribuzione entità |
 | **Web Server** | Nginx | Serving SPA + reverse proxy API |
