@@ -11,6 +11,10 @@ sleep 1
 
 # Carica configurazione
 ENV_FILE=".env"
+if [ ! -f "$ENV_FILE" ]; then
+    echo "📄 File .env non trovato. Creo una copia di default da .env.example..."
+    cp .env.example .env
+fi
 OLLAMA_HOST_VAL="localhost"
 OLLAMA_MODEL="qwen2.5:3b"
 
