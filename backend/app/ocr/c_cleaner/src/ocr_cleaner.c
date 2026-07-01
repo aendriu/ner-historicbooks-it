@@ -84,6 +84,7 @@ char *str_replace(const char *orig, const char *rep, const char *with) {
     char *result;
     const char *ins;
     char *tmp;
+    const char *tmp_ins;
     int len_rep;
     int len_with;
     int len_front;
@@ -96,8 +97,8 @@ char *str_replace(const char *orig, const char *rep, const char *with) {
     len_with = strlen(with);
 
     ins = orig;
-    for (count = 0; (tmp = strstr(ins, rep)); ++count) {
-        ins = tmp + len_rep;
+    for (count = 0; (tmp_ins = strstr(ins, rep)); ++count) {
+        ins = tmp_ins + len_rep;
     }
 
     if (count == 0) {
@@ -278,7 +279,7 @@ char* filter_garbage_tokens(const char *text) {
 // Generalized rules based on JSON descriptions
 char* apply_general_rules(const char *text) {
     StringBuffer sb;
-    size_t len = strlen(text);
+    int len = (int)strlen(text);
     sb_init(&sb, len + 1024);
     
     int quote_open = 0;
@@ -478,7 +479,7 @@ char* apply_general_rules(const char *text) {
 }
 
 char* apply_semantic_fixes(const char *text) {
-    size_t len = strlen(text);
+    int len = (int)strlen(text);
     StringBuffer sb;
     sb_init(&sb, len + 1024);
     
@@ -648,7 +649,7 @@ int main(int argc, char *argv[]) {
     while ((dir = readdir(d)) != NULL) {
         if (strstr(dir->d_name, ".json")) {
             char in_path[1024];
-            char out_path[1024];
+            char out_path[2048];
             char base_name[1024];
             
             // Extract base name without .json
