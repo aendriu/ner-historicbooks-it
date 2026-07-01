@@ -83,9 +83,10 @@ fi
 # Controllo Backend (.venv)
 cd backend
 if [ ! -d ".venv" ]; then
-    echo "🐍 Creazione ambiente virtuale Python e installazione librerie..."
+    echo "🐍 Creazione ambiente virtuale Python..."
     python3 -m venv .venv
-    ./.venv/bin/pip install -r requirements.txt > /dev/null
+    echo "⬇️  Download e installazione delle librerie in corso (potrebbe richiedere 1-2 minuti)..."
+    ./.venv/bin/pip install -r requirements.txt
 fi
 cd ..
 
@@ -93,7 +94,7 @@ cd ..
 cd frontend
 if [ ! -d "node_modules" ]; then
     echo "📦 Installazione dipendenze Node.js (potrebbe richiedere qualche minuto)..."
-    npm install > /dev/null
+    npm install
 fi
 cd ..
 
