@@ -45,7 +45,7 @@ Non si tratta solo di correggere gli errori di scansione, ma di arricchire il te
   (grezzo)           (LLM + C Rules)        (BERT fine-tuned)        Capitoli            (Claude Haiku)
 ```
 
-Il dataset incluso contiene **189 testi** della letteratura italiana — dall'Orlando Furioso alla Divina Commedia, dai Promessi Sposi al Decameron, passando per Leopardi, Machiavelli, Goldoni, Tasso, Vasari e molti altri.
+Il dataset incluso contiene **95 testi** della letteratura italiana — dall'Orlando Furioso alla Divina Commedia, dai Promessi Sposi al Decameron, passando per Leopardi, Machiavelli, Goldoni, Tasso, Vasari e molti altri.
 
 ---
 
