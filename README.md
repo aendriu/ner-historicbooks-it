@@ -372,7 +372,15 @@ Al primo avvio, Ollama scaricherà automaticamente il modello `qwen2.5:3b` (~2 G
 | Frontend | http://localhost |
 | API Backend | http://localhost:8000 |
 
+### Avvio Veloce (Demo senza Ollama)
 
+L'immagine Docker base di Ollama combinata al modello `qwen2.5:3b` richiede il download di circa 5.2 GB. Se hai bisogno di avviare il progetto al volo per una presentazione o una dimostrazione, puoi usare il file Compose alleggerito che esclude completamente Ollama:
+
+```bash
+docker compose -f docker-compose.demo.yml up --build
+```
+
+> **💡 Note sui download AI**: Il progetto usa una logica "fault-tolerant": se Ollama è assente, la pulizia salterà il passaggio LLM e passerà direttamente alle regole in C, senza mai bloccarsi. Le altre due Intelligenze Artificiali necessarie per le fasi successive (il modello BERT per il NER da ~450MB e il SentenceTransformer da ~470MB) verranno scaricate automaticamente dal backend Python **solo quando avvierai la primissima analisi di un libro**, rendendo il download iniziale estremamente snello (~1GB totale differito).
 
 ---
 
