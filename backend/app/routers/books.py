@@ -95,9 +95,11 @@ async def upload_book(file: UploadFile = File(...), db: Session = Depends(get_db
     with open(file_path, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
         
-    # Evita duplicati: se esiste già un libro con lo stesso nome, eliminalo dal DB
+    # Evita duplicati: se esiste già un libro con lo stesso nome, eliminalo dal DB e cancella il vecchio file
     existing = db.query(Book).filter(Book.title == file.filename).first()
     if existing:
+        if existing.raw_file_path and os.path.exists(existing.raw_file_path):
+            os.remove(existing.raw_file_path)
         db.delete(existing)
         db.commit()
         
