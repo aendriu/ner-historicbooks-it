@@ -189,6 +189,9 @@ def extract_ner_from_file(clean_file_path: str, output_json_path: str, progress_
         # Creiamo i chunk fittizi solo per permettere al modello di ingerirli
         chunks = make_chunks(text, max_chars=MAX_INPUT_CHARS, overlap_chars=OVERLAP_CHARS)
         
+        if progress_cb:
+            progress_cb(0, len(chunks), "Download/Caricamento modello BERT in corso (potrebbe richiedere 1-2 minuti la prima volta)...")
+        
         ner = get_ner_pipeline()
         
         all_entities = []
