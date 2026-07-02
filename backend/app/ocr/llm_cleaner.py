@@ -94,6 +94,18 @@ def run_llm_cleaner(input_path: str, output_path: str, progress_cb=None) -> bool
         logger.error(f"File non trovato: {input_path}")
         return False
         
+    if OLLAMA_HOST.startswith("http://") or OLLAMA_HOST.startswith("https://"):
+        base_url = OLLAMA_HOST.rstrip('/')
+    else:
+        base_url = f"http://{OLLAMA_HOST}:{OLLAMA_PORT}"
+
+    # Controllo preventivo: se Ollama non risponde, abortiamo subito
+    try:
+        requests.get(f"{base_url}/api/tags", timeout=5)
+    except requests.exceptions.RequestException:
+        logger.error(f"Ollama non raggiungibile all'indirizzo {base_url}. Salto l'intera fase LLM.")
+        return False
+        
     filename = os.path.basename(input_path)
     filename_no_ext = os.path.splitext(filename)[0]
     
