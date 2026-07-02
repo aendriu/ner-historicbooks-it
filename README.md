@@ -31,9 +31,9 @@ Il sistema pulisce gli errori di digitalizzazione, estrae entità storiche (pers
 
 ## Panoramica
 
-Il progetto affronta un problema concreto: i testi storici italiani digitalizzati tramite OCR (Optical Character Recognition) contengono numerosi errori — lettere scambiate, capolettera staccati (`L udovico` invece di `Ludovico`), simboli estranei, punteggiatura corrotta. Questi errori rendono i testi inutilizzabili per qualsiasi analisi computazionale.
+Il progetto mira a trasformare l'enorme patrimonio letterario storico italiano — spesso confinato a testi digitalizzati grezzi (OCR) pieni di errori e privi di struttura — in una base di conoscenza interrogabile ed esplorabile semanticamente.
 
-La pipeline risolve questo problema in 4 fasi automatiche:
+Non si tratta solo di correggere gli errori di scansione, ma di arricchire il testo: la pipeline estrae automaticamente le entità storiche (personaggi, luoghi, eventi), ne comprende la struttura logica raggruppandolo in capitoli e, infine, genera riassunti narrativi avanzati tramite AI. Il tutto avviene in 4 fasi completamente automatizzate:
 
 ```
                   ┌─────────────────────────────────────────────────────────────┐
