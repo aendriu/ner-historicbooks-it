@@ -101,7 +101,7 @@ Il testo viene diviso in chunk da ~1500 caratteri e inviato a `qwen2.5:3b` con u
 ]
 ```
 
-Le correzioni vengono applicate tramite sostituzione nel testo originale. Parametri: `temperature: 0.1` (output deterministico), timeout 600s per chunk.
+Le correzioni vengono applicate tramite sostituzione nel testo originale. Parametri: `temperature: 0.0` (output rigorosamente deterministico tramite Greedy Decoding) e `seed: 42` (per i tie-breaker di probabilità), timeout 600s per chunk.
 
 #### 1b. C Cleaner (Regole Deterministiche)
 
