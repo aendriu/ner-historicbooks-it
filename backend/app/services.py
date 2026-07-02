@@ -77,7 +77,7 @@ def process_book_pipeline(book_id: int, db: Session, progress_cb=None):
 
         logger.info(f"[Book {book_id}] Fase 2: Estrazione NER...")
         ner_path = os.path.join(DATA_DIR, "ner", f"{filename_no_ext}_entities.json")
-        if not extract_ner_from_file(cleaned_path, ner_path):
+        if not extract_ner_from_file(cleaned_path, ner_path, progress_cb=progress_cb):
             raise Exception("NER fallito.")
 
         book.ner_file_path = ner_path
@@ -91,7 +91,7 @@ def process_book_pipeline(book_id: int, db: Session, progress_cb=None):
         chunk_dir = os.path.join(DATA_DIR, "semantic", filename_no_ext)
         manifest_chunk = run_semantic_chunker(
             filename_no_ext, cleaned_path, ner_path,
-            os.path.join(DATA_DIR, "semantic")
+            os.path.join(DATA_DIR, "semantic"), progress_cb=progress_cb
         )
         book.chunk_manifest_path = manifest_chunk
         db.commit()
