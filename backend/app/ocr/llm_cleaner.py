@@ -67,7 +67,8 @@ def call_ollama(text_chunk: str) -> str:
         "stream": False,
         "format": "json",
         "options": {
-            "temperature": 0.1, # Low temperature for highly deterministic output
+            "temperature": 0.0, # Greedy decoding (always picks the highest probability token)
+            "seed": 42,         # Fixed seed for pseudo-random number generation tie-breakers
             "num_predict": 1024
         }
     }
