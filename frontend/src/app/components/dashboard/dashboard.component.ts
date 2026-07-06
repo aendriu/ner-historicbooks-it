@@ -194,7 +194,7 @@ import { Subscription, timer } from 'rxjs';
         <button class="w-btn w-btn-primary" [disabled]="running() || !state.hasBook()" (click)="runPhase('ner')">
           NER
         </button>
-        <button class="w-btn w-btn-primary" [disabled]="running() || !state.hasBook()" (click)="runPhase('chunking')">
+        <button class="w-btn w-btn-primary" [disabled]="running() || !state.hasBook()" (click)="openChunkingModal()">
           Chunking semantico
         </button>
         <button class="w-btn w-btn-primary" [disabled]="running() || !state.hasBook()" (click)="runPhase('chapters')">
@@ -297,6 +297,40 @@ import { Subscription, timer } from 'rxjs';
         </div>
       </div>
     </div>
+
+    <!-- Chunking Method Modal -->
+    <div *ngIf="showChunkingModal()" class="modal-overlay">
+      <div class="modal-content" style="width: 480px;">
+        <h2 class="text-xl font-bold" style="color: var(--text-primary);">🧩 Metodo di Chunking Semantico</h2>
+        <p class="text-sm mt-2" style="color: var(--text-muted); line-height: 1.6;">
+          Scegli come raggruppare il testo del libro in sezioni semantiche. I risultati dei due metodi verranno salvati separatamente e potranno essere confrontati nella sezione "Capitoli Semantici".
+        </p>
+
+        <div class="mt-5" style="display: flex; flex-direction: column; gap: 0.75rem;">
+          <div (click)="selectedChunkMethod.set('embed')" style="padding:1rem; border-radius:10px; cursor:pointer; border: 2px solid; transition: all 0.15s;"
+               [style.border-color]="selectedChunkMethod() === 'embed' ? 'var(--accent)' : 'var(--border)'"
+               [style.background]="selectedChunkMethod() === 'embed' ? 'rgba(99,102,241,0.07)' : 'var(--bg-base)'">
+            <div style="font-weight:700; color: var(--text-primary);">🔢 Basato su Embedding</div>
+            <div style="font-size:0.78rem; color:var(--text-muted); margin-top:0.25rem;">Calcola la similarità del coseno tra vettori semantici di paragrafi adiacenti. Un calo sotto il 50% indica un cambio di argomento.</div>
+          </div>
+          <div (click)="selectedChunkMethod.set('ner')" style="padding:1rem; border-radius:10px; cursor:pointer; border: 2px solid; transition: all 0.15s;"
+               [style.border-color]="selectedChunkMethod() === 'ner' ? 'var(--accent)' : 'var(--border)'"
+               [style.background]="selectedChunkMethod() === 'ner' ? 'rgba(99,102,241,0.07)' : 'var(--bg-base)'">
+            <div style="font-weight:700; color: var(--text-primary);">🏷️ Basato su NER</div>
+            <div style="font-size:0.78rem; color:var(--text-muted); margin-top:0.25rem;">Confronta le entità nominate (persone, luoghi, ecc.) tra chunk adiacenti. Se la sovrapposizione è bassa, il testo appartiene a una sezione diversa.</div>
+          </div>
+        </div>
+
+        <div class="flex justify-end gap-3 mt-6">
+          <button class="w-btn" style="width:auto; background:transparent; border:1px solid var(--border); color:var(--text-primary);" (click)="showChunkingModal.set(false)">
+            Annulla
+          </button>
+          <button class="w-btn w-btn-accent" style="width:auto" (click)="confirmChunking()">
+            Avvia chunking
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
   `
 })
@@ -321,6 +355,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
   remoteIp = signal('172.24.172.59');
   testingVpn = signal(false);
   vpnError = signal<string | null>(null);
+
+  // Chunking method modal
+  showChunkingModal = signal(false);
+  selectedChunkMethod = signal<'embed' | 'ner'>('embed');
 
   constructor(
     public state: BookStateService,
@@ -482,7 +520,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       switch (phase) {
         case 'clean': return this.api.runClean(book.id);
         case 'ner': return this.api.runNer(book.id);
-        case 'chunking': return this.api.runChunking(book.id);
+        case 'chunking': return this.api.runChunking(book.id, this.selectedChunkMethod());
         case 'chapters': return this.api.runChapters(book.id);
         case 'summaries': return this.api.runSummaries(book.id);
         default: return this.api.runAll(book.id);
@@ -499,6 +537,21 @@ export class DashboardComponent implements OnInit, OnDestroy {
         finish();
       }
     });
+  }
+
+  openChunkingModal() {
+    const book = this.state.selectedBook();
+    if (!book) return;
+    if (!book.has_ner) {
+      alert('⚠️ Errore: Esegui prima l\'estrazione NER!');
+      return;
+    }
+    this.showChunkingModal.set(true);
+  }
+
+  confirmChunking() {
+    this.showChunkingModal.set(false);
+    this.runPhase('chunking');
   }
 
   startProgressPolling(bookId: number, phase: string, onComplete: () => void) {

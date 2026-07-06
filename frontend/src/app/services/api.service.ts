@@ -84,8 +84,8 @@ export class ApiService {
     return this.http.post<{ message: string }>(`${this.base}/books/${id}/run/ner`, {});
   }
 
-  runChunking(id: number): Observable<{ message: string }> {
-    return this.http.post<{ message: string }>(`${this.base}/books/${id}/run/chunking`, {});
+  runChunking(id: number, method: 'embed' | 'ner' = 'embed'): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.base}/books/${id}/run/chunking`, { method });
   }
 
   runChapters(id: number): Observable<{ message: string }> {
@@ -137,5 +137,9 @@ export class ApiService {
 
   setOllamaSettings(host: string, port: string): Observable<{ status: string; message?: string; host?: string; port?: string }> {
     return this.http.post<{ status: string; message?: string; host?: string; port?: string }>(`${this.base}/settings/ollama`, { host, port });
+  }
+
+  getChunkingReport(bookId: number): Observable<any> {
+    return this.http.get<any>(`${this.base}/books/${bookId}/chunking-report`);
   }
 }

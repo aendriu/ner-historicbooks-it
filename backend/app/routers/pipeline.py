@@ -6,18 +6,24 @@ Read-only data retrieval endpoints live in routers/data.py.
 """
 
 from fastapi import APIRouter, BackgroundTasks, HTTPException, Depends
+from pydantic import BaseModel
 from sqlalchemy.orm import Session
 import os
 import json
 import logging
+from typing import Literal
 
 from app.database import SessionLocal, Book, BookStatus, Chapter, Summary
 from app.config import DATA_DIR
 from app.services import process_book_pipeline, process_book_cleaning
 from app.ner.ner_extractor import extract_ner_from_file
-from app.semantic.chunker import run_semantic_chunker
+from app.semantic.chunker import run_semantic_chunker, EMBED_SUBDIR, NER_SUBDIR
 from app.semantic.chapter_grouper import run_chapter_grouper
 from app.semantic.summarizer import generate_chapter_summary
+
+
+class ChunkingRequest(BaseModel):
+    method: Literal["embed", "ner"] = "embed"
 
 logger = logging.getLogger("uvicorn.error")
 
@@ -185,17 +191,19 @@ def run_ner(book_id: int, background_tasks: BackgroundTasks, db: Session = Depen
 
 
 @router.post("/api/books/{book_id}/run/chunking")
-def run_chunking(book_id: int, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
-    """Esegue solo il chunking semantico."""
+def run_chunking(book_id: int, body: ChunkingRequest, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
+    """Esegue il chunking semantico con il metodo scelto (embed | ner)."""
     book = _get_book_or_404(book_id, db)
     if not book.clean_file_path or not os.path.exists(book.clean_file_path):
         raise HTTPException(400, "Testo pulito non disponibile.")
     if not book.ner_file_path or not os.path.exists(book.ner_file_path):
         raise HTTPException(400, "NER non disponibile. Esegui prima il NER.")
 
+    method = body.method
+
     def _do_chunking():
         progress_key = f"{book_id}_chunking"
-        progress_store[progress_key] = {"status": "running", "logs": []}
+        progress_store[progress_key] = {"status": "running", "logs": [f"Avvio chunking ({method.upper()} method)..."]}
 
         def _cb(current, total, detail=""):
             progress_store[progress_key]["logs"].append(f"[{current}/{total}] {detail}")
@@ -211,7 +219,7 @@ def run_chunking(book_id: int, background_tasks: BackgroundTasks, db: Session = 
             filename_no_ext = os.path.splitext(local_book.filename)[0]
             manifest_path = run_semantic_chunker(
                 filename_no_ext, local_book.clean_file_path, local_book.ner_file_path,
-                SEMANTIC_DIR, progress_cb=_cb,
+                SEMANTIC_DIR, progress_cb=_cb, method=method,
             )
             local_book.chunk_manifest_path = manifest_path
             local_book.status = BookStatus.COMPLETED
@@ -225,7 +233,64 @@ def run_chunking(book_id: int, background_tasks: BackgroundTasks, db: Session = 
             local_db.close()
 
     background_tasks.add_task(_do_chunking)
-    return {"message": "Chunking semantico avviato in background"}
+    return {"message": f"Chunking semantico ({method}) avviato in background"}
+
+
+@router.get("/api/books/{book_id}/chunking-report")
+def get_chunking_report(book_id: int, db: Session = Depends(get_db)):
+    """Confronto tra i risultati dei due metodi di chunking (embed vs ner)."""
+    book = _get_book_or_404(book_id, db)
+    filename_no_ext = os.path.splitext(book.filename)[0]
+
+    embed_manifest_path = os.path.join(SEMANTIC_DIR, EMBED_SUBDIR, filename_no_ext, "manifest.json")
+    ner_manifest_path   = os.path.join(SEMANTIC_DIR, NER_SUBDIR,   filename_no_ext, "manifest.json")
+
+    embed_available = os.path.exists(embed_manifest_path)
+    ner_available   = os.path.exists(ner_manifest_path)
+
+    embed_manifest = json.load(open(embed_manifest_path, encoding="utf-8")) if embed_available else None
+    ner_manifest   = json.load(open(ner_manifest_path,   encoding="utf-8")) if ner_available   else None
+
+    if not embed_available and not ner_available:
+        raise HTTPException(404, "Nessun risultato di chunking disponibile per questo libro.")
+
+    # ── Calcola Jaccard score tra sezioni dei due metodi ──
+    comparison = []
+    if embed_available and ner_available:
+        embed_chunks = embed_manifest.get("chunks", [])
+        ner_chunks   = ner_manifest.get("chunks", [])
+
+        for ec in embed_chunks:
+            e_start, e_end = ec["char_start"], ec["char_end"]
+            e_len = max(e_end - e_start, 1)
+            best_jaccard = 0.0
+            best_ner_id  = None
+            for nc in ner_chunks:
+                n_start, n_end = nc["char_start"], nc["char_end"]
+                inter = max(0, min(e_end, n_end) - max(e_start, n_start))
+                union = (e_end - e_start) + (n_end - n_start) - inter
+                jaccard = inter / union if union > 0 else 0.0
+                if jaccard > best_jaccard:
+                    best_jaccard = jaccard
+                    best_ner_id  = nc["chunk_id"]
+            comparison.append({
+                "embed_chunk_id": ec["chunk_id"],
+                "embed_topic": ec["topic_hint"],
+                "best_ner_chunk_id": best_ner_id,
+                "jaccard_score": round(best_jaccard, 3),
+            })
+
+    avg_jaccard = round(sum(r["jaccard_score"] for r in comparison) / len(comparison), 3) if comparison else None
+
+    return {
+        "book_id": book_id,
+        "embed_available": embed_available,
+        "ner_available": ner_available,
+        "embed_total_chunks": embed_manifest["total_chunks"] if embed_manifest else None,
+        "ner_total_chunks":   ner_manifest["total_chunks"]   if ner_manifest   else None,
+        "avg_jaccard_score": avg_jaccard,
+        "comparison": comparison,
+    }
 
 
 @router.post("/api/books/{book_id}/run/chapters")
