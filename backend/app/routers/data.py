@@ -112,6 +112,25 @@ def get_book_chunks(book_id: int, db: Session = Depends(get_db)):
     return {"total": len(chunks), "chunks": chunks}
 
 
+@router.get("/api/books/{book_id}/semantic-chunks")
+def get_semantic_chunks(book_id: int, method: str = "embed", db: Session = Depends(get_db)):
+    """Restituisce i chunk semantici per il metodo specificato (embed/ner)."""
+    book = _get_book_or_404(book_id, db)
+    filename_no_ext = os.path.splitext(book.filename)[0]
+    
+    subdir = "embed_method" if method == "embed" else "ner_method"
+    chunk_dir = os.path.join(DATA_DIR, "semantic", subdir, filename_no_ext)
+    
+    if not os.path.exists(chunk_dir):
+        raise HTTPException(404, f"Chunking '{method}' non trovato.")
+        
+    chunks = []
+    for fp in sorted(glob.glob(os.path.join(chunk_dir, "chunk_*.json"))):
+        with open(fp, "r", encoding="utf-8") as f:
+            chunks.append(json.load(f))
+    return chunks
+
+
 @router.get("/api/books/{book_id}/chapters/{chapter_id}/chunks")
 def get_chapter_chunks(book_id: int, chapter_id: int, db: Session = Depends(get_db)):
     """Tutti i chunk semantici di un singolo capitolo."""

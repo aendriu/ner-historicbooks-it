@@ -142,4 +142,8 @@ export class ApiService {
   getChunkingReport(bookId: number): Observable<any> {
     return this.http.get<any>(`${this.base}/books/${bookId}/chunking-report`);
   }
+
+  getSemanticChunks(bookId: number, method: 'embed' | 'ner'): Observable<any[]> {
+    return this.http.get<any[]>(`${this.base}/books/${bookId}/semantic-chunks?method=${method}`);
+  }
 }

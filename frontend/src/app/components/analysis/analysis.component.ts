@@ -372,31 +372,37 @@ Chart.register(...registerables);
             <h2>📖 Capitoli Semantici</h2>
             <p>Seleziona un capitolo e leggi il testo con le entità storiche evidenziate in colori</p>
           </div>
-          <button class="nav-btn" style="width:auto; padding:0.6rem 1rem; background:rgba(99,102,241,0.1); color:var(--accent); border:1px solid rgba(99,102,241,0.3);"
-                  (click)="loadReport()">
-            🔬 Confronta Metodi
-          </button>
+          <div style="display:flex; gap:0.5rem; align-items:center;">
+            <select class="w-input" style="width: auto; padding: 0.5rem; font-size: 0.85rem;" [(ngModel)]="selectedReaderMethod" (change)="loadSemanticChunksForReader()">
+              <option value="embed">🔢 Metodo Embed</option>
+              <option value="ner">🏷️ Metodo NER</option>
+            </select>
+            <button class="nav-btn" style="width:auto; padding:0.6rem 1rem; background:rgba(99,102,241,0.1); color:var(--accent); border:1px solid rgba(99,102,241,0.3);"
+                    (click)="loadReport()">
+              🔬 Confronta Metodi
+            </button>
+          </div>
         </div>
         <div class="reader-layout" style="flex:1; overflow:hidden;">
           <!-- Chapter list -->
           <div class="chapter-list">
             <input class="search-input" type="text" placeholder="🔎 Cerca capitolo..."
                    [(ngModel)]="chapterSearch" style="font-size:0.78rem;padding:0.45rem 0.65rem;">
-            <div *ngFor="let ch of filteredChapters()"
+            <div *ngFor="let ch of filteredSemanticChunks()"
                  class="chapter-item"
-                 [class.active]="selectedChapter()?.id === ch.id"
-                 (click)="selectChapter(ch)">
-              {{ ch.title || 'Cap. ' + ch.chapter_id_num }}
+                 [class.active]="selectedSemanticChunk()?.chunk_id === ch.chunk_id"
+                 (click)="selectSemanticChunk(ch)">
+              {{ ch.topic_hint || 'Chunk ' + ch.chunk_id }}
             </div>
           </div>
 
           <!-- Text content -->
           <div class="reader-content">
-            <div *ngIf="!selectedChapter()" class="empty-state" style="padding:3rem;">
-              ← Seleziona un capitolo dalla lista per leggere il testo
+            <div *ngIf="!selectedSemanticChunk()" class="empty-state" style="padding:3rem;">
+              ← Seleziona un capitolo/sezione dalla lista per leggere il testo
             </div>
-            <ng-container *ngIf="selectedChapter()">
-              <h3>{{ selectedChapter()!.title || 'Capitolo ' + selectedChapter()!.chapter_id_num }}</h3>
+            <ng-container *ngIf="selectedSemanticChunk()">
+              <h3>{{ selectedSemanticChunk()!.topic_hint || 'Chunk ' + selectedSemanticChunk()!.chunk_id }}</h3>
 
               <!-- Legend -->
               <div class="legend">
@@ -556,6 +562,12 @@ export class AnalysisComponent implements OnInit {
   selectedLabel = signal<string | null>(null);
   selectedChapter = signal<Chapter | null>(null);
   selectedSummaryChapter = signal<Chapter | null>(null);
+  
+  // Semantic chunks logic for reader
+  selectedReaderMethod = 'embed';
+  semanticChunks = signal<any[]>([]);
+  selectedSemanticChunk = signal<any>(null);
+
   searchQuery = '';
   chapterSearch = '';
   summarySearch = '';
@@ -618,12 +630,12 @@ export class AnalysisComponent implements OnInit {
       .sort((a, b) => b.count - a.count);
   });
 
-  filteredChapters = computed(() => {
-    const chapters = this.chaptersData() || [];
+  filteredSemanticChunks = computed(() => {
+    const chunks = this.semanticChunks() || [];
     const q = this.chapterSearch.toLowerCase().trim();
-    if (!q) return chapters;
-    return chapters.filter(c => (c.title || '').toLowerCase().includes(q) ||
-      String(c.chapter_id_num).includes(q));
+    if (!q) return chunks;
+    return chunks.filter(c => (c.topic_hint || '').toLowerCase().includes(q) ||
+      String(c.chunk_id).includes(q));
   });
 
   filteredSummaryChapters = computed(() => {
@@ -723,13 +735,40 @@ export class AnalysisComponent implements OnInit {
       }
     });
 
-    // Load chunks when chapter is selected
+    // Load semantic chunks when switching to reader view
     effect(() => {
-      const ch = this.selectedChapter();
-      if (ch && this.view() === 'reader') {
-        this.loadChapterChunks(ch);
+      if (this.view() === 'reader' && this.semanticChunks().length === 0) {
+        this.loadSemanticChunksForReader();
       }
     });
+  }
+
+  loadSemanticChunksForReader() {
+    if (!this.bookId()) return;
+    this.readerLoading.set(true);
+    this.semanticChunks.set([]);
+    this.selectedSemanticChunk.set(null);
+    this.chunkTexts.set([]);
+    
+    this.api.getSemanticChunks(this.bookId(), this.selectedReaderMethod as 'embed'|'ner').subscribe({
+      next: (chunks) => {
+        this.semanticChunks.set(chunks);
+        this.readerLoading.set(false);
+      },
+      error: () => {
+        this.semanticChunks.set([]);
+        this.readerLoading.set(false);
+      }
+    });
+  }
+
+  selectSemanticChunk(ch: any) {
+    this.selectedSemanticChunk.set(ch);
+    this.chunkTexts.set([{
+      text: ch.text,
+      entities: ch.entities || [],
+      char_start: ch.char_start || 0
+    }]);
   }
 
   ngOnInit() {
