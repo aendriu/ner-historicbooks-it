@@ -384,16 +384,40 @@ Chart.register(...registerables);
           </div>
         </div>
         <div class="reader-layout" style="flex:1; overflow:hidden;">
-          <!-- Chapter list -->
+          <!-- Chapter list gerarchico -->
           <div class="chapter-list">
             <input class="search-input" type="text" placeholder="🔎 Cerca capitolo..."
                    [(ngModel)]="chapterSearch" style="font-size:0.78rem;padding:0.45rem 0.65rem;">
-            <div *ngFor="let ch of filteredSemanticChunks()"
-                 class="chapter-item"
-                 [class.active]="selectedSemanticChunk()?.chunk_id === ch.chunk_id"
-                 (click)="selectSemanticChunk(ch)">
-              {{ ch.topic_hint || 'Chunk ' + ch.chunk_id }}
-            </div>
+
+            <ng-container *ngFor="let group of groupedSemanticChunks()">
+              <!-- Voce capitolo -->
+              <div class="chapter-item"
+                   [class.active]="selectedSectionNum() === group.sectionNum"
+                   style="display:flex; align-items:center; justify-content:space-between; gap:0.5rem;"
+                   (click)="selectSemanticSection(group)">
+                <span style="flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+                  📂 {{ group.label }}
+                </span>
+                <!-- Chevron espandi solo se ci sono più parti -->
+                <span *ngIf="group.parts.length > 1"
+                      style="font-size:0.75rem; opacity:0.6; cursor:pointer; flex-shrink:0;"
+                      (click)="$event.stopPropagation(); toggleSection(group.sectionNum)">
+                  {{ isSectionExpanded(group.sectionNum) ? '▲' : '▼' }}
+                  <span style="font-size:0.68rem;">({{ group.parts.length }})</span>
+                </span>
+              </div>
+
+              <!-- Sotto-voci parti (visibili solo se espanso e ci sono più parti) -->
+              <ng-container *ngIf="group.parts.length > 1 && isSectionExpanded(group.sectionNum)">
+                <div *ngFor="let part of group.parts; let pi = index"
+                     class="chapter-item"
+                     [class.active]="selectedSemanticChunk()?.chunk_id === part.chunk_id && selectedSectionNum() === group.sectionNum"
+                     style="padding-left:1.75rem; font-size:0.78rem; opacity:0.85;"
+                     (click)="selectSemanticChunk(part)">
+                  └ Parte {{ pi + 1 }}
+                </div>
+              </ng-container>
+            </ng-container>
           </div>
 
           <!-- Text content -->
@@ -402,7 +426,17 @@ Chart.register(...registerables);
               ← Seleziona un capitolo/sezione dalla lista per leggere il testo
             </div>
             <ng-container *ngIf="selectedSemanticChunk()">
-              <h3>{{ selectedSemanticChunk()!.topic_hint || 'Chunk ' + selectedSemanticChunk()!.chunk_id }}</h3>
+              <ng-container *ngFor="let group of groupedSemanticChunks()">
+                <ng-container *ngIf="group.sectionNum === selectedSectionNum()">
+                  <h3>
+                    {{ group.label }}
+                    <span *ngIf="group.parts.length > 1 && chunkTexts().length === 1"
+                          style="font-size:0.8rem; font-weight:400; color:var(--text-muted);">
+                      — Parte {{ group.parts.indexOf(selectedSemanticChunk()) + 1 }} di {{ group.parts.length }}
+                    </span>
+                  </h3>
+                </ng-container>
+              </ng-container>
 
               <!-- Legend -->
               <div class="legend">
@@ -432,9 +466,6 @@ Chart.register(...registerables);
               
               <div *ngIf="!readerLoading() && chunkTexts().length === 0" class="empty-state">Nessun testo trovato per questo capitolo.</div>
             </ng-container>
-          </div>
-        </div>
-            </div>
           </div>
         </div>
       </ng-container>
@@ -535,6 +566,10 @@ export class AnalysisComponent implements OnInit {
   reportLoading = signal(false);
   reportData = signal<any>(null);
 
+  // Sezioni espanse nella sidebar dei capitoli semantici
+  expandedSections = new Set<number>();
+  selectedSectionNum = signal<number | null>(null);
+
   // ── Computed ──
 
   topEntities = computed(() => {
@@ -586,6 +621,22 @@ export class AnalysisComponent implements OnInit {
     if (!q) return chunks;
     return chunks.filter(c => (c.topic_hint || '').toLowerCase().includes(q) ||
       String(c.chunk_id).includes(q));
+  });
+
+  // Raggruppa i chunk per numero di sezione semantica
+  groupedSemanticChunks = computed(() => {
+    const chunks = this.filteredSemanticChunks();
+    const groups = new Map<number, { sectionNum: number; label: string; parts: any[] }>();
+    for (const c of chunks) {
+      const m = (c.topic_hint || '').match(/(\d+)/);
+      const secNum = m ? parseInt(m[1]) : c.chunk_id;
+      if (!groups.has(secNum)) {
+        const baseLabel = (c.topic_hint || `Sezione ${secNum}`).replace(/ \(parte\)/, '');
+        groups.set(secNum, { sectionNum: secNum, label: baseLabel, parts: [] });
+      }
+      groups.get(secNum)!.parts.push(c);
+    }
+    return Array.from(groups.values());
   });
 
   filteredSummaryChapters = computed(() => {
@@ -720,6 +771,29 @@ export class AnalysisComponent implements OnInit {
       entities: ch.entities || [],
       char_start: ch.char_start || 0
     }]);
+  }
+
+  /** Seleziona un intero capitolo semantico (tutti i suoi chunk concatenati) */
+  selectSemanticSection(group: { sectionNum: number; label: string; parts: any[] }) {
+    this.selectedSectionNum.set(group.sectionNum);
+    this.selectedSemanticChunk.set(group.parts[0]);
+    this.chunkTexts.set(group.parts.map(c => ({
+      text: c.text,
+      entities: c.entities || [],
+      char_start: c.char_start || 0
+    })));
+  }
+
+  toggleSection(secNum: number) {
+    if (this.expandedSections.has(secNum)) {
+      this.expandedSections.delete(secNum);
+    } else {
+      this.expandedSections.add(secNum);
+    }
+  }
+
+  isSectionExpanded(secNum: number) {
+    return this.expandedSections.has(secNum);
   }
 
   ngOnInit() {
