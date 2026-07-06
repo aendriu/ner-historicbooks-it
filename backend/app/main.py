@@ -3,7 +3,7 @@ import os
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import books, pipeline, data
+from app.routers import books, pipeline, data, settings
 from app.database import SessionLocal, Book, BookStatus
 from app.config import DATA_DIR
 
@@ -54,6 +54,7 @@ app.add_middleware(
 app.include_router(books.router)
 app.include_router(pipeline.router)
 app.include_router(data.router)
+app.include_router(settings.router)
 
 if __name__ == "__main__":
     import uvicorn

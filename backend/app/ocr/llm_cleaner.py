@@ -6,8 +6,8 @@ import textwrap
 
 logger = logging.getLogger(__name__)
 
-# Configurable via environment variable (default for local, but in docker-compose will be 'ollama')
-from app.config import OLLAMA_HOST, OLLAMA_PORT, OLLAMA_MODEL, DATA_DIR
+# Configurable via environment variable (default for local, ma modificabile a runtime)
+from app.config import settings, DATA_DIR
 import traceback
 
 def chunk_text(text: str, max_chunk_size: int = 1500) -> list:
@@ -44,10 +44,10 @@ def call_ollama(text_chunk: str) -> str:
     """
     Calls the local Ollama API to clean the text chunk.
     """
-    if OLLAMA_HOST.startswith("http://") or OLLAMA_HOST.startswith("https://"):
-        url = f"{OLLAMA_HOST.rstrip('/')}/api/generate"
+    if settings.OLLAMA_HOST.startswith("http://") or settings.OLLAMA_HOST.startswith("https://"):
+        url = f"{settings.OLLAMA_HOST.rstrip('/')}/api/generate"
     else:
-        url = f"http://{OLLAMA_HOST}:{OLLAMA_PORT}/api/generate"
+        url = f"http://{settings.OLLAMA_HOST}:{settings.OLLAMA_PORT}/api/generate"
     system_prompt = (
         "Sei un assistente specializzato in filologia e restauro di testi in italiano antico. "
         "Il tuo compito è pulire gli errori di OCR (riconoscimento ottico dei caratteri). "
@@ -62,7 +62,7 @@ def call_ollama(text_chunk: str) -> str:
     )
     
     payload = {
-        "model": OLLAMA_MODEL,
+        "model": settings.OLLAMA_MODEL,
         "prompt": f"{system_prompt}\n\nTESTO DA CORREGGERE:\n{text_chunk}\n\nRISPOSTA JSON:",
         "stream": False,
         "format": "json",
@@ -88,16 +88,16 @@ def run_llm_cleaner(input_path: str, output_path: str, progress_cb=None) -> bool
     Legge il file JSON grezzo, usa Ollama per pulire il testo a pezzi, 
     e salva il risultato.
     """
-    logger.info(f"Avvio LLM Cleaner (Ollama {OLLAMA_MODEL}) su: {input_path}")
+    logger.info(f"Avvio LLM Cleaner (Ollama {settings.OLLAMA_MODEL}) su: {input_path}")
     
     if not os.path.exists(input_path):
         logger.error(f"File non trovato: {input_path}")
         return False
         
-    if OLLAMA_HOST.startswith("http://") or OLLAMA_HOST.startswith("https://"):
-        base_url = OLLAMA_HOST.rstrip('/')
+    if settings.OLLAMA_HOST.startswith("http://") or settings.OLLAMA_HOST.startswith("https://"):
+        base_url = settings.OLLAMA_HOST.rstrip('/')
     else:
-        base_url = f"http://{OLLAMA_HOST}:{OLLAMA_PORT}"
+        base_url = f"http://{settings.OLLAMA_HOST}:{settings.OLLAMA_PORT}"
 
     # Controllo preventivo: se Ollama non risponde, abortiamo subito
     try:

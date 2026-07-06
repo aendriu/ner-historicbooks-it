@@ -268,6 +268,35 @@ import { Subscription, timer } from 'rxjs';
         </div>
       </div>
     </div>
+
+    <!-- VPN Wizard Modal -->
+    <div *ngIf="showVpnWizard()" class="modal-overlay">
+      <div class="modal-content" style="width: 450px;">
+        <h2 class="text-xl font-bold" style="color: var(--text-primary);">Connessione VPN Aziendale</h2>
+        <p class="text-sm mt-2" style="color: var(--text-muted); line-height: 1.5;">
+          Vuoi connetterti al server aziendale remoto per accelerare l'intelligenza artificiale? 
+          Richiede che la VPN (es. FortiClient) sia attiva.
+        </p>
+        
+        <div class="mt-4" style="display: flex; flex-direction: column; gap: 0.5rem;">
+          <label style="font-size: 0.85rem; color: var(--text-muted);">Indirizzo IP Ollama Remoto:</label>
+          <input type="text" [(ngModel)]="remoteIp" class="w-input" [disabled]="testingVpn()" />
+        </div>
+        
+        <div *ngIf="vpnError()" class="mt-3 text-xs p-2 rounded" style="background: rgba(239,68,68,0.1); color: #ef4444;">
+          {{ vpnError() }}
+        </div>
+
+        <div class="flex justify-end gap-3 mt-6">
+          <button class="w-btn" style="width: auto; background: transparent; border: 1px solid var(--border); color: var(--text-primary);" (click)="useLocal()" [disabled]="testingVpn()">
+            No, usa PC locale
+          </button>
+          <button class="w-btn w-btn-accent" style="width: auto" (click)="checkRemote()" [disabled]="testingVpn()">
+            {{ testingVpn() ? 'Test in corso...' : 'Sì, connettiti' }}
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
   `
 })
@@ -287,6 +316,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
   private progressPollSub?: Subscription;
   private pollSub?: Subscription;
 
+  // VPN Wizard state
+  showVpnWizard = signal(false);
+  remoteIp = signal('172.24.172.59');
+  testingVpn = signal(false);
+  vpnError = signal<string | null>(null);
+
   constructor(
     public state: BookStateService,
     private api: ApiService,
@@ -303,7 +338,49 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+    if (!localStorage.getItem('vpn_checked')) {
+      this.showVpnWizard.set(true);
+    }
     this.refreshBooks();
+  }
+
+  useLocal() {
+    this.testingVpn.set(true);
+    this.api.setOllamaSettings('localhost', '11434').subscribe({
+      next: () => {
+        localStorage.setItem('vpn_checked', 'local');
+        this.showVpnWizard.set(false);
+        this.testingVpn.set(false);
+        this.showToast('Impostato server Ollama locale.');
+      },
+      error: () => {
+        localStorage.setItem('vpn_checked', 'local');
+        this.showVpnWizard.set(false);
+        this.testingVpn.set(false);
+      }
+    });
+  }
+
+  checkRemote() {
+    this.testingVpn.set(true);
+    this.vpnError.set(null);
+    this.api.setOllamaSettings(this.remoteIp(), '11434').subscribe({
+      next: (res) => {
+        if (res.status === 'ok') {
+          localStorage.setItem('vpn_checked', 'remote');
+          this.showVpnWizard.set(false);
+          this.showToast('Connesso al server aziendale!');
+        } else {
+          this.vpnError.set(res.message || 'Errore sconosciuto. Passaggio a locale...');
+          setTimeout(() => this.useLocal(), 2000);
+        }
+        this.testingVpn.set(false);
+      },
+      error: (err) => {
+        this.vpnError.set('Impossibile raggiungere il server. Passaggio a locale in corso...');
+        setTimeout(() => this.useLocal(), 2000);
+      }
+    });
   }
 
   ngOnDestroy() {

@@ -4,12 +4,15 @@ import os
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA_DIR = os.path.join(BASE_DIR, "data")
 
-# Ollama LLM Configuration
-OLLAMA_HOST = os.getenv("OLLAMA_HOST", "localhost")
-if OLLAMA_HOST == "inserisci_qui_ip_del_server" or not OLLAMA_HOST.strip():
-    OLLAMA_HOST = "localhost"
-OLLAMA_PORT = os.getenv("OLLAMA_PORT", "11434")
-OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "qwen2.5:3b")
+class Settings:
+    def __init__(self):
+        self.OLLAMA_HOST = os.getenv("OLLAMA_HOST", "localhost")
+        if self.OLLAMA_HOST == "inserisci_qui_ip_del_server" or not self.OLLAMA_HOST.strip():
+            self.OLLAMA_HOST = "localhost"
+        self.OLLAMA_PORT = os.getenv("OLLAMA_PORT", "11434")
+        self.OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "qwen2.5:3b")
+
+settings = Settings()
 
 # NER Configuration
 NER_MODEL_NAME = os.getenv("NER_MODEL_NAME", "aendriu/bert-ner-italian-historical")

@@ -129,4 +129,13 @@ export class ApiService {
   getChapterSummary(bookId: number, chapterId: number): Observable<{ content: string; level: number }> {
     return this.http.get<{ content: string; level: number }>(`${this.base}/books/${bookId}/chapters/${chapterId}/summary`);
   }
+
+  // ── Settings ──
+  getOllamaSettings(): Observable<{ host: string; port: string }> {
+    return this.http.get<{ host: string; port: string }>(`${this.base}/settings/ollama`);
+  }
+
+  setOllamaSettings(host: string, port: string): Observable<{ status: string; message?: string; host?: string; port?: string }> {
+    return this.http.post<{ status: string; message?: string; host?: string; port?: string }>(`${this.base}/settings/ollama`, { host, port });
+  }
 }
