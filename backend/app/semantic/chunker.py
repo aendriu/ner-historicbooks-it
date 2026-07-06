@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 # ─── Configurazione chunking ───────────────────────────────────────────────────
 MAX_CHUNK_CHARS = 2000
 OVERLAP_CHARS = 300
-SIMILARITY_THRESHOLD = 0.5        # Soglia cosine similarity embed-method
+SIMILARITY_THRESHOLD = 0.35       # Soglia cosine similarity embed-method (abbassata per evitare troppi micro-capitoli)
 
 # Soglie NER-method
 NER_SAME_SECTION_THRESHOLD = 2    # entità comuni ≥ 2  → stessa sezione
