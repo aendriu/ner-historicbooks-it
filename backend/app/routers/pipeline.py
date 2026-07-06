@@ -254,42 +254,74 @@ def get_chunking_report(book_id: int, db: Session = Depends(get_db)):
     if not embed_available and not ner_available:
         raise HTTPException(404, "Nessun risultato di chunking disponibile per questo libro.")
 
-    # ── Calcola Jaccard score tra sezioni dei due metodi ──
+    # ── Calcola Boundary Agreement ──
+    # Estraiamo i veri tagli semantici ignorando i sub-chunk "(parte)"
+    import re
+    def extract_boundaries(chunks):
+        boundaries = []
+        last_section = None
+        for c in chunks:
+            m = re.search(r'(\d+)', c.get("topic_hint", ""))
+            if m:
+                sec_num = int(m.group(1))
+                if sec_num != last_section:
+                    boundaries.append({
+                        "char": c["char_start"],
+                        "topic_hint": c["topic_hint"].replace(" (parte)", ""),
+                        "chunk_id": c["chunk_id"]
+                    })
+                    last_section = sec_num
+        return boundaries
+
     comparison = []
+    avg_jaccard = None
+    embed_sec_count = 0
+    ner_sec_count = 0
+    tolerance = 1500  # 1500 caratteri di tolleranza per considerare due tagli coincidenti
+
     if embed_available and ner_available:
         embed_chunks = embed_manifest.get("chunks", [])
         ner_chunks   = ner_manifest.get("chunks", [])
 
-        for ec in embed_chunks:
-            e_start, e_end = ec["char_start"], ec["char_end"]
-            e_len = max(e_end - e_start, 1)
-            best_jaccard = 0.0
-            best_ner_id  = None
-            for nc in ner_chunks:
-                n_start, n_end = nc["char_start"], nc["char_end"]
-                inter = max(0, min(e_end, n_end) - max(e_start, n_start))
-                union = (e_end - e_start) + (n_end - n_start) - inter
-                jaccard = inter / union if union > 0 else 0.0
-                if jaccard > best_jaccard:
-                    best_jaccard = jaccard
-                    best_ner_id  = nc["chunk_id"]
-            comparison.append({
-                "embed_chunk_id": ec["chunk_id"],
-                "embed_topic": ec["topic_hint"],
-                "best_ner_chunk_id": best_ner_id,
-                "jaccard_score": round(best_jaccard, 3),
-            })
+        embed_b = extract_boundaries(embed_chunks)
+        ner_b = extract_boundaries(ner_chunks)
+        
+        embed_sec_count = len(embed_b)
+        ner_sec_count = len(ner_b)
 
-    avg_jaccard = round(sum(r["jaccard_score"] for r in comparison) / len(comparison), 3) if comparison else None
+        # Confrontiamo ogni boundary di embed con il più vicino in ner
+        for eb in embed_b:
+            if not ner_b:
+                break
+            # Trova il taglio ner più vicino
+            closest_nb = min(ner_b, key=lambda nb: abs(nb["char"] - eb["char"]))
+            dist = abs(closest_nb["char"] - eb["char"])
+            match = dist <= tolerance
+            
+            comparison.append({
+                "embed_chunk_id": eb["chunk_id"],
+                "embed_topic": eb["topic_hint"],
+                "best_ner_chunk_id": closest_nb["chunk_id"],
+                "jaccard_score": 1.0 if match else 0.0, # Manteniamo il campo per retrocompatibilità UI se serve
+                "dist_chars": dist,
+                "is_match": match
+            })
+            
+        matches = sum(1 for r in comparison if r["is_match"])
+        if max(embed_sec_count, ner_sec_count) > 0:
+            avg_jaccard = round(matches / max(embed_sec_count, ner_sec_count), 2)
+        else:
+            avg_jaccard = 0.0
 
     return {
         "book_id": book_id,
         "embed_available": embed_available,
         "ner_available": ner_available,
-        "embed_total_chunks": embed_manifest["total_chunks"] if embed_manifest else None,
-        "ner_total_chunks":   ner_manifest["total_chunks"]   if ner_manifest   else None,
+        "embed_total_chunks": embed_sec_count if embed_available else None,
+        "ner_total_chunks": ner_sec_count if ner_available else None,
         "avg_jaccard_score": avg_jaccard,
         "comparison": comparison,
+        "tolerance_chars": tolerance
     }
 
 

@@ -429,62 +429,11 @@ Chart.register(...registerables);
 
               <div *ngIf="readerLoading()" class="loading-state">⏳ Caricamento del capitolo...</div>
               <div *ngIf="!readerLoading()" [innerHTML]="renderedChapterHtml()" class="text-block"></div>
+              
               <div *ngIf="!readerLoading() && chunkTexts().length === 0" class="empty-state">Nessun testo trovato per questo capitolo.</div>
             </ng-container>
           </div>
         </div>
-
-        <!-- Report Modal -->
-        <div *ngIf="showReport()" class="modal-overlay" style="z-index:300;">
-          <div class="modal-content" style="width:640px; max-height:80vh; overflow-y:auto;">
-            <h2 class="text-xl font-bold" style="color:var(--text-primary);">🔬 Confronto Metodi di Chunking</h2>
-
-            <div *ngIf="reportLoading()" style="text-align:center; padding:2rem; color:var(--text-muted);">⏳ Calcolo report in corso...</div>
-
-            <ng-container *ngIf="!reportLoading() && reportData()">
-              <!-- Summary cards -->
-              <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:0.75rem; margin:1.25rem 0;">
-                <div style="background:var(--bg-base); border:1px solid var(--border); border-radius:10px; padding:1rem; text-align:center;">
-                  <div style="font-size:0.72rem; color:var(--text-muted); text-transform:uppercase;">Chunk Embed</div>
-                  <div style="font-size:1.6rem; font-weight:700; color:#60a5fa;">{{ reportData().embed_total_chunks ?? '—' }}</div>
-                </div>
-                <div style="background:var(--bg-base); border:1px solid var(--border); border-radius:10px; padding:1rem; text-align:center;">
-                  <div style="font-size:0.72rem; color:var(--text-muted); text-transform:uppercase;">Chunk NER</div>
-                  <div style="font-size:1.6rem; font-weight:700; color:#c084fc;">{{ reportData().ner_total_chunks ?? '—' }}</div>
-                </div>
-                <div style="background:var(--bg-base); border:1px solid var(--border); border-radius:10px; padding:1rem; text-align:center;">
-                  <div style="font-size:0.72rem; color:var(--text-muted); text-transform:uppercase;">Accordo Globale</div>
-                  <div style="font-size:1.6rem; font-weight:700;"
-                       [style.color]="reportData().avg_jaccard_score >= 0.7 ? '#4ade80' : reportData().avg_jaccard_score >= 0.4 ? '#fbbf24' : '#f87171'">
-                    {{ reportData().avg_jaccard_score !== null ? (reportData().avg_jaccard_score * 100 | number:'1.0-0') + '%' : '—' }}
-                  </div>
-                </div>
-              </div>
-
-              <p *ngIf="!reportData().embed_available" style="color:#fbbf24; font-size:0.82rem;">⚠️ Chunking Embed non ancora eseguito per questo libro.</p>
-              <p *ngIf="!reportData().ner_available" style="color:#fbbf24; font-size:0.82rem;">⚠️ Chunking NER non ancora eseguito per questo libro.</p>
-
-              <!-- Comparison table -->
-              <div *ngIf="reportData().comparison?.length" style="margin-top:0.5rem;">
-                <h3 style="font-size:0.85rem; font-weight:700; color:var(--text-primary); margin-bottom:0.75rem;">Dettaglio per chunk (Embed → NER più simile)</h3>
-                <div *ngFor="let row of reportData().comparison" style="display:flex; align-items:center; gap:0.75rem; margin-bottom:0.5rem;">
-                  <span style="font-size:0.78rem; color:var(--text-muted); min-width:70px;">#{{ row.embed_chunk_id }}</span>
-                  <div style="flex:1; background:var(--bg-base); border-radius:6px; height:10px; overflow:hidden;">
-                    <div style="height:100%; border-radius:6px; transition:width 0.3s;"
-                         [style.width]="(row.jaccard_score * 100) + '%'"
-                         [style.background]="row.jaccard_score >= 0.7 ? '#4ade80' : row.jaccard_score >= 0.4 ? '#fbbf24' : '#f87171'">
-                    </div>
-                  </div>
-                  <span style="font-size:0.78rem; font-weight:600; min-width:38px;"
-                        [style.color]="row.jaccard_score >= 0.7 ? '#4ade80' : row.jaccard_score >= 0.4 ? '#fbbf24' : '#f87171'">
-                    {{ (row.jaccard_score * 100 | number:'1.0-0') }}%
-                  </span>
-                </div>
-              </div>
-            </ng-container>
-
-            <div class="flex justify-end mt-6">
-              <button class="w-btn w-btn-accent" style="width:auto" (click)="showReport.set(false)">Chiudi</button>
             </div>
           </div>
         </div>
