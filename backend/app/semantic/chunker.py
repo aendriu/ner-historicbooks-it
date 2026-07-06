@@ -53,34 +53,104 @@ def split_into_paragraphs(text):
     return result
 
 
-def split_text_with_overlap(text, max_size, overlap):
-    words = text.split()
-    chunks = []
-    current_words = []
-    current_len = 0
-    i = 0
-    while i < len(words):
-        w = words[i]
-        if current_len + len(w) + 1 > max_size and current_words:
-            chunk_str = " ".join(current_words)
-            chunks.append(chunk_str)
-            overlap_len = 0
-            back_idx = i - 1
-            overlap_words = []
-            while back_idx >= 0:
-                overlap_len += len(words[back_idx]) + 1
-                if overlap_len > overlap:
+def split_text_semantic(text: str, max_size: int, overlap: int, entities: list = None) -> list[tuple[str, int, int]]:
+    """
+    Divide il testo in chunk semanticamente coerenti usando un approccio a cascata:
+    1. Cerca un cambio significativo nella finestra di entità NER (se disponibili)
+    2. Fallback: cerca il doppio ritorno a capo (paragrafo) più vicino al limite
+    3. Fallback: cerca la punteggiatura finale (. ! ?) più vicina al limite
+    4. Ultima spiaggia: taglia allo spazio più vicino
+
+    Restituisce una lista di tuple (testo, char_start_assoluto, char_end_assoluto).
+    """
+    if not text:
+        return []
+
+    MIN_CHUNK = max_size // 3      # Dimensione minima per non creare chunk-stuzzichino
+    NER_WINDOW = 300               # Ampiezza finestra NER per confronto (caratteri)
+    NER_CHANGE_THRESHOLD = 0.4     # Jaccard < 0.4 = cambio di contesto significativo
+
+    results: list[tuple[str, int, int]] = []
+    start = 0
+
+    while start < len(text):
+        remaining = len(text) - start
+        if remaining <= max_size:
+            chunk = text[start:].strip()
+            if chunk:
+                results.append((chunk, start, start + len(chunk)))
+            break
+
+        end_candidate = start + max_size
+        cut_point = None
+
+        # ── STRATEGIA 1: cambio di entità NER nella zona finale del chunk ──
+        if entities and cut_point is None:
+            zone_start = start + MIN_CHUNK
+            zone_mid   = end_candidate - NER_WINDOW // 2
+            zone_end   = end_candidate
+
+            if zone_mid > zone_start:
+                ents_before = set(
+                    _entity_key(e) for e in entities
+                    if zone_start <= e.get("start", e.get("char_start", 0)) < zone_mid
+                )
+                ents_after = set(
+                    _entity_key(e) for e in entities
+                    if zone_mid <= e.get("start", e.get("char_start", 0)) < zone_end
+                )
+                if ents_before and ents_after:
+                    union = len(ents_before | ents_after)
+                    jaccard = len(ents_before & ents_after) / union if union > 0 else 1.0
+                    if jaccard < NER_CHANGE_THRESHOLD:
+                        # Cambio rilevato: cerca \ n\ n vicino al punto di cambio
+                        nn = text.rfind('\n\n', zone_start, zone_mid + NER_WINDOW)
+                        if nn != -1:
+                            cut_point = nn + 2
+                        else:
+                            # Cerca punteggiatura vicino al punto di cambio
+                            for k in range(zone_mid, zone_start, -1):
+                                if text[k] in '.!?':
+                                    cut_point = k + 1
+                                    break
+
+        # ── STRATEGIA 2: paragrafo (doppio ritorno a capo) ──
+        if cut_point is None:
+            nn = text.rfind('\n\n', start + MIN_CHUNK, end_candidate)
+            if nn != -1:
+                cut_point = nn + 2
+
+        # ── STRATEGIA 3: punteggiatura finale ──
+        if cut_point is None:
+            for k in range(end_candidate, start + MIN_CHUNK, -1):
+                if k < len(text) and text[k] in '.!?':
+                    cut_point = k + 1
                     break
-                overlap_words.insert(0, words[back_idx])
-                back_idx -= 1
-            current_words = overlap_words
-            current_len = sum(len(x) + 1 for x in current_words)
-        current_words.append(w)
-        current_len += len(w) + 1
-        i += 1
-    if current_words:
-        chunks.append(" ".join(current_words))
-    return chunks
+
+        # ── STRATEGIA 4 (fallback duro): spazio più vicino ──
+        if cut_point is None:
+            sp = text.rfind(' ', start + MIN_CHUNK, end_candidate)
+            cut_point = sp + 1 if sp != -1 else end_candidate
+
+        chunk = text[start:cut_point].strip()
+        if chunk:
+            results.append((chunk, start, start + len(text[start:cut_point])))
+
+        # Overlap: torna indietro di `overlap` caratteri fermandoti a una frase
+        overlap_start = max(start, cut_point - overlap)
+        for k in range(overlap_start, cut_point):
+            if k < len(text) and text[k] in '.!?\n':
+                overlap_start = k + 1
+                break
+
+        start = overlap_start if overlap_start < cut_point else cut_point
+
+    return results
+
+
+def split_text_with_overlap(text, max_size, overlap):
+    """Wrapper di retrocompatibilità – restituisce solo le stringhe."""
+    return [t for t, _, _ in split_text_semantic(text, max_size, overlap)]
 
 
 # ─── Embed-method helpers ──────────────────────────────────────────────────────
@@ -129,24 +199,20 @@ def build_final_chunks(book_name, text, paragraphs, boundaries, entities):
         section_text  = text[section_start:section_end]
 
         if len(section_text) > MAX_CHUNK_CHARS:
-            sub_chunks = split_text_with_overlap(section_text, MAX_CHUNK_CHARS, OVERLAP_CHARS)
-            curr_start = section_start
-            for sc in sub_chunks:
-                sc_start = text.find(sc[:50], curr_start)
-                if sc_start == -1:
-                    sc_start = curr_start
-                sc_end = sc_start + len(sc)
-                chunk_ents = [e for e in entities if e["start"] >= sc_start and e["end"] <= sc_end]
+            # Entità relative alla sezione corrente con posizioni assolute
+            section_ents = [e for e in entities if e.get("start", 0) >= section_start and e.get("end", 0) <= section_end]
+            sub_chunks = split_text_semantic(section_text, MAX_CHUNK_CHARS, OVERLAP_CHARS, entities=section_ents)
+            for sc_text, sc_rel_start, sc_rel_end in sub_chunks:
+                sc_start = section_start + sc_rel_start
+                sc_end   = section_start + sc_rel_end
+                chunk_ents = [e for e in entities if e.get("start", 0) >= sc_start and e.get("end", 0) <= sc_end]
                 final_chunks.append({
                     "book_name": book_name, "chunk_id": chunk_id,
-                    "text": sc, "char_start": sc_start, "char_end": sc_end,
+                    "text": sc_text, "char_start": sc_start, "char_end": sc_end,
                     "topic_hint": f"Sezione Semantica {i + 1} (parte)",
                     "entities": chunk_ents, "num_entities": len(chunk_ents),
                 })
                 chunk_id += 1
-                curr_start = sc_end - OVERLAP_CHARS - 100
-                if curr_start < sc_start:
-                    curr_start = sc_start
         else:
             chunk_ents = [e for e in entities if e["start"] >= section_start and e["end"] <= section_end]
             final_chunks.append({
@@ -174,26 +240,18 @@ def _build_chunks_with_ner(book_name: str, text: str, entities: list) -> list:
     Divide il testo in chunk di dimensione massima MAX_CHUNK_CHARS con overlap,
     e assegna le entità a ciascun chunk in base alle coordinate char.
     """
-    raw_chunks = split_text_with_overlap(text, MAX_CHUNK_CHARS, OVERLAP_CHARS)
+    raw_chunks = split_text_semantic(text, MAX_CHUNK_CHARS, OVERLAP_CHARS, entities=entities)
     result = []
     chunk_id = 1
-    curr_start = 0
-    for raw in raw_chunks:
-        sc_start = text.find(raw[:60], curr_start)
-        if sc_start == -1:
-            sc_start = curr_start
-        sc_end = sc_start + len(raw)
+    for sc_text, sc_start, sc_end in raw_chunks:
         chunk_ents = [e for e in entities if e.get("start", 0) >= sc_start and e.get("end", 0) <= sc_end]
         result.append({
             "book_name": book_name, "chunk_id": chunk_id,
-            "text": raw, "char_start": sc_start, "char_end": sc_end,
+            "text": sc_text, "char_start": sc_start, "char_end": sc_end,
             "topic_hint": f"Chunk NER {chunk_id}",
             "entities": chunk_ents, "num_entities": len(chunk_ents),
         })
         chunk_id += 1
-        curr_start = sc_end - OVERLAP_CHARS - 100
-        if curr_start < sc_start:
-            curr_start = sc_start
     for c in result:
         c["total_chunks"] = len(result)
     return result

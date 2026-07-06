@@ -197,9 +197,6 @@ import { Subscription, timer } from 'rxjs';
         <button class="w-btn w-btn-primary" [disabled]="running() || !state.hasBook()" (click)="openChunkingModal()">
           Chunking semantico
         </button>
-        <button class="w-btn w-btn-primary" [disabled]="running() || !state.hasBook()" (click)="runPhase('chapters')">
-          Capitoli semantici
-        </button>
         <button class="w-btn w-btn-primary" [disabled]="running() || !state.hasBook()" (click)="runPhase('summaries')">
           Riassunti
         </button>
