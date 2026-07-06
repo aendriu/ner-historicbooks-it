@@ -196,6 +196,18 @@ def build_final_chunks(book_name, text, paragraphs, boundaries, entities):
             continue
         section_start = section_paras[0]["char_start"]
         section_end   = section_paras[-1]["char_end"]
+
+        # ── Sentence boundary alignment ──
+        # Se il taglio di capitolo cade a metà frase (es. per un \n\n nel mezzo
+        # di una frase OCR), avanziamo fino al prossimo punto fermo nel testo.
+        raw_end_char = text[section_end - 1] if section_end > 0 else ''
+        if raw_end_char not in '.!?"\'»\n' and i < len(boundaries) - 2:
+            search_limit = min(section_end + 300, len(text))
+            for k in range(section_end, search_limit):
+                if text[k] in '.!?':
+                    section_end = k + 1
+                    break
+
         section_text  = text[section_start:section_end]
 
         if len(section_text) > MAX_CHUNK_CHARS:
