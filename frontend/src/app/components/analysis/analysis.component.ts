@@ -567,6 +567,7 @@ export class AnalysisComponent implements OnInit {
   selectedReaderMethod = 'embed';
   semanticChunks = signal<any[]>([]);
   selectedSemanticChunk = signal<any>(null);
+  semanticChunksLoaded = false;
 
   searchQuery = '';
   chapterSearch = '';
@@ -737,7 +738,8 @@ export class AnalysisComponent implements OnInit {
 
     // Load semantic chunks when switching to reader view
     effect(() => {
-      if (this.view() === 'reader' && this.semanticChunks().length === 0) {
+      if (this.view() === 'reader' && !this.semanticChunksLoaded) {
+        this.semanticChunksLoaded = true;
         this.loadSemanticChunksForReader();
       }
     });
@@ -787,6 +789,11 @@ export class AnalysisComponent implements OnInit {
     this.api.getBookText(bookId).subscribe({ next: d => { this.textData.set(d); done(); }, error: done });
     this.api.getNer(bookId).subscribe({ next: d => { this.nerData.set(d); done(); }, error: () => { this.nerData.set(null); done(); } });
     this.api.getChapters(bookId).subscribe({ next: d => { this.chaptersData.set(d); done(); }, error: () => { this.chaptersData.set(null); done(); } });
+    
+    this.semanticChunksLoaded = false;
+    if (this.view() === 'reader') {
+      this.loadSemanticChunksForReader();
+    }
   }
 
   selectChapter(ch: Chapter) {
