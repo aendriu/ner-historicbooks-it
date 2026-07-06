@@ -221,7 +221,7 @@ def build_final_chunks(book_name, text, paragraphs, boundaries, entities):
                 final_chunks.append({
                     "book_name": book_name, "chunk_id": chunk_id,
                     "text": sc_text, "char_start": sc_start, "char_end": sc_end,
-                    "topic_hint": f"Sezione Semantica {i + 1} (parte)",
+                    "topic_hint": f"Capitolo Semantico {i + 1} (parte)",
                     "entities": chunk_ents, "num_entities": len(chunk_ents),
                 })
                 chunk_id += 1
@@ -230,7 +230,7 @@ def build_final_chunks(book_name, text, paragraphs, boundaries, entities):
             final_chunks.append({
                 "book_name": book_name, "chunk_id": chunk_id,
                 "text": section_text, "char_start": section_start, "char_end": section_end,
-                "topic_hint": f"Sezione Semantica {i + 1}",
+                "topic_hint": f"Capitolo Semantico {i + 1}",
                 "entities": chunk_ents, "num_entities": len(chunk_ents),
             })
             chunk_id += 1
