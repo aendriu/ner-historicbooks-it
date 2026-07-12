@@ -60,11 +60,13 @@ class Summary(Base):
     __tablename__ = "summaries"
 
     id = Column(Integer, primary_key=True, index=True)
-    chapter_id = Column(Integer, ForeignKey("chapters.id"))
-    level = Column(Integer)  # 0 = base, 1 = intermedio, ecc.
+    chapter_id = Column(Integer, ForeignKey("chapters.id"), nullable=True)
+    book_id = Column(Integer, ForeignKey("books.id"), nullable=True) # Per il riassunto globale
+    level = Column(Integer)  # 0 = base (capitolo), 1 = intermedio (libro), ecc.
     content = Column(String) # Il testo del riassunto
     
     chapter = relationship("Chapter", back_populates="summaries")
+    book = relationship("Book")
 
 # Crea le tabelle nel file SQLite
 Base.metadata.create_all(bind=engine)

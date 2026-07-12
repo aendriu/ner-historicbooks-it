@@ -256,3 +256,9 @@ def get_book_chapters(book_id: int, db: Session = Depends(get_db)):
             "summaries": [{"id": s.id, "level": s.level, "content": s.content} for s in summaries]
         })
     return result
+
+@router.get("/{book_id}/global-summary")
+def get_book_global_summary(book_id: int, db: Session = Depends(get_db)):
+    """Restituisce il riassunto globale (sinossi) del libro."""
+    summary = db.query(Summary).filter(Summary.book_id == book_id, Summary.level == 1).first()
+    return {"content": summary.content if summary else None}

@@ -5,7 +5,8 @@ import re
 from datetime import datetime
 from typing import Literal
 import numpy as np
-from sentence_transformers import SentenceTransformer
+import requests
+from app.config import settings, SEMANTIC_EMBEDDING_MODEL
 
 logger = logging.getLogger(__name__)
 
@@ -16,40 +17,91 @@ SIMILARITY_THRESHOLD = 0.35       # Soglia cosine similarity embed-method (abbas
 
 # Soglie NER-method
 NER_SAME_SECTION_THRESHOLD = 2    # entità comuni ≥ 2  → stessa sezione
-NER_BOUNDARY_THRESHOLD = 1        # entità comuni < 1  → nuovo capitolo
+NER_BOUNDARY_THRESHOLD = 1        # entità comuni < 1  → nuovo capitolo (taglia solo se 0 entità condivise)
 
 # Nomi directory per i due metodi
 EMBED_SUBDIR = "embed_method"
 NER_SUBDIR   = "ner_method"
 
-_model = None
+def _get_ollama_embeddings(texts: list[str]) -> np.ndarray:
+    """
+    Chiama l'API /api/embed di Ollama per ottenere gli embedding dei testi.
+    Usa lo stesso host/port configurato per i riassunti.
+    """
+    host = settings.OLLAMA_HOST.rstrip("/")
+    if not host.startswith(("http://", "https://")):
+        host = f"http://{host}:{settings.OLLAMA_PORT}"
+    url = f"{host}/api/embed"
+    model = settings.EMBED_MODEL   # letto a runtime → aggiornabile senza restart
+    try:
+        r = requests.post(url, json={"model": model, "input": texts}, timeout=120)
+        r.raise_for_status()
+        embeddings = r.json()["embeddings"]
+        return np.array(embeddings, dtype=np.float32)
+    except Exception as e:
+        logger.error(f"Errore embedding Ollama ({model}): {e}")
+        dim = 1024
+        return np.random.randn(len(texts), dim).astype(np.float32)
 
 
-def get_embedding_model():
-    global _model
-    if _model is None:
-        logger.info("Caricamento modello SentenceTransformer: paraphrase-multilingual-MiniLM-L12-v2")
-        _model = SentenceTransformer('paraphrase-multilingual-MiniLM-L12-v2')
-    return _model
 
 
 # ─── Utilità testo ─────────────────────────────────────────────────────────────
 
 def split_into_paragraphs(text):
-    paras = re.split(r'\n\s*\n', text)
+    """
+    Divide il testo in 'pseudo-paragrafi' di circa 500 caratteri.
+    Cerca di non spezzare le frasi usando la punteggiatura finale (.!?).
+    Gestisce in modo sicuro i libri sprovvisti di ritorni a capo (\\n).
+    """
+    TARGET_SIZE = 500
     result = []
-    current_char = 0
-    for p in paras:
-        p = p.strip()
-        if not p:
-            current_char += len(p) + 2
+    
+    # Suddividiamo il testo in frasi usando la punteggiatura
+    # Riconosce il punto, punto interrogativo, esclamativo seguito da spazio o a capo.
+    sentences = re.split(r'(?<=[.!?])[\s\n]+', text)
+    
+    current_para_text = ""
+    current_start = 0
+    
+    for s in sentences:
+        s = s.strip()
+        if not s:
             continue
-        start = text.find(p, current_char)
-        if start == -1:
-            start = current_char
-        end = start + len(p)
-        result.append({"text": p, "char_start": start, "char_end": end})
-        current_char = end
+            
+        if current_para_text:
+            current_para_text += " " + s
+        else:
+            current_para_text = s
+            
+        if len(current_para_text) >= TARGET_SIZE:
+            start_idx = text.find(current_para_text[:50], current_start)
+            if start_idx == -1:
+                start_idx = current_start
+                
+            end_idx = start_idx + len(current_para_text)
+            
+            result.append({
+                "text": current_para_text,
+                "char_start": start_idx,
+                "char_end": end_idx
+            })
+            
+            current_start = end_idx
+            current_para_text = ""
+            
+    # Aggiungiamo l'ultimo pezzetto rimasto
+    if current_para_text:
+        start_idx = text.find(current_para_text[:50], current_start)
+        if start_idx == -1:
+            start_idx = current_start
+        end_idx = start_idx + len(current_para_text)
+        result.append({
+            "text": current_para_text,
+            "char_start": start_idx,
+            "char_end": end_idx
+        })
+        
     return result
 
 
@@ -158,13 +210,16 @@ def split_text_with_overlap(text, max_size, overlap):
 def find_semantic_boundaries(paragraphs):
     if len(paragraphs) < 3:
         return []
-    model = get_embedding_model()
     texts = [p["text"] for p in paragraphs]
-    embeddings = model.encode(texts)
+    logger.info(f"Calcolo embedding per {len(texts)} paragrafi con {SEMANTIC_EMBEDDING_MODEL} via Ollama...")
+    embeddings = _get_ollama_embeddings(texts)
     boundaries = []
     for i in range(len(embeddings) - 1):
         v1, v2 = embeddings[i], embeddings[i + 1]
-        sim = float(np.dot(v1, v2) / (np.linalg.norm(v1) * np.linalg.norm(v2)))
+        norm1, norm2 = np.linalg.norm(v1), np.linalg.norm(v2)
+        if norm1 == 0 or norm2 == 0:
+            continue
+        sim = float(np.dot(v1, v2) / (norm1 * norm2))
         if sim < SIMILARITY_THRESHOLD:
             boundaries.append(i + 1)
     return boundaries
@@ -172,7 +227,7 @@ def find_semantic_boundaries(paragraphs):
 
 def find_explicit_chapters(paragraphs):
     boundaries = []
-    pattern = re.compile(r'^(CAPITOLO|CAPO|CAP\.|LIBRO|PARTE)\s+([IVXLCDM]+|\d+)', re.IGNORECASE)
+    pattern = re.compile(r'\b(CAPITOLO|CAPO|CAP\.|LIBRO|PARTE)\s+([IVXLCDM]+|\d+)\b', re.IGNORECASE)
     for i, p in enumerate(paragraphs):
         if pattern.search(p["text"]):
             boundaries.append(i)
@@ -295,13 +350,21 @@ def run_ner_chunker(book_name: str, clean_file_path: str, ner_file_path: str,
 
         if progress_cb: progress_cb(2, 4, f"Calcolo boundaries NER su {len(chunks)} chunk...")
 
-        # Calcola boundaries tramite sovrapposizione entità
+        # Calcola boundaries tramite sovrapposizione entità (finestra scorrevole)
+        # Confronta le entità del gruppo corrente (ultimi NER_WINDOW chunk) con il chunk successivo.
+        # Questo evita l'over-segmentazione: un'entità citata 2 chunk fa vale ancora come "in scope".
+        NER_WINDOW = 4   # numero di chunk da includere nella finestra di contesto corrente
         boundaries: list[int] = [0]
         for i in range(len(chunks) - 1):
-            keys_x  = set(_entity_key(e) for e in chunks[i]["entities"])
-            keys_x1 = set(_entity_key(e) for e in chunks[i + 1]["entities"])
-            common  = len(keys_x & keys_x1)
+            win_start = max(0, i - NER_WINDOW + 1)
+            keys_window = set()
+            for w in range(win_start, i + 1):
+                for e in chunks[w]["entities"]:
+                    keys_window.add(_entity_key(e))
+            keys_next = set(_entity_key(e) for e in chunks[i + 1]["entities"])
+            common = len(keys_window & keys_next)
             if common < NER_BOUNDARY_THRESHOLD:
+
                 boundaries.append(i + 1)
 
         # Raggruppa chunk in sezioni semantiche

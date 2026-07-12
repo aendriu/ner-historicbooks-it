@@ -11,6 +11,7 @@ class Settings:
             self.OLLAMA_HOST = "localhost"
         self.OLLAMA_PORT = os.getenv("OLLAMA_PORT", "11434")
         self.OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "qwen2.5:3b")
+        self.EMBED_MODEL  = os.getenv("SEMANTIC_EMBEDDING_MODEL", "bge-m3")
 
 settings = Settings()
 
@@ -19,8 +20,8 @@ NER_MODEL_NAME = os.getenv("NER_MODEL_NAME", "aendriu/bert-ner-italian-historica
 NER_SCORE_THRESHOLD = float(os.getenv("NER_SCORE_THRESHOLD", "0.65"))
 NER_MIN_ENTITY_CHARS = int(os.getenv("NER_MIN_ENTITY_CHARS", "3"))
 
-# Semantic Chunking
-SEMANTIC_EMBEDDING_MODEL = os.getenv("SEMANTIC_EMBEDDING_MODEL", "paraphrase-multilingual-MiniLM-L12-v2")
+# Semantic Chunking (soglia — il modello è in settings.EMBED_MODEL)
+SEMANTIC_EMBEDDING_MODEL = settings.EMBED_MODEL   # alias per retrocompatibilità
 SEMANTIC_SIMILARITY_THRESHOLD = float(os.getenv("SEMANTIC_SIMILARITY_THRESHOLD", "0.5"))
 
 # Database

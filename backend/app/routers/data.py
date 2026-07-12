@@ -169,11 +169,12 @@ def get_chapter_summary(book_id: int, chapter_id_num: int, db: Session = Depends
 
 @router.get("/api/books/{book_id}/summaries")
 def get_all_summaries(book_id: int, db: Session = Depends(get_db)):
-    """Tutti i riassunti dei capitoli del libro."""
+    """Tutti i riassunti dei capitoli del libro e la sinossi globale."""
     chapters = db.query(Chapter).filter(
         Chapter.book_id == book_id
     ).order_by(Chapter.chapter_id_num).all()
-    return [
+    
+    chapter_summaries = [
         {
             "chapter_id": ch.chapter_id_num,
             "title": ch.title,
@@ -185,3 +186,12 @@ def get_all_summaries(book_id: int, db: Session = Depends(get_db)):
         }
         for ch in chapters
     ]
+    
+    book_summary = db.query(Summary).filter(
+        Summary.book_id == book_id, Summary.level == 1
+    ).first()
+    
+    return {
+        "book_summary": book_summary.content if book_summary else None,
+        "chapters": chapter_summaries
+    }

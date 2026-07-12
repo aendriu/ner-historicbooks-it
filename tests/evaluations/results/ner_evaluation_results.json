@@ -1,0 +1,3378 @@
+[
+    {
+        "filename": "251SercambiNovelle2Si236-cleaned.json",
+        "chunk_text": "lo facesse, nondimeno ha consentito, con intenzione che mai altro che stregghiare cavalli vorrà che facci, tenendolo vestito come il più vile ragazzo che innella stalla sia acciò che non possa prender cuore né ardimento. E avuto tal pensieri, subito fe’ chiamare il Nibbio e  maestro 30 della stalla. Loro presto dinanti da’ re dicendo: «Santa corona, comandate  lo re si volse verso il Nibbio dicendo:  Ben l’ho io ditto che tu sempre hai fatto come il nibbio, che di principio mi facei sì buone salse e poi l’hai peggiorate e neuna ne fai buona; e pertanto io vo’ che si’ ragazzo di stalla  Lo Nibbio disse:  Santa 35 corona, io sono presto a ubidir’e’ vostri comandamenti, mai da quelli partirmi: quello volete che io faccia, farò volentieri  Lo re NOVELLA CXL 64I chiamò lo mastro della stalla dicendoli:  Va e mena il Nibbio alla stalla e quine li fà fare ogni mercenume come il più vile ragazzo che ci sia  Lo mastro disse che serà fatto. E menato seco il Nibbio, lo trasse da parte",
+        "gold_entities_raw": [
+            {
+                "word": "Nibbio",
+                "label": "PER"
+            },
+            {
+                "word": "Nibbio",
+                "label": "PER"
+            },
+            {
+                "word": "Nibbio",
+                "label": "PER"
+            },
+            {
+                "word": "Nibbio",
+                "label": "PER"
+            }
+        ],
+        "gold_entities_normalized": [
+            "nibbio"
+        ],
+        "local_entities_normalized": [],
+        "true_positives": 0
+    },
+    {
+        "filename": "ParallelismiLinguisticiLetterartiECulturaliaCuraDiRadicaNikodinovskaFacoltDiFilo-cleaned.json",
+        "chunk_text": "costmzione delle opere, questi poeti allargano tali temi e motivi, che acquisiscono valenze universali. Del resto, nel mondo dei valori letterari genuini non esistono verità regionali. Se non hanno una portata universale, le opere letterarie non possono avere un significato più profondo.» (1995: 87-88) Le lingue standard riflettono meglio i motivi e le tematiche di carattere cosmico, atemporale, universale. Queste radici ancorate alla stessa terra rossa risvegliano gli stessi sentimenti, sprigionano lo stesso amore e odio, la stessa angoscia e gioia, ascoltano gli stessi suoni della natura, ma li riproducono con un’altra espressione, un altro codice, come un musicista utilizza diversi suoni o il pittore diversi colori. L’istroveneto mantiene la stessa densità di proverbi popolari, la stessa semplicità del verso e della voce, la stessa musicalità delle parole ciacave.  non si tratta di conservare solo la pura parola casereccia. Da questa terra Ujcic si è portato via anche il senso",
+        "gold_entities_raw": [
+            {
+                "word": "Ujcic",
+                "label": "PER"
+            }
+        ],
+        "gold_entities_normalized": [
+            "ujcic"
+        ],
+        "local_entities_normalized": [
+            "ujcic"
+        ],
+        "true_positives": 1
+    },
+    {
+        "filename": "braccheggio-ambigrammatico-cleaned.json",
+        "chunk_text": "ti trovi e, tramite la visuale ad infrarossi, ha mappato gli interni della struttura davanti a te Ho inviato sul tuo OPS-SAT una pianta tridimensionale, come da prassi« Lawrence ed Ivo: una sinergia vichiana soffermatasi ed indisimprimibile, anni di rassegna (Lawrence) e trapasso (Ivo) assieme, irrilevante si trattasse maternage o prossenia. A calere? Desistenza di mistralate su scala nazionale ed interanazione, chiunque ne fossero i motivatori. Professione liberale, per vie traverse, protempore: Ivo anzitutto un referendario doppiogiochista, intromessosi nella GZA tramite giarda.  piano rialzato della struttura, come indicato sulla mappa, nell’ufficio principale della GZA, è presente un server: inserisci la nanospia che ti ho fornito assieme al resto del tuo equipaggiamento; tenere sottocontrollo qualunque movimento della GZA è priorità assoluta« Palmare alla mano. ‘Elisio non sospetta nulla?»  Helophis voleva mentre noverava la mappa, approfittando della reminiscitiva.",
+        "gold_entities_raw": [
+            {
+                "word": "Lawrence",
+                "label": "PER"
+            },
+            {
+                "word": "Ivo",
+                "label": "PER"
+            },
+            {
+                "word": "GZA",
+                "label": "LOC"
+            },
+            {
+                "word": "Elisio",
+                "label": "PER"
+            },
+            {
+                "word": "Helophis",
+                "label": "PER"
+            }
+        ],
+        "gold_entities_normalized": [
+            "elisio",
+            "gza",
+            "helophis",
+            "lawrence",
+            "ivo"
+        ],
+        "local_entities_normalized": [
+            "helophis",
+            "ivo",
+            "elisio",
+            "lawrence"
+        ],
+        "true_positives": 4
+    },
+    {
+        "filename": "quaderniditalian92cana-cleaned.json",
+        "chunk_text": "immobilismo delle traduzioni, che ben si accorda alla sua Stimmung di distacco dal mondo e di malinconica contemplazione della morta storia italiana. Relativamente agli studi su singole rime si può rilevare che alcuni interventi si sono appuntati sui sonetti autoritratto dell’Alfieri. Paola Melo, nel saggio  lettere di Labindo»  pubblica i risultati del suo censimento dell’epistolario di Giovanni Fantoni, poeta e patriota giacobino, più noto con lo pseudonimo arcadico di Labindo. Precede il lungo elenco (533 lettere, di cui solo 132 già a stampa) la riproduzione delle tre lettere più interessanti, fra le quali una merita, in questa sede, particolare attenzione. Si tratta della risposta 250 Bianca Maria Da Rif di Labindo27 al sonetto-autoritratto inviatogli dall’Alfieri: consiste in poche righe d’occasione e in un sonetto, artificiosamente compilato utilizzando le stesse parole rima dell’altro componimento; è singolarmente importante perché rappresenta un’altra",
+        "gold_entities_raw": [
+            {
+                "word": "Alfieri",
+                "label": "PER"
+            },
+            {
+                "word": "Paola Melo",
+                "label": "PER"
+            },
+            {
+                "word": "Giovanni Fantoni",
+                "label": "PER"
+            },
+            {
+                "word": "Labindo",
+                "label": "PER"
+            },
+            {
+                "word": "Bianca Maria Da Rif",
+                "label": "PER"
+            }
+        ],
+        "gold_entities_normalized": [
+            "paola melo",
+            "giovanni fantoni",
+            "alfieri",
+            "labindo",
+            "bianca maria da rif"
+        ],
+        "local_entities_normalized": [
+            "paola melo",
+            "giovanni fantoni",
+            "bianca maria da rif",
+            "alfieri"
+        ],
+        "true_positives": 4
+    },
+    {
+        "filename": "eriklhommeelelivredesetoilleslafunzioneeducativadelfantasy-cleaned.json",
+        "chunk_text": "non solo all’autore ma anche al mondo fantasioso che ha brillantemente costruito. Questo studio attribuisce anche uno spazio di rilievo alle ripercussioni educative, e positive, che sono frutto della lettura e cultura del genere fantasy e Erik L’Homme ha certamente dato il suo contributo con richiami costanti ai valori dell’amicizia e del coraggio, ai quali non si potrebbe non essere fedeli seguendo le vicende del suo amabile Guillemot. 18 Bibliografìa. EL’Homme, Les Maitres des Brisants Chien de la Lune, Gallimard2004. P. Brown, A criticai history offrench children  literature: volume two Rowtledge, 2008. EL’Homme, Quedehar lo stregone, Edizioni EL2004. EL’Homme, Le seigneur Sha, Gallimard Jeunesse, 2002. EL’Homme, Le visage de l’Ombre, Gallimard Jeunesse, 2003. CS. Lewis, Le cronache di Narnia, Mondadori, 2017. Webibliography. https://wwwyoutubecom/watch?vhb MT4fvjj, http://wwwonlitplusfortcom/articles/nouvelle-sparte-erik-lhomme https://wwwlivraddictcom/forum/viewtopicphp?id4213",
+        "gold_entities_raw": [
+            {
+                "word": "Erik L’Homme",
+                "label": "PER"
+            },
+            {
+                "word": "Guillemot",
+                "label": "PER"
+            },
+            {
+                "word": "P. Brown",
+                "label": "PER"
+            },
+            {
+                "word": "C.S. Lewis",
+                "label": "PER"
+            },
+            {
+                "word": "Narnia",
+                "label": "LOC"
+            }
+        ],
+        "gold_entities_normalized": [
+            "guillemot",
+            "p brown",
+            "erik lhomme",
+            "cs lewis",
+            "narnia"
+        ],
+        "local_entities_normalized": [
+            "guillemot",
+            "p brown",
+            "cs lewis",
+            "erik l",
+            "homme"
+        ],
+        "true_positives": 3
+    },
+    {
+        "filename": "f.-t.-marinetti-il-club-dei-simpatici-1931-cleaned.json",
+        "chunk_text": "stessa che l’accusa. Pretende che lei, Condirina, tenta di liberarsi in questo modo della padrona per succederle, dato...  secondo la signora Paranzella, lei, Condirina, è l’amante dell’illustre magistrato Paranzal So u   È FI Di Sd ICE si   3 è s E ul  Fie ia no tubbi, sto  Ma, in via prudenziale  cosa avrebbe sad Necto di o a er Bear e ie se e SLI pas   SAR Puna he; a i co ù  re, L. sua difesa? e LA i e  via NI vr è CONA sa  ad Le dichiaro, senza condimenti ne cotture u FERA d roglie non Pci ccordo. Pao hi ra 33 al punto di i spare l E ranza, pur amando Para 453° ti mangerò la faccia! i Dai a SE  La E 3 fed bi  IL PROCURATORE DEL RE hi vici di  S; 3 n i parole, da lei, Condirina, udite  cheg A  A giavano prese o dopo ili pasto di Paran 8  d d di  CONDIRINA si a La   C Reid e dopo. E  i ra PROCURATORE DEL RE Le de Certo è difficile Foa itffio magistrato così in signe diventi un avvelenatore. CONDIRINA 65 Paranza è esperto in simili delitti. A forza di studiare avvelenamenti.....",
+        "gold_entities_raw": [
+            {
+                "word": "Condirina",
+                "label": "PER"
+            },
+            {
+                "word": "Paranzella",
+                "label": "PER"
+            },
+            {
+                "word": "Paranza",
+                "label": "PER"
+            },
+            {
+                "word": "IL PROCURATORE DEL RE",
+                "label": "PER"
+            }
+        ],
+        "gold_entities_normalized": [
+            "paranzella",
+            "il procuratore del re",
+            "condirina",
+            "paranza"
+        ],
+        "local_entities_normalized": [
+            "paranzella",
+            "condirina",
+            "paranzal"
+        ],
+        "true_positives": 2
+    },
+    {
+        "filename": "244CorreggioOpereSi189-cleaned.json",
+        "chunk_text": "pace a questa eterna requie. 206 Vestita e adorna de’ più bei colori che insieme non fe’ mai natura e arte, con fronte da placar lo irato Marte, giacea la ninfa mia tra l’erba e  fiori. quando in tante delizie e tanti odori, 5 tra le compagne stando, intorno sparte, tremò la terra, e da invisibil parte una voce cridò:  Tempo è che mòri.  14210 RIME (207-208) Mora un sonno delicato e quieto occupò quella, e per non farla ir sola, io Morte se insanguinò dinanti e drieto. Ma la fama del mal che sempre vola fé’ ch’io la viddi, e con aspecto lieto:  Rimanti!  disse, e più non fé’ parola. 207 Possate ormai per me, sacrate Muse, ch’io vado fuor de la academia vostra; rimanti in pace, Apollo, or ch’el mi mostra Iano che più non tien le porte chiuse. Dal dì che Marte in cel guerra concluse, 5 in terra se apparecchia orribil giostra: in mare i legni ognun stringe, arma e rostra, e de ocio non convien più farsi scuse. Contaminata e già corrotta ha l’aria un mugio di leon, un fischio d’angue,",
+        "gold_entities_raw": [
+            {
+                "word": "Marte",
+                "label": "PER"
+            },
+            {
+                "word": "Morte",
+                "label": "PER"
+            },
+            {
+                "word": "Muse",
+                "label": "PER"
+            },
+            {
+                "word": "Apollo",
+                "label": "PER"
+            },
+            {
+                "word": "Iano",
+                "label": "PER"
+            }
+        ],
+        "gold_entities_normalized": [
+            "marte",
+            "morte",
+            "iano",
+            "apollo",
+            "muse"
+        ],
+        "local_entities_normalized": [
+            "apollo",
+            "iano"
+        ],
+        "true_positives": 2
+    },
+    {
+        "filename": "piazza-della-liberazione-gareth-rubin-cleaned.json",
+        "chunk_text": "«Riguardo Lorelei.» Allungò una mano e mi massaggiò la schiena.  finita ora. Tutto.»  non lo  Rabbrividii nel freddo notturno. Avevo pensato a ciò che Grest aveva detto. La sua folle insinuazione su di me. «Non sappiamo cosa le sia successo.»  più probabile è che sia stato solo un incidente. Hai detto che aveva bevuto.» «Champagne. C’era una bottiglia  «Ecco, appunto. Si era ubriacata da sola  non era la prima volta ed è scivolata. Affogata. Succede a volte. Più spesso di quanto penseresti.» «Tuttavia, sembra così strano.» Sospirò profondamente, svegliandosi del tutto. Vedevo lividi sulla sua pancia, conseguenza del tempo passato con la Nat Sec.  persone muoiono in cento modi diversi. L’unica certezza che hai sul corpo umano è che continuerà a sorprenderti.» Mi stropicciai la tempia con le nocche.  l’indagine adesso?» «Non lo so. Presumo che la Nat Sec continui, anche se non capisco perché spetti a loro. Avranno le loro ’piste d’indagine’, o come diavolo le chiamano. Non ci riguarda",
+        "gold_entities_raw": [
+            {
+                "word": "Lorelei",
+                "label": "PER"
+            },
+            {
+                "word": "Grest",
+                "label": "PER"
+            },
+            {
+                "word": "Nat Sec",
+                "label": "PER"
+            }
+        ],
+        "gold_entities_normalized": [
+            "grest",
+            "nat sec",
+            "lorelei"
+        ],
+        "local_entities_normalized": [
+            "grest",
+            "loreleibbrivid"
+        ],
+        "true_positives": 1
+    },
+    {
+        "filename": "beg_20200819-cleaned.json",
+        "chunk_text": "che ne vengono proposte, che però risultano errate e faziose. 11 libro nasconde costantemente il fatto ohe un grande numero di veneti partecipò al Risorgimento e a supporto delle sue tesi Beggiato non fornisce alcuna prova credibile. Il primo grave sbaglio compiuto dall’autore è quello di far passare legittimisti asburgici e cattolici intransigenti per indipendentisti veneti ante litteram. Lo scrittore denuncia ad esempio che a Cavasagra, nel Trevigiano, un austriacante irmeggiò all’Impero e venne rinchiuso nel carcere di Castelfranco, oppure che il prete di Coseano, don Antonio Riva (1806-1882), fu minacciato per aver incitato i suoi parrocchiani a votare contro l’annessione (da cui il nomignolo “Coseàn dal  Dal punto di vista storico questi due episodi sono certamente curiosi  andrebbero adeguatamente approfonditi), ma in entrambi i casi i due individui non contrapposero alcun sentimento nazionalista veneto al nazionalismo italiano: si trattava rispettivamente di un legittimista e",
+        "gold_entities_raw": [
+            {
+                "word": "Beggiato",
+                "label": "PER"
+            },
+            {
+                "word": "Cavasagra",
+                "label": "LOC"
+            },
+            {
+                "word": "Trevigiano",
+                "label": "LOC"
+            },
+            {
+                "word": "Impero",
+                "label": "LOC"
+            },
+            {
+                "word": "Castelfranco",
+                "label": "LOC"
+            },
+            {
+                "word": "Coseano",
+                "label": "LOC"
+            },
+            {
+                "word": "don Antonio Riva",
+                "label": "PER"
+            }
+        ],
+        "gold_entities_normalized": [
+            "impero",
+            "trevigiano",
+            "cavasagra",
+            "don antonio riva",
+            "beggiato",
+            "coseano",
+            "castelfranco"
+        ],
+        "local_entities_normalized": [
+            "carcere",
+            "trevigiano",
+            "cavasagra",
+            "don antonio riva",
+            "beggiato",
+            "coseano",
+            "castelfranco"
+        ],
+        "true_positives": 6
+    },
+    {
+        "filename": "peste_202203-cleaned.json",
+        "chunk_text": "il capitolo in Siena, egli letta a quei Padri la lettera del Gran Duca, non ebbe bisogno di esortare alcuno all’impresa, ma più tosto durò gran fatica a frenare lo zelo di tanti, che desideravano d’impiegarsi in quest’opera, imperciocché sopra cento con grandissima efficacia si offersero» ecc. ecc. (Rondinelli, pp. 159-160); per l’impegno dei cappuccini durante l’intero corso dell’epidemia, e non solo nella sua ultima fase, vedi Henderson II, VI, 5. 692. infeste: dannose. 696. o di lingua o di mani: sia confortando con la parola, sia prestando concreto soccorso anche nelle operazioni più umili. 709. con sospir mi rimembra: citazione petrarchesca (RVF1265). 155712.  Mainardo: il cappuccino Francesco Mainardi, che si prodigò per riorganizzare e far funzionare quanto meglio possibile il lazzaretto di Monticelli e vi morì il 22 maggio 1633: «con tutte queste diligenze, passati otto giorni si scoperse loro la peste, al Sacerdote vennero due bubboni, al laico [il Mainardi], oltre a i",
+        "gold_entities_raw": [
+            {
+                "word": "Siena",
+                "label": "LOC"
+            },
+            {
+                "word": "Gran Duca",
+                "label": "PER"
+            },
+            {
+                "word": "Rondinelli",
+                "label": "PER"
+            },
+            {
+                "word": "Henderson",
+                "label": "PER"
+            },
+            {
+                "word": "Mainardo",
+                "label": "PER"
+            },
+            {
+                "word": "Francesco Mainardi",
+                "label": "PER"
+            },
+            {
+                "word": "Monticelli",
+                "label": "LOC"
+            }
+        ],
+        "gold_entities_normalized": [
+            "henderson",
+            "mainardo",
+            "francesco mainardi",
+            "rondinelli",
+            "siena",
+            "monticelli",
+            "gran duca"
+        ],
+        "local_entities_normalized": [
+            "henderson",
+            "rondinelli",
+            "siena",
+            "francesco main",
+            "monticelli",
+            "lazzaretto"
+        ],
+        "true_positives": 4
+    },
+    {
+        "filename": "101StraparolaLePiacevoliNottiLibro2Si244-cleaned.json",
+        "chunk_text": "abitatore di quelle selve: di modo che, stando di continuo per anni dieci in quelle solitudini senza abitazione alcuna, divenne come un uomo selvatico; e per l’assidua e lunga consuetudine di tai luoghi imparando il linguaggio di tutti gli uccelli, gli udiva con gran dilettazione e intendevali, ed era conosciuto come il dio Pane tra i Fauni. Venendo il giorno di ritornar alla patria, i duoi primi si ritrovorono al destinato loco, ed aspettorono il terzo fratello; qual poi che viddero venir tutto peloso e nudo, gli andarono in contra: e per tenerezza d’amore prorompendo in lagrime, l’abbracciorono e basciorono, e vestironlo. E mangiando nell’ostaria, ecco che un uccello volò sopra un albero; e con la sua voce cantando diceva:  Sapiate, o mangiatori, che nel cantone dell’ostaria vi è ascoso un gran tesoro, il qual già gran tempo vi è predestinato; andatelo a tórre!  e dette queste parole, volò via. Allora il fratello, ch’era venuto ultimamente, manifestò per ordine agli altri fratelli",
+        "gold_entities_raw": [
+            {
+                "word": "dio Pane",
+                "label": "PER"
+            },
+            {
+                "word": "Fauni",
+                "label": "PER"
+            }
+        ],
+        "gold_entities_normalized": [
+            "dio pane",
+            "fauni"
+        ],
+        "local_entities_normalized": [
+            "pan"
+        ],
+        "true_positives": 0
+    },
+    {
+        "filename": "carteitaliane10univ-cleaned.json",
+        "chunk_text": "La Secchia Rapita di Tassoni, del 1622, giudicandola opera sicuramente nota a Pope. Senza poter affermare con altrettanta certezza che l’opera di Pope fosse a sua volta nota a Petrosellini al momento  ai momenti  della composizione del suo Giammaria, significativamente proprio Omero e Tassoni vengono chiamati in causa in questo poema nel momento più cruciale delle ostilità arcadiche. A metà del Canto I infatti leggiamo: Perocché un bel pomo sul bel monte Ideo Accese in Troja sì terribil guerra, Che alfin distrutta dall’incendio Acheo La gran Regia dell’Asia andonne a terra: Ed una Secchia ancor tal danno feo. Se pur la Storia di colui non erra. Che lungamente si grattar la rogna Armate in campo Modena, e Bologna. I, 4314 CARTE ITALIANE I versi di Petrosellini sottolineano qui i due aspetti della vena eroicomica a lui più congeniali. II primo è quello che considera elemento scatenante il fatto frivolo, la scioccheza, il trifle, l’oggetto minimo  il pomo e la secchia; e del resto,",
+        "gold_entities_raw": [
+            {
+                "word": "Tassoni",
+                "label": "PER"
+            },
+            {
+                "word": "Pope",
+                "label": "PER"
+            },
+            {
+                "word": "Petrosellini",
+                "label": "PER"
+            },
+            {
+                "word": "Giammaria",
+                "label": "PER"
+            },
+            {
+                "word": "Omero",
+                "label": "PER"
+            },
+            {
+                "word": "Troja",
+                "label": "LOC"
+            },
+            {
+                "word": "Asia",
+                "label": "LOC"
+            },
+            {
+                "word": "Modena",
+                "label": "LOC"
+            },
+            {
+                "word": "Bologna",
+                "label": "LOC"
+            }
+        ],
+        "gold_entities_normalized": [
+            "giammaria",
+            "tassoni",
+            "asia",
+            "troja",
+            "modena",
+            "omero",
+            "pope",
+            "bologna",
+            "petrosellini"
+        ],
+        "local_entities_normalized": [
+            "acheo",
+            "tassoni",
+            "troja",
+            "modena",
+            "omero",
+            "pope",
+            "bologna",
+            "petrosellini"
+        ],
+        "true_positives": 7
+    },
+    {
+        "filename": "118PariniPoesie1Si193-cleaned.json",
+        "chunk_text": "e gli affanni da i tuguri conduce a’ regi tetti; e con la man rapace ne le tombe condensa 70 prole d’uomini immensa. Sfugge talun, è vero, a i guardi infetti; ma palpitando peggior fato aspetti. Oh miseri! che vai di medic’arte, né studi oprar, né farmachi, né mani? 75 Tutti i sudor son vani quando il morbo nemico è su la porta; e vigor gli comparte de la sorpresa salma la non perfetta calma. 80 Oh debil’arte, oh mal secura scorta che il male attendi, e no  previeni accorta Già non l’attende in Oriente il folto popol che noi chiamiam barbaro e rude; ma sagace delude 85 il fiero inevitabile demóne. Poi che il buon punto ha coito onde il mostro conquida, coraggioso lo sfida; e lo astrigne ad usar ne la tenzone 90 Tarmi che ottuse tra le man gli pone. V   innesto del vaiuolo 295 Del regnante velen spontaneo elegge quel eh’ è men tristo; e macolar ne suole la ben amata prole che non più recidiva in salvo torna. 95 Però d’umano gregge va Pechino coperto; e di femmineo merto tesoreggia",
+        "gold_entities_raw": [
+            {
+                "word": "Oriente",
+                "label": "LOC"
+            },
+            {
+                "word": "Pechino",
+                "label": "LOC"
+            }
+        ],
+        "gold_entities_normalized": [
+            "oriente",
+            "pechino"
+        ],
+        "local_entities_normalized": [
+            "oriente",
+            "pechino"
+        ],
+        "true_positives": 2
+    },
+    {
+        "filename": "rcin.org.pl.Bulletin_Polonaise_1929_7-10_656-cleaned.json",
+        "chunk_text": "Polémon sont la source dans laquelle a puisé Pausanias pour décrire les dons votifs d’Olympie. L’ordre de cette description n’est pas de provenance périégétique, car il tient compte des rapports réels e repose sur la même division que nous observons chez Elien. Une autre supposition concerne le rapport entre le catalogue d Elien e le catalogue des trésors d’Olympie dans Pausanias. Les renseignements de Pausanias sur ces trésors n’ont pas été tirés de Polémon qui les a ou bien décrits dans un autre ouvrage que les Eliaques, ou bien, après les avoir sommairement passé en revue dans celles-ci e avoir épuisé le sujet en les énumérant, nen avait plus grand’chose à dire. Il se pourrait encore que la description d’Elien n’eń plus été d’actualité par suite de lappauvrissement des trésors. La description de Pausanias est non seulement la preuve que les trésors avaient été dilapidés e avaient changé de propriétaires, mais elle est en désaccord avec les résultats des fouilles qui en ont mis à",
+        "gold_entities_raw": [
+            {
+                "word": "Polémon",
+                "label": "PER"
+            },
+            {
+                "word": "Pausanias",
+                "label": "PER"
+            },
+            {
+                "word": "Olympie",
+                "label": "LOC"
+            },
+            {
+                "word": "Elien",
+                "label": "PER"
+            }
+        ],
+        "gold_entities_normalized": [
+            "elien",
+            "pausanias",
+            "polémon",
+            "olympie"
+        ],
+        "local_entities_normalized": [
+            "elien",
+            "pausanias",
+            "ol",
+            "pol"
+        ],
+        "true_positives": 2
+    },
+    {
+        "filename": "272MachiavellLegazioni4Si169-cleaned.json",
+        "chunk_text": "insieme con epso teco examiniate quello che ricercha el bisogno della fortificatione della forteza, e di tucto ci dia ad viso. E però sarete insieme ad questa consideratione, e di [tue] ogni particulare ci darete notitia. Vale. 182. ASF: Xdi  Cart. Miss. 80, c.  Ad Niccolò Zati. 13 giugno 1505  Perché e’ c’importa assai el fornire di fortificare la [terra di] forteza d’Arezo e tirare subito innanzi e’ fossi del cassero e ogni altra cosa necessaria alla fortifìcatione di quello luogo, vo liamo che, vista la presente, ti transferischa subito infimo in detta città d’Arezo. E harai ad te Antonio da San Gallo che si truova in quello luogo, e insieme con lui e con el Capitano viciterete detta forteza, e examinaerete particularmente quanto sia da fare cos’ circha la opera come circha ogni altra cosa che bisognassi 132«  I 33 r 133  154 SCRITTI DI GOVERNO  GIUGNO I505 (183-184) per condurre detta opera e ridurla ad perfectione. E facto che harai questa examina, ce ne darai adviso",
+        "gold_entities_raw": [
+            {
+                "word": "Niccolò Zati",
+                "label": "PER"
+            },
+            {
+                "word": "Arezo",
+                "label": "LOC"
+            },
+            {
+                "word": "Antonio da San Gallo",
+                "label": "PER"
+            }
+        ],
+        "gold_entities_normalized": [
+            "niccolò zati",
+            "antonio da san gallo",
+            "arezo"
+        ],
+        "local_entities_normalized": [
+            "niccolò zati",
+            "antonio da san gallo"
+        ],
+        "true_positives": 2
+    },
+    {
+        "filename": "lanovellisticastoriafrancia2-cleaned.json",
+        "chunk_text": "riassumere così: L’autore, dopo un ammonimento allegorico, ricevuto da un vecchio misterioso apparsogli nell’isola del sopore, ha occasione di recarsi a Genova, dove si trattiene in un albergo (di qui Google Il rappresentante più tipico del secentismo, assia Maiolino Bisaccioni. Carattere romanzesca delle sue novelle. L’invenzione d’insieme nell’Albergo. 336 LA DECADENZA il titolo). Là s’imbatte dapprima in un amico francese, Claudio, il quale, a spiegazione della sua tristezza, gli racconta la propria disavventura matrimoniale, finita tragicamente: ciò che forma il soggetto della prima novella. Poi vi capita un giovine straniero, che espone anch’egli la sua storia d’amore; e intanto, siccome Claudio, dimentico dell’antica fiamma, s’innamora d’una giovine condotta seco a Genova, in abito maschile, celebrandosi le loro nozze. vien pregato proprio il signor Conte di descri. vere le veglie, alle quali aveva assistito presso il Principe di Avellino. Ecco dunque il Bisaccioni,",
+        "gold_entities_raw": [
+            {
+                "word": "Genova",
+                "label": "LOC"
+            },
+            {
+                "word": "Claudio",
+                "label": "PER"
+            },
+            {
+                "word": "Principe di Avellino",
+                "label": "PER"
+            },
+            {
+                "word": "Bisaccioni",
+                "label": "PER"
+            },
+            {
+                "word": "Maiolino Bisaccioni",
+                "label": "PER"
+            }
+        ],
+        "gold_entities_normalized": [
+            "maiolino bisaccioni",
+            "bisaccioni",
+            "principe di avellino",
+            "genova",
+            "claudio"
+        ],
+        "local_entities_normalized": [
+            "genova",
+            "claudiollino",
+            "maiolino bisaccioni",
+            "isola del sopore"
+        ],
+        "true_positives": 2
+    },
+    {
+        "filename": "151SarpiIstoriaDelConcilioTridentino1Si224-cleaned.json",
+        "chunk_text": "bono sottomettersi alla determinazione di questi, facendosi ogni decreto per nome della sinodo, se il papa non interviene in persona; ché essendovi la sua presenza, ogni decreto si spedisce sotto suo nome, con la sola approbazione dei padri Sarpi, Istoria del Concilio Tridentino 11. 79S l’istoria del concilio tridentino della sinodo. Li cardinali ancora parlavano nell’istesso tenore, sempre però interponendo qualche ragione a mostrare che il concilio non era necessario, stante la determinazione di Leone, la qual esequendo, tutto sarebbe rimediato. E chi ricusa di rimettersi alla determinazione del papa, massime seguita col conseglio de’ cardinali, maggiormente sprezzarà ogni decreto conciliare. Vedersi chiaro che protestanti non chiamano con cilio, se non per interpor tempo all’esecuzione dell’editto di Vormazia; perché sanno bene che il concilio non potrà far altro che approvare quello che Leone ha determinato, se non vorrà esser conciliabulo, come tutti quelli che si sono scostati",
+        "gold_entities_raw": [
+            {
+                "word": "Sarpi",
+                "label": "PER"
+            },
+            {
+                "word": "Leone",
+                "label": "PER"
+            },
+            {
+                "word": "Vormazia",
+                "label": "LOC"
+            }
+        ],
+        "gold_entities_normalized": [
+            "sarpi",
+            "leone",
+            "vormazia"
+        ],
+        "local_entities_normalized": [
+            "pi",
+            "leone",
+            "vormazia"
+        ],
+        "true_positives": 2
+    },
+    {
+        "filename": "prosedellavolgarlinguapietrobembo-cleaned.json",
+        "chunk_text": "fiamma, nel numero del meno; eia  alcune poche volte in quello del più: il Petrarca, Con voce allor di si mirabil tempre. E è poi, che si lascia in quello del più eziandio la L, nelle voci del maschio e della femina; si come la lasciò il medesimo Petrarca: Quà’ figli mai, qua’ donne, furon materia a si giusto disdegno? e ancora, Data’ due luci è l’intelletto offeso; e il Boccaccio, che disse: Con le tue armi eco’ crude’ roncigli e ancora, Ne’ padri e ne’ figliuo’, in vece di dire Crudeli e Figliuoli. Né pure la medesi ma O, di cui sopra si disse, ma ancora tutta intera la sil laba si lascia in questa voce, Santo, maschilemente detta, e in quest’altre, Prode Grande-, e più ancora che la intera sillaba in queste, Belli e Quelli, vi si lascia, e in Cavalli la lasciò il Boccaccio, che disse Cava’ nella sua Teseide. Letteratura italiana Einaudi Pietro Bembo  Prose della voigar lingua Come che la voce Grande, troncamente detta, non più al maschio si dà che alla femina. Nulla, allo",
+        "gold_entities_raw": [
+            {
+                "word": "Petrarca",
+                "label": "PER"
+            },
+            {
+                "word": "Boccaccio",
+                "label": "PER"
+            },
+            {
+                "word": "Pietro Bembo",
+                "label": "PER"
+            }
+        ],
+        "gold_entities_normalized": [
+            "petrarca",
+            "boccaccio",
+            "pietro bembo"
+        ],
+        "local_entities_normalized": [
+            "petrarca",
+            "boccaccio",
+            "pietro bembo"
+        ],
+        "true_positives": 3
+    },
+    {
+        "filename": "178GiannoneDelRegnoPapaleSi129-cleaned.json",
+        "chunk_text": "da’ padri vecchi erasi scritto intorno all’antica disciplina della Chiesa; in breve, quanto da una sincera e fedele istoria ecclesiastica è stato a noi tra mandato. Non bastava essersi insegnate nuove dottrine, disseminate altre massime e fatti nuovi Evangeli: bisognava estinguere quelli di Cristo. Poiché, sempre che questi rimangono, altro non si fa ora che metter gli uomini in una perpetua confusione e pretender da’ medesimi che si abbino a storcere il cervello e perdere ogni diritto APPENDICE 213 discorso, con fargli divenire peggiori di bruti; e, di vantaggio, non volendo abusarsi del loro lume e naturai discorso, esporgli a per secuzioni, a ruine e calamitosi pericoli. Bruciati che fossero gli antichi sacri libri, e spenta di lor ogni memoria, si vederebber gli uomini in calma, ed adatterebbero la lor mente alle nuove dottrine ed al nuovo sistema che si vuole che oggi si abbia della religione cristiana. Narra Livio che, dopo cinquecento anni dalla morte di Nutria Pompilio,",
+        "gold_entities_raw": [
+            {
+                "word": "Cristo",
+                "label": "PER"
+            },
+            {
+                "word": "Livio",
+                "label": "PER"
+            },
+            {
+                "word": "Nutria Pompilio",
+                "label": "PER"
+            }
+        ],
+        "gold_entities_normalized": [
+            "cristo",
+            "livio",
+            "nutria pompilio"
+        ],
+        "local_entities_normalized": [
+            "cristo",
+            "livio",
+            "nutria pompilio"
+        ],
+        "true_positives": 3
+    },
+    {
+        "filename": "graffiti-nella-biblioteca-di-babele-cleaned.json",
+        "chunk_text": "e la brezza imprevedibile? Aveva ispezionato la porta, che però era sigillata. I container circostanti recavano tutti soltanto un semplice sigillo di ispezione, ed erano vuoti. Non aveva più cercato di salire lassù, ma aveva tenuto d’oc chio il container incriminato. Adesso oltrepassò bar, ristoranti, toilette chimiche e aree di lavoro nell’attraversare il labirinto dei container di Oversatch. Alcuni svedesi diretti in Canada per una vacanza lo salutarono e gridarono il suo nome; evidentemente avevano bevuto, quindi Gennady si limitò a sorridere e a proseguire. Molte delle altre persone che oltrepassò sedevano in silen zio su comode sedie a sdraio. Erano intente a lavorare, quin di non le disturbò. Trovò l’abituale postazione di lavoro, ma vide che quella di Miranda, vicina alla sua, era vuota. Un’al tra donna sedeva lì vicino, intenta a sorseggiare una birra e a portare avanti un’animata conversazione con la parete vuota. Da qualche parte, forse dall’altra parte del mondo, qual",
+        "gold_entities_raw": [
+            "Gennady",
+            "Miranda",
+            "Oversatch",
+            "Canada"
+        ],
+        "gold_entities_normalized": [],
+        "local_entities_normalized": [
+            "gennady",
+            "miranda",
+            "canada"
+        ],
+        "true_positives": 0
+    },
+    {
+        "filename": "267MartelloTeatro1Si179-cleaned.json",
+        "chunk_text": "Le cose estrinseche ancora (secondo il citato autore) muovono a riso, e qui a caso fortunatamente m’incontro nello stesso esemplo addottoci di Cicerone dal medesimo Riccobuoni, allora che Marco Tullio interrogò chi avesse Lentulo alla sua spada legato; ed eccolo nel Marinista, che nulla temendo l’esortazione con cui Sostrata provoca Penulo a cacciargli ne’ fianchi la spada, risponde E come io temone? Se alla spadaccia sua legato è Penulo tal ch’ei pende da quella? Ma troppe più occasioni di ridere io porgo nella commedia, che fra i mentovati cancelli non si restringono, non potendosi verace mente del ridicolo dar positivo ed intero precetto; laonde Cesare appresso di Cicerone stima che precisamente dalla natura e dall’in gegno proceda l’urbanità, che si confonde colla facezia, di modo che non se ne possa dare dottrina. E, mi pare, che Platone nel suo Sofista abbia colto assai bene il punto, difinendo il ridicolo certo allontanamento da ciò ch’è congruo alla natura. Con questo",
+        "gold_entities_raw": [
+            {
+                "word": "Cicerone",
+                "label": "PER"
+            },
+            {
+                "word": "Riccobuoni",
+                "label": "PER"
+            },
+            {
+                "word": "Marco Tullio",
+                "label": "PER"
+            },
+            {
+                "word": "Lentulo",
+                "label": "PER"
+            },
+            {
+                "word": "Marinista",
+                "label": "PER"
+            },
+            {
+                "word": "Sostrata",
+                "label": "PER"
+            },
+            {
+                "word": "Penulo",
+                "label": "PER"
+            },
+            {
+                "word": "Cesare",
+                "label": "PER"
+            },
+            {
+                "word": "Platone",
+                "label": "PER"
+            }
+        ],
+        "gold_entities_normalized": [
+            "platone",
+            "marco tullio",
+            "marinista",
+            "sostrata",
+            "cicerone",
+            "lentulo",
+            "riccobuoni",
+            "cesare",
+            "penulo"
+        ],
+        "local_entities_normalized": [
+            "platone",
+            "marco tullio",
+            "marinista",
+            "sostrata",
+            "cicerone",
+            "lentulo",
+            "riccobuoni",
+            "cesare",
+            "penulo"
+        ],
+        "true_positives": 9
+    },
+    {
+        "filename": "Postfazione-i-tre-poemi-di-hrand-nazariantz-cleaned.json",
+        "chunk_text": "quasi, una figurazione mitologica: è eterna energia, creatrice e distruttrice a un tempo, la quale anche nella distruzione compie opera affidatale dalle profonde leggi della natura. Nello Specchio il poeta diventa l’ermetico Mago ì cui segreti non sono agevolmente penetrabili. Lo specchio è dramma, poema, romanzo a un tempo. Figure labili vagano drappeg— 255  parole che hanno una singolare risonanza. Qui certa predilezione del poeta pel canto amebeo, già delineatasi in qualche parte di Vahakn, sì afferma. Lo specchio prepara i poemi successivi: Nazyadè, fiore dî Saddi,  Hparadiso delle ombre  Anima, aurora di bellezza e UH grande canto della tragedia cosmica, nel quale ultimo un personaggio misterioso chiamato Hur Hayram {Fuoco fiammeggiante), conduce la Piccola Diletta. simboleggiante l’Occidente, in dolce pellegrinaggio lungo le misteriose e desiderate vie dell’Oriente e verso le geometrie stellari. Con ì poemi dialogati che vanno dallo Specchio al Grande Canto, Nazariantz sì",
+        "gold_entities_raw": [
+            {
+                "word": "Nazariantz",
+                "label": "PER"
+            },
+            {
+                "word": "Vahakn",
+                "label": "PER"
+            },
+            {
+                "word": "Nazyadè",
+                "label": "PER"
+            },
+            {
+                "word": "Hur Hayram",
+                "label": "PER"
+            },
+            {
+                "word": "Piccola Diletta",
+                "label": "PER"
+            },
+            {
+                "word": "Occidente",
+                "label": "LOC"
+            },
+            {
+                "word": "Oriente",
+                "label": "LOC"
+            }
+        ],
+        "gold_entities_normalized": [
+            "vahakn",
+            "hur hayram",
+            "oriente",
+            "nazariantz",
+            "nazyadè",
+            "occidente",
+            "piccola diletta"
+        ],
+        "local_entities_normalized": [
+            "occidente",
+            "oriente",
+            "hur hayram",
+            "nazariantz"
+        ],
+        "true_positives": 4
+    },
+    {
+        "filename": "260BasileLoCuntoSi034-cleaned.json",
+        "chunk_text": "lo tuosseco, credette a le parole de le sore; e tornata a la grotte e venuta la notte fece comme le dissero chelle ’miciate: ed essenno tutte le cose zitto e mutto, allommaie co lo focile ’na cannela, e se vedde a canto ’no shiore de bellezza, ’no giovane che non ve25 dive autro che giglie e rose. Essa, vedenno tanta bellezzetudene cosa, disse:  Affé, ca non me scappo chiù da le granfe!  e pigliato lo catenaccio l’apcrzc, e vedde ’na mano de femmene, che porta vano  capo tanto bello filato. A una de le quale cascata ’na ma tassa, Luciella, ch’era cunno de lemmosena, non recordannose 30 dove steva auzaie ’na voce decenno:  Auza, madamma, lo filato!  A lo quale strillo scetatose lo giovane, sentettc tanto desgusto d’essere stato scopierto da Luciella, ch’a la medesema pedata chiammato lo schiavo e fattole mettere le primme straccie  cuollo ne la mannaie, che co ’no colore de sciuto da lo spitale 35 tomaie a le sore, da le quale fu co triste parole e peo fatte cacciata. Pe la quale cosa",
+        "gold_entities_raw": [
+            {
+                "word": "Luciella",
+                "label": "PER"
+            }
+        ],
+        "gold_entities_normalized": [
+            "luciella"
+        ],
+        "local_entities_normalized": [
+            "auza",
+            "luciella"
+        ],
+        "true_positives": 1
+    },
+    {
+        "filename": "205DeSanctisSaggi3Si096-cleaned.json",
+        "chunk_text": "cosi toccare». P. 109 r. 17:  propria libertà, costituisce la grandezza morale dell’antico suicidio e lo rende su blime: Morire innanzi che servir sostenne. Nello spiritualismo»,   la propria libertà ed indipendenza costituisce la grandezza morale dell’antico suicidio e lo rende sublime. Nello spiritualismo  ivi r. 23:  per non venire a mano dei Romani    per non ca pitare in mano dei Romani  ivi r. 27:  un cosi raro esempio    un cosi caro esempio  ivi r. 30:  esemplare    tipo  P. no r. 12:  un concetto generalissimo    un concetto gene rale  ivi r. 14:  storia, scienza, pittura, scultura, ecc.; applicabile a tutti gli scrittori    storia, scultura, pittura ecc., applicabile a tutti gli autori  ivi r. 16:  invano in questa generalità noi cerchiamo    invano noi vi cerchiamo  ivi r. 18: a me la NOTA 345 purgate delle amplificazioni  3   me la spogliate delle amplifi cazioni  ivi r. 33:  È la riproduzione del peccato    È la riproduzione del delitto  P. in r. 5:  separatasi",
+        "gold_entities_raw": [
+            {
+                "word": "Romani",
+                "label": "PER"
+            }
+        ],
+        "gold_entities_normalized": [
+            "romani"
+        ],
+        "local_entities_normalized": [
+            "romani"
+        ],
+        "true_positives": 1
+    },
+    {
+        "filename": "ugo-dessy-i-galli-non-cantano-piu-cleaned.json",
+        "chunk_text": "particolari scabrosi. Tenga presente che una piena confessione potrà evitarle, salvo querela da parte dei genitori, una denuncia...» disse l’Ispettore facendo un cenno alla Direttrice, che uscì. Fioravanti nel frattempo si era tramutato da nuvoletta in farfalla variopinta, e con un leggero battito dei piedi si era lanciato in aria. Lasciandosi trasportare dalla brezza, scoprì un grazioso praticello di margherite bianche e gialle, giaggioli, papaveri e tuberose e si era messo a svolazzare per diletto da un colore all’altro. Per tanto, quando l’Ispettore spazientito per la confessione che non arrivava prese a urlargli in faccia, riportandolo in quella desolata pietraia, Fioravanti vide le corna caprine spuntare tra i capelli a spazzola e sentì la zaffata di zolfo da mozzargli il fiato. Il terrore gli tese i muscoli e urlando vade retro Satana! scattò in avanti. Per sua fortuna l’Ispettore svenne alla prima mazzata sul cranio e crollando sul pavimento non batté la tempia nello",
+        "gold_entities_raw": [
+            {
+                "word": "Fioravanti",
+                "label": "PER"
+            }
+        ],
+        "gold_entities_normalized": [
+            "fioravanti"
+        ],
+        "local_entities_normalized": [
+            "fioravanti",
+            "direttrice",
+            "satan"
+        ],
+        "true_positives": 1
+    },
+    {
+        "filename": "quaderniditalian82cana-cleaned.json",
+        "chunk_text": "di un gruppo famigliare è studiata attraverso un correlativo simbolo, il contrappunto di una famiglia di gatti che passano inosservati fra le persone. In questa tendenza, naturalmente, non c’è nulla di riduttivo. La Ginzburg si Umita a far nascere sulla carta dei rapporti romanzeschi, gettando i personaggi in tempi e spazi diversi, sovraffollando il racconto, lasciando che ad aggregare e dividere fatti e persone siano solo il caso e il mistero, cioè le stesse ragioni che portano infinite generazioni di animali, nella sterminata anonimia della vita, a mcontrarsi, accoppiarsi, fiutarsi, respingersi, a percorrere un tratto di strada in comune, finché un incidente qualsiasi, o la loro stessa natura, non li separi e divida. I gatti protagonisti di Borghesia sono invece tipici di una tendenza che abbiamo visto già stabilita nella narrativa e nel teatro della Ginzburg e non rappresentano nessuna novità. Si uniscono logicamente ai tanti animali che affollano la fantasia della Ginzburg.",
+        "gold_entities_raw": [
+            {
+                "word": "Ginzburg",
+                "label": "PER"
+            },
+            {
+                "word": "Borghesia",
+                "label": "PER"
+            },
+            {
+                "word": "Ginzburg",
+                "label": "PER"
+            },
+            {
+                "word": "Ginzburg",
+                "label": "PER"
+            }
+        ],
+        "gold_entities_normalized": [
+            "ginzburg",
+            "borghesia"
+        ],
+        "local_entities_normalized": [],
+        "true_positives": 0
+    },
+    {
+        "filename": "amintatorquatotasso-cleaned.json",
+        "chunk_text": "vo’ me stesso inanzi a gli occhi de la crudel fanciulla. A lei, cui tanto piace la piaga del mio core, 1040 colpo de’ suoi begli occhi, altrettanto piacer devrà per certo la piaga del mio petto, colpo de la mia mano. TIRSI Nove, A minta, t’annuncio di conforto: 1045 lascia ornai questo tanto lamentarti. AMINTA O himè, che di’? che porte? O la vita o la morte? TIRSI Porto salute e vita, s’ardirai di farti loro incontra: ma fa d’uopo 1050 d’esser un uom, Aminta, un uom ardito. AMINTA Qual ardir mi bisogna, e ’ncontra a cui? TIRSI Se la tua donna fosse in mezz’un bosco che, cinto intorno d’altissime rupi, desse albergo e le tigri ed a’ leoni, 1055 v’andresti tu? AMINTA V’andrei sicuro e baldo più che di festa villanella al ballo. Letteratura italiana Einaudi 36 Tor guato Tasso  A minta TIRSI E s’ella fosse tra ladroni ed armi, v’andresti tu? AMINTA V’andrei più lieto e pronto che l’assetato cervo e la fontana. TIRSI Bisogna a maggior prova ardir più grande, AMINTA Andrò per mezzo i",
+        "gold_entities_raw": [
+            {
+                "word": "Tirsi",
+                "label": "PER"
+            },
+            {
+                "word": "Aminta",
+                "label": "PER"
+            }
+        ],
+        "gold_entities_normalized": [
+            "aminta",
+            "tirsi"
+        ],
+        "local_entities_normalized": [
+            "a minta",
+            "aminta",
+            "tirsi"
+        ],
+        "true_positives": 2
+    },
+    {
+        "filename": "caraffini-c.-c.-imac-obcy-i-quattro-amici-cleaned.json",
+        "chunk_text": "sono in grave pericolo- disse il pesce senza mutare espressione  anche tu, orso. Dovete andarvene. -Professore, sicuro che non vuole il suo panino? Posso mangiarlo  chiese Bhyo mentre riponeva 1 resti del pranzo nello zaino, -Mangialo pure, ragazzo... Io non ho affatto fame- rispose il vecchio pinguino senza smettere di scribacchiare sul suo taccuino. -Tranquillo, fa sempre così mentre lavora- disse Bunny dando un colpetto di incoraggiamento a Bhyo con la coda; -il “fuoco sacro”- proseguì la vipera con sguardo assorto, poi sorrise -è così che chiama il suo ardore scientifico. Il mezzodì era passato da un pezzo e i tre si trovavano su uno sperone roccioso che concedeva una buona visuale sull’isola. Avevano attraversato il bosco con non poca fatica e raccolto molto materiale video interessante. Bunny non vedeva l’ora di incominciare a montare un bel documentario sullo scarabeo tricornuto, aveva un’aria allegra e di tanto in tanto Bhyo la sentì sibilare qualche vecchia canzone",
+        "gold_entities_raw": [
+            {
+                "word": "Bhyo",
+                "label": "PER"
+            },
+            {
+                "word": "Bunny",
+                "label": "PER"
+            }
+        ],
+        "gold_entities_normalized": [
+            "bhyo",
+            "bunny"
+        ],
+        "local_entities_normalized": [
+            "bhyo",
+            "bunny"
+        ],
+        "true_positives": 2
+    },
+    {
+        "filename": "1956relazionedelprimoviaggiointornoalmondo-cleaned.json",
+        "chunk_text": "Domandò qual dopo la morte del re succedesse a la signoria: rispose che lo re non aveva figlioli, ma figlio le, e che questo suo nipote aveva per moglie la maggio re; perciò era lo principe e quando li padri e madri erano vecchi non si onoravano più, ma li figlioli li comanda vano. Lo capitano li disse come Iddio fece lo cielo, la terra, lo mare e tante altre cose, e come impose se do vessero onorare li padri e madri e, chi altramente face56 va, era condannato nel fuoco eterno; e come tutti de scendevamo da Adam e Èva, nostri primi parenti; e come avevamo l’anima immortale, e molte altre cose pertinenti a la fede. Tutti allegri lo supplicorono volesse lasciarli due uomini, o almeno uno, acciò li ammaestras se ne la fede e che li farebbeno grande onore. Gli rispo se che allora non poteva lasciarli alcuno, ma se voleva no essere Cristiani, lo prete nostro li battezzerebbe, e che un’altra fiata menaria preti e frati, che li insegnereb bero la fede nostra. Risposero che prima volevano",
+        "gold_entities_raw": [
+            {
+                "word": "Iddio",
+                "label": "PER"
+            },
+            {
+                "word": "Adam",
+                "label": "PER"
+            },
+            {
+                "word": "Èva",
+                "label": "PER"
+            }
+        ],
+        "gold_entities_normalized": [
+            "adam",
+            "èva",
+            "iddio"
+        ],
+        "local_entities_normalized": [
+            "adam",
+            "èva"
+        ],
+        "true_positives": 2
+    },
+    {
+        "filename": "orlandofuriosoludovicoariosto-cleaned.json",
+        "chunk_text": "altri ch’erano intorno, e che vantarsi Brunel di questo aveano udito spesso, verso lui cominciaro a rivoltarsi, e far palesi cenni ch’era desso; Marfisa sospettando, ad informarsi da questo e da quell’altro ch’avea appresso, tanto che venne a ritrovar che quello che le tolse la spada era Brunello: 87 e seppe che pel furto onde era degno che gli annodasse il collo un capestro unto, dal re Agramanteal tingitano regno fu, con esempio inusitato, assunto. Marfisa, rinfrescando il vecchio sdegno, disegnò vendicarsene a quel punto,  Letteratura italiana Einaudi 940 Ludovico A riosto  O riandò Furioso e punir scherni e scorni che per strada fatti l’avea sopra la tolta spada. 88 Dal suo scudier l’elmo allacciar si fece; che del resto de l’arme era guernita. Senza osbergo io non trovo che mai diece volte fosse veduta alla sua vita, dal giorno ch’a portarlo assuefece la sua persona, oltre ogni fede ardita. Con l’elmo in capo andò dove fra i primi Brunel sedea negli argini sublimi. 89 Gli diede",
+        "gold_entities_raw": [
+            {
+                "word": "Brunel",
+                "label": "PER"
+            },
+            {
+                "word": "Marfisa",
+                "label": "PER"
+            },
+            {
+                "word": "Brunello",
+                "label": "PER"
+            },
+            {
+                "word": "Agramante",
+                "label": "PER"
+            },
+            {
+                "word": "tingitano",
+                "label": "LOC"
+            }
+        ],
+        "gold_entities_normalized": [
+            "brunello",
+            "tingitano",
+            "marfisa",
+            "brunel",
+            "agramante"
+        ],
+        "local_entities_normalized": [
+            "brunello",
+            "agramanteal",
+            "marfisa",
+            "brunel",
+            "ludovico a riosto"
+        ],
+        "true_positives": 3
+    },
+    {
+        "filename": "163GiordaniLettere1Si133-cleaned.json",
+        "chunk_text": "se la città freme scandalezzata, se alcuno domanda un fine a tanto abominabili orrori;  Ispettor delle Scuole, il Magistrato degli Studi, il Presidente dell’Interno, minacceranno ira e pene a chi deside rasse finito si bello e glorioso ordine di educazione. Ammirerà queste cose il mondo; che appena vorrà credere, leggendone le testimonianze solenni e irrepugnabili; e leggeralle in que’ P. Giordani, Lettere  i. io 146 PIETRO GIORDANI giornali di Francia e di Germania, dai quali e principi e mi nistri intendono le verità che non desiderano. Non è degno di me parlare di quegli spregevolissimi e spregiatissimi, che persuasero V. Ecc. a tanta turpitudine. Posso senza avvilirmi parlare a Lei, finché in Lei rimane tanta potestà di fare del bene, o del male. Osano fare lamenti di lese convenienze, quando il publico fremente li accusa di lesa umanità? Lo so anch’io  meglio di loro) che in paese ben governato ciascuno adempie le sue assegnate funzioni, e nessuno si frappone alle",
+        "gold_entities_raw": [
+            {
+                "word": "Ispettor delle Scuole",
+                "label": "PER"
+            },
+            {
+                "word": "Magistrato degli Studi",
+                "label": "PER"
+            },
+            {
+                "word": "Presidente dell’Interno",
+                "label": "PER"
+            },
+            {
+                "word": "P. Giordani",
+                "label": "PER"
+            },
+            {
+                "word": "PIETRO GIORDANI",
+                "label": "PER"
+            },
+            {
+                "word": "Francia",
+                "label": "LOC"
+            },
+            {
+                "word": "Germania",
+                "label": "LOC"
+            },
+            {
+                "word": "V. Ecc.",
+                "label": "PER"
+            }
+        ],
+        "gold_entities_normalized": [
+            "magistrato degli studi",
+            "v ecc",
+            "pietro giordani",
+            "germania",
+            "p giordani",
+            "ispettor delle scuole",
+            "presidente dellinterno",
+            "francia"
+        ],
+        "local_entities_normalized": [
+            "e",
+            "p giordaniiordani",
+            "germania",
+            "francia"
+        ],
+        "true_positives": 2
+    },
+    {
+        "filename": "rimeguidocavalcanti-cleaned.json",
+        "chunk_text": "mente accorta, ch’udendo la ’ngiuliosa cosa e torta ch’i’ ti fo sostener tuttora ardendo, 8 ched e’ non prenda  gran smarrimento ch’avante ch’udit’ aggia tua pesanza non si diparta da la vita il core. 1I E tu conosci ben ch’i’ sono Amore; però ti lascio questa mia sembianza e pòrtone ciascun tu’ pensamento.  14 XXXVII Vedeste, al mio parere, onne valore e tutto gioco e quanto bene o sente, se foste in prova del segnor valente che segnoreggia il mondo de l’onore, 4 poi vive in parte dove noia more, e tien ragion nel cassar de la mente;  va soave per sonno a la gente, che  cor ne porta senza far dolore. 8  Letteratura italiana Einaudi 32 Guido Cavalcanti  Rime Di voi lo core ne portò, veggendo che vostra donna la morte cadea: nodriala dello cor, di ciò temendo. 1I Quando v’apparve che se  già dolendo, fu  dolce sonno ch’allor si compiea, ché  su’ contraro lo ven’a vincendo. 14 XXXVIII S’io fosse quelli che d’amor fu degno, del qual non trovo sol che rimembranza, e la donna tenesse",
+        "gold_entities_raw": [
+            {
+                "word": "Amore",
+                "label": "PER"
+            },
+            {
+                "word": "Guido Cavalcanti",
+                "label": "PER"
+            }
+        ],
+        "gold_entities_normalized": [
+            "guido cavalcanti",
+            "amore"
+        ],
+        "local_entities_normalized": [
+            "guido cavalcanti"
+        ],
+        "true_positives": 1
+    },
+    {
+        "filename": "157SacchettiIlLibroDelleRimeSi217-cleaned.json",
+        "chunk_text": "seguito al v. 14; i versi 16-19 su due righi, con una grappa nel margine a destra, e le iniziali dei vv. 16 e 18 in fuori, come gli altri capoversi. La poesia CXI non ha segno di paragrafo innanzi all ’intonata’, ed ha un segno di paragrafo bleu innanzi a 3lagister cosi la poesia CXIII. 440 FRANCO SACCHETTI Manca il segno di paragrafo innanzi a ballata, poesia CXVII; la prima cifra romana dell ’intonata è stata per metà portata via da chi ritagliò i margini del codice; per la stessa ragione è ri masto solo un trattino dell’ultima gamba della  di Magister. Manca pure il segno di paragrafo a madriale, poesia CXVIII. I sonetti CXI Xaeb sono scritti uno accanto all’altro, su due colonne, forse perché con questi si arriva assai in là verso la fine della carta, e il margine è piccolo. In ambedue i sonetti, ma più nel primo, alcune lettere sono in parte svanite. Gli ultimi due versi di ciascun sonetto hanno una grappa che li unisce, a destra e a sinistra. I versi sono uno sotto l’altro, con",
+        "gold_entities_raw": [
+            {
+                "word": "FRANCO SACCHETTI",
+                "label": "PER"
+            }
+        ],
+        "gold_entities_normalized": [
+            "franco sacchetti"
+        ],
+        "local_entities_normalized": [
+            "franco sacchetti"
+        ],
+        "true_positives": 1
+    },
+    {
+        "filename": "dli.doa.177-cleaned.json",
+        "chunk_text": "vanamàrutena). 52. Al proposito, si veda Monier-Williams 19881009, col. 2. 53. Passi 2011, 86. In nota, il Passi specifica:  lasciano cioè ricoprire dalle formiche, rimanendo nella più assoluta immobilità: cf. la leggenda eziologica sorta intorno al nome di Vàlm Tki, autore del Ràmàyana, secondo la quale egli, assorto nella meditazione profonda, si sarebbe lasciato coprire da formiche [vaimi, da cui valmika, ‘formicaio’) senza avvedersene», ibid., 203, n. 4. 54. L’influenza del Formichi traluce anche dalla scelta di tradurre il verbo vartayanti con ‘campano’. 2 o 8 Antonio Rigopoulos Nel 1995, Irma Schotsman dava alle stampe la sua traduzione inglese del Buddhacarita, anch’ella sulla scorta dell’edizione critica del Johnston. La sua resa di 7, 15, a differenza di quella del Passi, è in sintonia con quella de U’orientalista britannico: Some live like birds  gleaning left over grains, and others are grazing grass just like thè deer; and some lead their lives here together with",
+        "gold_entities_raw": [
+            {
+                "word": "Passi",
+                "label": "PER"
+            },
+            {
+                "word": "Vàlm Tki",
+                "label": "PER"
+            },
+            {
+                "word": "Ràmàyana",
+                "label": "PER"
+            },
+            {
+                "word": "Formichi",
+                "label": "PER"
+            },
+            {
+                "word": "Antonio Rigopoulos",
+                "label": "PER"
+            },
+            {
+                "word": "Irma Schotsman",
+                "label": "PER"
+            },
+            {
+                "word": "Buddhacarita",
+                "label": "PER"
+            },
+            {
+                "word": "Johnston",
+                "label": "PER"
+            }
+        ],
+        "gold_entities_normalized": [
+            "johnston",
+            "antonio rigopoulos",
+            "formichi",
+            "buddhacarita",
+            "ràmàyana",
+            "irma schotsman",
+            "vàlm tki",
+            "passi"
+        ],
+        "local_entities_normalized": [
+            "antonio rigopoulos",
+            "irma schotsman",
+            "vàlm tki",
+            "passi",
+            "monier  williams"
+        ],
+        "true_positives": 4
+    },
+    {
+        "filename": "sisto_1852_2-cleaned.json",
+        "chunk_text": "col Cardinal suo nipote, 225  suo rigore non naturale, ma d’ambizione, ivi  comincia a visitare il suo libro di memorie, 226  benefica quei che lo avevano beneficato, ivi  ancora un religioso che gli aveva prestato quattro scudi, 230  quanto ben lo rimunerasse con mezzi curiosi, 232  alcuni suoi successi con i Gesuiti, 233  divide la città di Roma in più regioni, 234  sue diligenze per l’abbondanza, ivi  difende ai preti di tenere donne in casa, 235  fa frustare la cortegiana di un arcivescovo in sua presenza, ivi  censurato per tal rigore, 235  chiude gli occhi alla fornicazione, e perché, 237  sua inclinazione alle armi, 239  sua promozione di cardinali, ivi. Sorella del papa. Vedi Donna Camilla. Spie ne’ chiostri, quali, 175. Spinola Filippo, cardinale, favorisce Montalto, 71. Spioni scelti da Sisto in gran numero, e come li adoprasse, 174. Spioni, sono gente vile e senza onore, 348  per lo più rapportano il falso, 177. Starace, eletto in Napoli, e suo infelice caso in quella",
+        "gold_entities_raw": [
+            {
+                "word": "Donna Camilla",
+                "label": "PER"
+            },
+            {
+                "word": "Spinola Filippo",
+                "label": "PER"
+            },
+            {
+                "word": "Montalto",
+                "label": "PER"
+            },
+            {
+                "word": "Sisto",
+                "label": "PER"
+            },
+            {
+                "word": "Starace",
+                "label": "PER"
+            },
+            {
+                "word": "Roma",
+                "label": "LOC"
+            },
+            {
+                "word": "Napoli",
+                "label": "LOC"
+            }
+        ],
+        "gold_entities_normalized": [
+            "donna camilla",
+            "montalto",
+            "spinola filippo",
+            "napoli",
+            "starace",
+            "sisto",
+            "roma"
+        ],
+        "local_entities_normalized": [
+            "spinola filippo",
+            "napoli",
+            "starace",
+            "sisto",
+            "roma",
+            "camilla"
+        ],
+        "true_positives": 5
+    },
+    {
+        "filename": "grazieleugofoscolo-cleaned.json",
+        "chunk_text": "OV’HANNO PATRIA I CIGNI, ALLE VIRGINEE DEITÀ CONSACRA l’alta Regina mia candido un cigno Accogliete, o garzoni, e su le chiare acque vaganti intorno all’ara e al bosco deponete l’augello, e sia del nostro fonte signor: ei suoi atti venusti gli rendan l’onde e il suo candore, e goda di sé, quasi dicendo a chi lo mira, simbol son io della beltà. Sfrondate ilari carolando, o verginette, il mirteto ei rosai lungo i meandri del ruscello, versate sul ruscello, versateli, e al fuggente nuotatore che veleggia con pure ali di neve, fate inciampi di fiori, e qual più ameno fiore a voi sceglia col puniceo rostro, vel ponete nel seno. A quanti alati godon l’erbe del par l’aere e i laghi amabil sire è il cigno, e con l’impero modesto delle grazie i suoi vassalli regge, ed agli altri volator sorride, e lieto le sdegnose aquile ammira. Sovra l’omero suo guizzan securi gli argentei pesci, ed ospite leale il vagheggiano, s’ei visita all’alba le lor ime correnti, desioso di più freschi lavacri,",
+        "gold_entities_raw": [
+            {
+                "word": "Regina",
+                "label": "PER"
+            }
+        ],
+        "gold_entities_normalized": [
+            "regina"
+        ],
+        "local_entities_normalized": [
+            "regina"
+        ],
+        "true_positives": 1
+    },
+    {
+        "filename": "sepolcrideiugofoscolo-cleaned.json",
+        "chunk_text": "Dei. 225 E me che i tempi ed il desio d’onore fan per diversa gente ir fuggitivo, me ad evocar gli eroi chiamin le Muse del mortale pensiero animatrici. Siedon custodi de’ sepolcri, e quando 230 il tempo con sue fredde ale vi spazza fin le rovine, le Pimplèefan lieti di lor canto i deserti, e l’armonia vince di mille secoli il silenzio. Ed oggi nella Troadeinseminata 235 eterno splende a’ peregrini un loco, eterno per la Ninfa a cui fu sposo Giove, ed a Giove diè Dàrdano figlio, onde fur Troia e Assàraco ei cinquanta talami e il regno della giulia gente. 240 Però che quando E lettra udì la Parca che lei dalle vitali aure del giorno chiamava a’ cori dell’Eliso, a Giove mandò il voto supremo:  E se, diceva, a te fur care le mie chiome e il viso 245 e le dolci vigilie, e non mi assente premio miglior la volontà de’ fati, la morta amica almen guarda dal cielo onde d’E lettra tua resti la fama. Cosi orando moriva. E negemea 250 Letteratura italiana Einaudi 7 Ugo Foscolo  Dei Sepolcri",
+        "gold_entities_raw": [
+            {
+                "word": "Muse",
+                "label": "PER"
+            },
+            {
+                "word": "Pimplèe",
+                "label": "PER"
+            },
+            {
+                "word": "Troade",
+                "label": "LOC"
+            },
+            {
+                "word": "Ninfa",
+                "label": "PER"
+            },
+            {
+                "word": "Giove",
+                "label": "PER"
+            },
+            {
+                "word": "Dàrdano",
+                "label": "PER"
+            },
+            {
+                "word": "Troia",
+                "label": "LOC"
+            },
+            {
+                "word": "Assàraco",
+                "label": "PER"
+            },
+            {
+                "word": "Parca",
+                "label": "PER"
+            },
+            {
+                "word": "Eliso",
+                "label": "LOC"
+            },
+            {
+                "word": "E lettra",
+                "label": "PER"
+            },
+            {
+                "word": "Ugo Foscolo",
+                "label": "PER"
+            }
+        ],
+        "gold_entities_normalized": [
+            "giove",
+            "assàraco",
+            "parca",
+            "dàrdano",
+            "eliso",
+            "pimplèe",
+            "ugo foscolo",
+            "e lettra",
+            "troia",
+            "ninfa",
+            "troade",
+            "muse"
+        ],
+        "local_entities_normalized": [
+            "giove",
+            "assàraco",
+            "dàrdano",
+            "eliso",
+            "ugo foscolo",
+            "troadei",
+            "troia",
+            "mplèefa",
+            "ninfa"
+        ],
+        "true_positives": 7
+    },
+    {
+        "filename": "mandragolaniccolomachiavelli-cleaned.json",
+        "chunk_text": "Non cento lire, non cento grossi, o va’! E que sto è che, chi non ha lo stato in questa terra, de’ nostri pari, non truova can che gli abbai; e non siamo buoni ad altro che andare a’ mortori o alle ragunate d’un mogliazzo, o a starci tutto dì in sulla panca del Pro consolo a donzellarci Ma io ne li disgrazio, io non ho bisogno di persona; cosi stessi chi sta peggio di me. Non vorrei però che le fussino mia parole, che io arei di fatto qualche balzello o qualche porro di drieto, che mi fare’ sudare.  Letteratura italiana Einaudi Niccolò Mach lavelli  Mari drago! a siro Non dubitate. nicia Noi siamo a casa, Aspettami qui: io tornerò ora. siro Andate. SCENA QUARTA Siro solo. siro Se gli altri dottori fussino fatti come costui, noi faremmo a sassi pe’ forni: che si, che questo tristo di Ligurio e questo impazzato di questo mio patrone lo conducono in qualche loco, che gli faranno vergogna! E veramente io lo desiderrei, quando io credessi che non si risapessi: perché risapendosi, io",
+        "gold_entities_raw": [
+            {
+                "word": "Niccolò Machiavelli",
+                "label": "PER"
+            },
+            {
+                "word": "siro",
+                "label": "PER"
+            },
+            {
+                "word": "nicia",
+                "label": "PER"
+            },
+            {
+                "word": "Ligurio",
+                "label": "PER"
+            }
+        ],
+        "gold_entities_normalized": [
+            "nicia",
+            "ligurio",
+            "niccolò machiavelli",
+            "siro"
+        ],
+        "local_entities_normalized": [
+            "aspettami",
+            "mari drag",
+            "ligurio",
+            "niccolò mach lavelli"
+        ],
+        "true_positives": 1
+    },
+    {
+        "filename": "rimeburchiellodomenicodigiovanni-cleaned.json",
+        "chunk_text": "gran danno agli Affricani: 14 però fu Fazin Cani assediato e rinchiuso con suo genti di dì fra l’un vi’ uno e  duo vie venti. 17  Letteratura italiana Einaudi 130 I sonetti del Burchiello CXXXI Son medico in volgare, non in grammatica, Signor mie caro, e con poca attitudine, ché l’ho male studiata in gioventudine, sì ch’io non ti guarrei d’una volatica. 4 Ma se tu hai catarro o gotta sciatica o scesa o rema, o senti amaritudine di podagre ch’affrighon vecchitudine, o hai disavolata o spalla o natica, 8 di tutte queste e d’ogn’altro difetto, di doglia nuova o vecchia corporale, ti fia il bagno utile e perfetto: 11 la coglia ti verrà com’un grembiale per le calde acque e pel sudar del letto e scorcerassi il lungo pasturale. 14 Pur nondimeno al quale procura ben per fantasia di sonno che non gli paia furare qualche conno. 17 Letteratura italiana Einaudi 13I I sonetti del Burchiello CXXXII Veggio venir di ver la Falterona nebbia che passa e va in Ungheria, veduto ho la cumeta in",
+        "gold_entities_raw": [
+            {
+                "word": "Affricani",
+                "label": "LOC"
+            },
+            {
+                "word": "Fazin Cani",
+                "label": "PER"
+            },
+            {
+                "word": "Burchiello",
+                "label": "PER"
+            },
+            {
+                "word": "Falterona",
+                "label": "LOC"
+            },
+            {
+                "word": "Ungheria",
+                "label": "LOC"
+            }
+        ],
+        "gold_entities_normalized": [
+            "ungheria",
+            "fazin cani",
+            "burchiello",
+            "affricani",
+            "falterona"
+        ],
+        "local_entities_normalized": [
+            "affrica",
+            "fazin cani",
+            "signorlterona",
+            "ungheria"
+        ],
+        "true_positives": 2
+    },
+    {
+        "filename": "marcoviscontist00grosgoog-cleaned.json",
+        "chunk_text": "à I CAPITOLO.». ig5 un balcone,  onde stavan guardando il badi? e la %liu Qla£ U lettore ÌBlofina  cftial dei due iaraleatori  fermatiero gli tgtiardi di questa, menke ilpadre li volav« sbmedare cersar dal parapetti fiioeado liàciaixiaoi e ùcfaini a Marco. Quando finrono oltaparaati, i(.giovaoe Yo Ua rappieear« il disoorso toternlto» Ola il suo «goore con aria severa gli te’ i cenno della mano comandandogli dbe vdasse indietro insieme eoi driqppe Jlo del  (eggio che lo seguitava, dopo di che abban4oiÀ. le redini sul co Uo del oava Uo, gli oaeciò sproni ne’ fianchi spingendolo  precipizio  dentro la corte del suo palazzo, ove giuntò, smontò ascese le scale senza far parola» e io tutto quel giorno non si lasciò più vedere. 5oa incrusca ora ai lettori di tornare nn paso indietro per andare fino a Limoota, dove abbiamo lasciato alcuni nostri amici, addosso à quali stava perversarsi la piena.- nuli’ altro die le sessanta lance condotte dal Bellebuono per fare uno. scempio in quel",
+        "gold_entities_raw": [
+            {
+                "word": "Marco",
+                "label": "PER"
+            },
+            {
+                "word": "Limoota",
+                "label": "LOC"
+            },
+            {
+                "word": "Bellebuono",
+                "label": "PER"
+            }
+        ],
+        "gold_entities_normalized": [
+            "marco",
+            "bellebuono",
+            "limoota"
+        ],
+        "local_entities_normalized": [
+            "marco",
+            "bellebuono",
+            "limoota"
+        ],
+        "true_positives": 3
+    },
+    {
+        "filename": "143AlighieriDivinaCommediaSi010-cleaned.json",
+        "chunk_text": "integrate, e degli apografi suc cessivi. La tradizione tanto complessa dei manoscritti fin dalle prime origini, spiega quella tanto laboriosa delle edizioni  Qui basta rammentarne quelle che in passato segnarono i momenti di mag gior progresso, anche a titolo di gratitudine: e sono tre. La prima è l’Aldina del 1502, alla quale dette l’opera sua Pietro Bembo, ed ebbe a fondamento il cod. Vatic. 1399, che fu creduto di mano del Boccaccio. La seconda è quella della Crusca del 1595, o più esattamente di Bastiano dei Rossi, suo segretario: muove dal l’Aldina, ma ha il merito di aver restituito alla più giusta lezione un gran numero di passi e costituito la base della vulgata, per oltre due secoli. La terza è quella del 1837, a cura degli acca demici G. B. Niccolini, Gino Capponi, Giuseppe Borghi, Frut tuoso Becchi, pei tipi del Le Monnier, eseguita con nuovi spogli (non sempre metodici) e tenendo conto del lavoro precedente già allora cospicuo. L’attività critica più moderna, cioè più",
+        "gold_entities_raw": [
+            {
+                "word": "Pietro Bembo",
+                "label": "PER"
+            },
+            {
+                "word": "Boccaccio",
+                "label": "PER"
+            },
+            {
+                "word": "Bastiano dei Rossi",
+                "label": "PER"
+            },
+            {
+                "word": "G. B. Niccolini",
+                "label": "PER"
+            },
+            {
+                "word": "Gino Capponi",
+                "label": "PER"
+            },
+            {
+                "word": "Giuseppe Borghi",
+                "label": "PER"
+            },
+            {
+                "word": "Fruttuoso Becchi",
+                "label": "PER"
+            },
+            {
+                "word": "Le Monnier",
+                "label": "PER"
+            }
+        ],
+        "gold_entities_normalized": [
+            "le monnier",
+            "giuseppe borghi",
+            "bastiano dei rossi",
+            "fruttuoso becchi",
+            "boccaccio",
+            "g b niccolini",
+            "gino capponi",
+            "pietro bembo"
+        ],
+        "local_entities_normalized": [
+            "le monnier",
+            "giuseppe borghi",
+            "bastiano dei rossi",
+            "boccaccio",
+            "g b niccolini",
+            "gino capponi",
+            "pietro bembo",
+            "becchi"
+        ],
+        "true_positives": 7
+    },
+    {
+        "filename": "109AriostoOrlandoFurioso2Si018-cleaned.json",
+        "chunk_text": "ad albergare a Zattiva veniro. 55 I patroni a veder strade e palazzi ne vanno, e lochi publici e divini; ch’usanza han di pigliar simil solazzi in ogni terra ove entran peregrini; e la fanciulla resta coi ragazzi. Altri i letti, altri acconciano i ronzini, altri hanno cura che sia alla tornata dei signor lor la cena apparecchiata. VENTESIMOTTAVO 56 Ne l’albergo un garzon stava per fante, eh’ in casa de la giovene già stette a’ servigi del padre, e d’essa amante fu da’ primi anni, e del suo amor godette. Ben s’adocchiàr, ma non ne fèr sembiante, ch’esser notato ognun di lor temette: ma tosto eh’ i patroni e la famiglia lor dieron luogo, alzar tra lor le ciglia. 57 Il fante domandò dove ella gisse, e qual dei duo signor l’avesse seco. A punto la Fiammetta il fatto disse (cosi avea nome, e quel garzone il Greco).  Quando sperai che ’I tempo, ohimè! venisse (il Greco le dicea) di viver teco, Fiammetta, anima mia, tu te ne vai, e non so più di rivederti mai. Fannosi i dolci miei",
+        "gold_entities_raw": [
+            {
+                "word": "Zattiva",
+                "label": "LOC"
+            },
+            {
+                "word": "Fiammetta",
+                "label": "PER"
+            },
+            {
+                "word": "il Greco",
+                "label": "PER"
+            }
+        ],
+        "gold_entities_normalized": [
+            "zattiva",
+            "fiammetta",
+            "il greco"
+        ],
+        "local_entities_normalized": [
+            "zattiva",
+            "fiammetta"
+        ],
+        "true_positives": 2
+    },
+    {
+        "filename": "odibarbaregiosuecarducci-cleaned.json",
+        "chunk_text": "lungo il nero convoglio evengono incappucciati di nero i vigili, com’ombre; una fioca lanterna hanno, e mazze di ferro: ed i ferrei 20 freni tentati rendono un lugubre rintocco lungo: di fondo a l’anima un’eco di tedio risponde doloroso, che spasimo pare. 24 E gli sportelli sbattuti al chiudere paion oltraggi: scherno par l’ultimo  Letteratura italiana Einaudi 72 Giosue Carducci  O di barbare appello che rapido suona: grossa scroscia su’ vetri la pioggia. 28 Già il mostro, conscio di sua metallica anima, sbuffa, crolla, ansa, i fiammei occhi sbarra: immane pe ’I buio gitta il fischio che sfida lo spazio. 32 Va l’empio mostro; con traino orribile sbattendo l’ale gli amor miei portasi. Ahi, la bianca faccia e’I bel velo salutando scompar ne la tènebra. 36O viso dolce di pallor roseo, o stellanti occhi di pace, o candida tra’ floridi ricci inchinata pura fronte con atto soave! 40 Fremea la vita nel tepid’aere, fremea l’estate quando mi arrisero; e il giovine sole di giugno si piacea",
+        "gold_entities_raw": [
+            {
+                "word": "Giosue Carducci",
+                "label": "PER"
+            }
+        ],
+        "gold_entities_normalized": [
+            "giosue carducci"
+        ],
+        "local_entities_normalized": [
+            "giosue carducci"
+        ],
+        "true_positives": 1
+    },
+    {
+        "filename": "jeffhawke-cleaned.json",
+        "chunk_text": "ANDROIDE, CON ATTO V 2UESTA CATEGO PENSIERO/ FARA’ DEL MALE  COME TE E AL SUO CREATORE... O A  TUTTI GLI UMA V COL ORO CHE SONO SOT-  NOI  TO LA SUA PROTE-A    U 4     attento, terrestre 15 ir  SENTINELLA-ROBOT SEGNALA DA UN PUNTO D’OSSERVAZIONE PRIVI LEO IATO... 74 C/A FILA DI LUCI OSCÌL LANTI CHE VIENE DAL BORDO LONTANO DEL PIANETA...? UN AUTENTICO ESERCITO DI ANDROIDI SI AVVICINA. JW3 Vyor Àufr L     TORNANO PER DISTRUGm GERE IL LABORATORIO SOTW TERRANEO DOVE SONO ’NAT! LA DONNA CHE LI GUIDA... LO FA CERTO SPONTA  J REAMENTE-.. J U Tli U  SONO FUORILEGGE  PER H DIFETTO Dì  STRUZ/ONE DI CUI SI E’ PARLATO... V NON PROMETTO DI UCCIDERLA  VOGLIO SAPERE PERCHE  LO FA/ iiimwl 144145146 f’EU! SALVATA DAI SEM/-V/V,  CHE DJS/NTE 6 RARONO   AGUZZINI...  Jè§’   Ar. r Vi ir  Jm. ìm! MIEI SALVATORI  DISSERO COME POTEVO AIUTARLI... DOVEVO VENIRE  VOLO QU/ SU ANACORETA   r  iìh-eh A r 1 É’/M/EN5AL VATORI ATTACCARONO  LA CITTA  SENZA TIMORI... r.   A?/6Vjf  DIFENSORI NON SAPEVANO IN CHE",
+        "gold_entities_raw": [
+            {
+                "word": "Anacoreta",
+                "label": "LOC"
+            }
+        ],
+        "gold_entities_normalized": [
+            "anacoreta"
+        ],
+        "local_entities_normalized": [],
+        "true_positives": 0
+    },
+    {
+        "filename": "orfeoangelopoliziano-cleaned.json",
+        "chunk_text": "fato. Rimanti, Mopso, intorno a questo fonte, ch’i’ vogl’ire a trovalla sopra  monte. MOPSO O Tirsi, che ti par del tuo car sire? Vedi tu quanto d’ogni senso è fore! Tu gli potresti pur tal volta dire quanta vergogna gli fa questo amore. tirsi: O Mopso, al servo sta bene ubidire, e matto è chi comanda al suo signore. Io so che gli è più saggio assai che noi: a me basta guardar le vacche e  buoi. aristeo ad Euridice: Non mi fuggir, donzella, ch’i’ ti son tanto amico e che più t’amo che la vita e  core. Ascolta, o ninfa bella, ascolta quel ch’i’ dico; non fuggir, nympha, chi ti porta amore. Non son qui lupo o orso, ma son tuo amatore: dunque rafrena il tuo volante corso. 115120125130135 Letteratura italiana Einaudi Angelo Poliziano  Fabula di Orfeo Poi che el pregar non vale e tu via ti dilegui, e’ convien ch’io ti segui. Porgimi, Amor, porgimi or le tue ale! 140 Seguitando Aristeo Euridice, ella si fugge drento alla selva, dove punta dal serpente grida, e simile Aristeo Segue poi un",
+        "gold_entities_raw": [
+            {
+                "word": "Mopso",
+                "label": "PER"
+            },
+            {
+                "word": "Tirsi",
+                "label": "PER"
+            },
+            {
+                "word": "Aristeo",
+                "label": "PER"
+            },
+            {
+                "word": "Euridice",
+                "label": "PER"
+            },
+            {
+                "word": "Amor",
+                "label": "PER"
+            }
+        ],
+        "gold_entities_normalized": [
+            "amor",
+            "mopso",
+            "tirsi",
+            "euridice",
+            "aristeo"
+        ],
+        "local_entities_normalized": [
+            "euice",
+            "amor",
+            "mopso",
+            "angelo poliziano",
+            "tirsi",
+            "aristeo"
+        ],
+        "true_positives": 4
+    },
+    {
+        "filename": "una-verita-qualunque-24-1-cleaned.json",
+        "chunk_text": "portato via tempo ed energie. Ma talvolta se si riesce a superare una crisi interiore se ne esce migliori, sempre interiormente, anche se questo i datori di lavoro non lo contemplano per una eventuale assunzione. Ritornando a quei giorni, alle lezioni di biologia e psicologia generale aveva conosciuto Silvia di Bolzano. corsi si tenevano in un cinema. Erano frequentati da 400 studenti circa. La professoressa di biologia disse che era l’ora di finirla con le lauree facili date quasi per corrispondenza, che la vecchia facoltà di magistero era troppo facile e c’era il 30 politico, che la vecchia facoltà di magistero aveva fallito, creando troppi disoccupati. Da studenti del secondo anno erano arrivate notizie poco incoraggianti: talvolta buttava i libretti fuori dalla finestra e a volte bocciava se uno non rispondeva alla prima domanda. Molti erano terrorizzati. Silvia era una moretta simpatica, che faceva amicizia con tutti. Era già fidanzata. Ma non andava d’accordo col suo",
+        "gold_entities_raw": [
+            {
+                "word": "Silvia",
+                "label": "PER"
+            },
+            {
+                "word": "Bolzano",
+                "label": "LOC"
+            }
+        ],
+        "gold_entities_normalized": [
+            "bolzano",
+            "silvia"
+        ],
+        "local_entities_normalized": [
+            "bolzano",
+            "silvia"
+        ],
+        "true_positives": 2
+    },
+    {
+        "filename": "pauline-reage-storia-di-o-cleaned.json",
+        "chunk_text": "miglior uso che avrebbero potuto farne, e dell’opportunità di mettere in comune ciò che ciascuno di loro aveva imparato dal suo particolare impiego di O. Sir Stephen riconobbe volentieri che O era infinitamente più eccitante quando il suo corpo recava dei segni, quali che fossero, se non altro perché le impedivano di barare e indicavano a prima vista che tutto con lei era permesso. Poiché sapere era una cosa: ma vederne la prova, una prova costantemente rinnovata, era un’altra. René, disse Sir Stephen, aveva avuto ragione a desiderare che fosse frustata. Decisero che sarebbe stata frustata, anche indipendentemente dal piacere che potessero trarre dalle sue grida e dalle sue lacrime, tanto spesso quanto sarebbe stato necessario perché qualche traccia restasse sempre su di lei. O ascoltava, sempre distesa sulla schiena, e bruchiante, immobile; le sembrava che Sir Stephen, per una strana sostituzione, parlasse per lei, e al suo posto. Come se lui si fosse trovato nel suo corpo, e",
+        "gold_entities_raw": [
+            {
+                "word": "Sir Stephen",
+                "label": "PER"
+            },
+            {
+                "word": "O",
+                "label": "PER"
+            },
+            {
+                "word": "René",
+                "label": "PER"
+            }
+        ],
+        "gold_entities_normalized": [
+            "rené",
+            "o",
+            "sir stephen"
+        ],
+        "local_entities_normalized": [
+            "rené",
+            "o",
+            "sir stephen"
+        ],
+        "true_positives": 3
+    },
+    {
+        "filename": "Affronti_e_Confronti-cleaned.json",
+        "chunk_text": "convenuto. Tutti capirono che era ora di andare a prendere i regali, a ognuno il suo. Ma la vera sorpresa fu quando Edoardo e Nina consegnarono ai signori fumatori i rispettivi accendini, così ben firmati e stilizzati. Il professore ne restò fortemente sorpreso.  voi, siete riusciti a scrivere nome e  «Con la punta di un piccolo scalpello», lo interruppe Nina. «Signora, si vede che la classe non è acqua», le rispose il professore compiaciuto.  ora, anche noi vorremmo lasciarvi un ricordo. Enea e Tony, per ciascuno di voi, 398 abbiamo pensato di acquistare le nove Sinfonie di Beethoven dirette da Herbert von Karajan. In particolare a te, Enea, so che piace la musica classica e spero che piaccia anche al tuo amico». Poi consegnò a Lisa un’agenda elettronica, mentre alla signora Dondi regalò un frullatore ad immersione. Tutti, però, rimasero a bocca aperta quando ad Edoardo e Nina consegnò un magnifico quadro di grandi dimensioni con le loro foto del matrimonio. I ringraziamenti furono",
+        "gold_entities_raw": [
+            {
+                "word": "Edoardo",
+                "label": "PER"
+            },
+            {
+                "word": "Nina",
+                "label": "PER"
+            },
+            {
+                "word": "Enea",
+                "label": "PER"
+            },
+            {
+                "word": "Tony",
+                "label": "PER"
+            },
+            {
+                "word": "Beethoven",
+                "label": "PER"
+            },
+            {
+                "word": "Herbert von Karajan",
+                "label": "PER"
+            },
+            {
+                "word": "Lisa",
+                "label": "PER"
+            },
+            {
+                "word": "Dondi",
+                "label": "PER"
+            }
+        ],
+        "gold_entities_normalized": [
+            "nina",
+            "enea",
+            "herbert von karajan",
+            "dondi",
+            "edoardo",
+            "beethoven",
+            "tony",
+            "lisa"
+        ],
+        "local_entities_normalized": [
+            "nina",
+            "enea",
+            "herbert von karajan",
+            "dondi",
+            "edoardo",
+            "tony",
+            "lisa"
+        ],
+        "true_positives": 7
+    },
+    {
+        "filename": "ugo-dessy-il-testimone-cleaned.json",
+        "chunk_text": "voltarsi. «Vado subito». Prima mi riscaldo un poco«.  fai presto«. Borbotta zia Elvira andandosene. Allora mi volto a guardare Maria. Anche lei si è voltata, mi sorride tranquilla, senza turbamento. Avvicina uno scanno, si siede vicina a me. Mi prende una mano fra le sue. »Grazie, per le scarpe«. Dice. »Sono le scarpe più belle del paese. Meglio di quelle della figlia di don Peppe,  Mi stringe forte la mano. Poi, d’improvviso, senza che io possa evitarlo, me la bacia. Sono rimasto a lungo confuso, dopo che lei è fuggita, a pensare, a guardare imbambolato il fuoco che continuava a spegnersi. d Mi propongono di coltivare il pezzo di terra dietro le stalle, seicento metri quadrati. »Pianteremo alberi da frutto, ravanelli, lattughe e carciofi«. Progettano i maschi.  prezzemolo, aglio, cipolle e basilico«. Aggiungono le femmine. Giudicano piante e alberi soltanto in rapporto al frutto. Se danno frutti commestibili, le piante sono utili, da rispettare e da curare; ma se frutti non ne",
+        "gold_entities_raw": [
+            {
+                "word": "Elvira",
+                "label": "PER"
+            },
+            {
+                "word": "Maria",
+                "label": "PER"
+            },
+            {
+                "word": "don Peppe",
+                "label": "PER"
+            }
+        ],
+        "gold_entities_normalized": [
+            "elvira",
+            "don peppe",
+            "maria"
+        ],
+        "local_entities_normalized": [
+            "elvira",
+            "don peppe",
+            "maria"
+        ],
+        "true_positives": 3
+    },
+    {
+        "filename": "105LeopardiOperetteMorali2Si161-cleaned.json",
+        "chunk_text": "a cotesta forma di vita? Tasso. Più settimane, come tu sai. Gen Io. Non conosci tu, dal primo giorno al presente, alcuna diversità nel fastidio che ella ti reca? Tasso. Certo che io lo provava maggiore a principio: perché di mano in mano la mente, non occupata da altro e non isvagata, mi si viene accostumando a conversare seco medesima assai più e con maggior sollazzo di prima, e acquistando un abito e una virtù di favellare in se stessa, anzi di cicalare, tale, che parecchie volte mi pare quasi avere una compagnia DIALOGO DI T. TASSO E DEL SUO GENIO FAMILIARE 73 di persone in capo che stieno ragionando, e ogni menomo soggetto che mi si rappresenti al pensiero, mi basta a farne tra me e me una gran diceria. Genio. Cotesto abito te lo vedrai confermare e accrescere di giorno in giorno per modo che, quando poi ti si renda la facoltà di usare cogli altri uomini, ti parrà essere più disoccupato stando in compagnia loro, che in solitudine. E quest’assuefazione in si fatto tenore di",
+        "gold_entities_raw": [
+            {
+                "word": "Tasso",
+                "label": "PER"
+            },
+            {
+                "word": "Genio",
+                "label": "PER"
+            },
+            {
+                "word": "T. Tasso",
+                "label": "PER"
+            },
+            {
+                "word": "GENIO FAMILIARE",
+                "label": "PER"
+            }
+        ],
+        "gold_entities_normalized": [
+            "genio familiare",
+            "t tasso",
+            "tasso",
+            "genio"
+        ],
+        "local_entities_normalized": [
+            "tasso"
+        ],
+        "true_positives": 1
+    },
+    {
+        "filename": "069IacoponeLeLaude1930Si156-cleaned.json",
+        "chunk_text": "prof. Brugnoli mi rimprovera   di assegnare i codici todini assai antichi alla fine del  secolo e di «far gran caso della differenza di espres sione usata [dall’editore] per quei codici assai antichi in confronto di quella adoperata per il cod. Perugino del 1336 e per un altro suo coevo, dei quali l’editore fiorentino dice che erano pur antichi». «Anche a voler dare importanza (egli continua) a questa lieve sfumatura  dico lieve perché  induzione si fonderebbe tutta sulla mancanza dell’avverbio ’assai3, mancanza in gran parte compensata dal  pur 3  non è possibile rimontare più indietro del 1300, perché altrimenti sareb bero rimaste escluse da quei codici le laude composte da Iacopone durante e dopo la prigionia, laddove ce ne troviamo invece parecchie se non tutte  Riconosco che l’attribuzione (da me proposta, del resto, con molta circospezione) dei codd. todini più antichi alla fine del  secolo (l’anno 1300 appartiene a quel secolo!) può parere arrischiata, ma non priva di",
+        "gold_entities_raw": [
+            {
+                "word": "Brugnoli",
+                "label": "PER"
+            },
+            {
+                "word": "Iacopone",
+                "label": "PER"
+            }
+        ],
+        "gold_entities_normalized": [
+            "brugnoli",
+            "iacopone"
+        ],
+        "local_entities_normalized": [
+            "iacopone",
+            "perugino",
+            "prof brugnoli",
+            "fiorentino"
+        ],
+        "true_positives": 1
+    },
+    {
+        "filename": "095AriostoLiricaSi020-cleaned.json",
+        "chunk_text": "laudiòus Philosophiae. L’autore canta l’elogio della Sapienza, immaginando che, per festeggiarne la nascita, Giove raccolga a banchetto in Egitto gli dèi. i semidei e i grandi dell’antichità mitica; dal qual convegno hanno inizio la cultura e l’arte. p. 179372 INDICE II.  Ad Philiroem. Che  importa delle belliche minacce di Carlo Vili, che è per calare in Italia, se, sdraiato all’om bra d’un albero, può stare accanto alla sua Filiroe e cantare? p. 180 II bis.  Ode de vita quieta ad Philiroem.  18I III.  Ad Panduiphum. Spensierato, si gode la ridente cam pagna e i giocondi amori, accanto a Filli o a Filiroe; ma un pensiero turba la sua gioia, quello della minaccia gallica su l’Italia.  182 IV.  Epitaphium Pulci Arrosti. In morte del congiunto Folco Ariosti, caduto in Puglia nel 1495.  184 V.  [Ad Herculem Ferrariae ducetti secundum]. Celebra Er cole I, il benefico restauratore di Ferrara, ora chiamato in Lombardia a pacificar quei popoli.  184 VI.  Epitaphium Regis Ferdinatidi. In",
+        "gold_entities_raw": [
+            {
+                "word": "Giove",
+                "label": "PER"
+            },
+            {
+                "word": "Egitto",
+                "label": "LOC"
+            },
+            {
+                "word": "Philiroem",
+                "label": "PER"
+            },
+            {
+                "word": "Filiroe",
+                "label": "PER"
+            },
+            {
+                "word": "Carlo Vili",
+                "label": "PER"
+            },
+            {
+                "word": "Italia",
+                "label": "LOC"
+            },
+            {
+                "word": "Panduiphum",
+                "label": "PER"
+            },
+            {
+                "word": "Filli",
+                "label": "PER"
+            },
+            {
+                "word": "Pulci Arrosti",
+                "label": "PER"
+            },
+            {
+                "word": "Folco Ariosti",
+                "label": "PER"
+            },
+            {
+                "word": "Puglia",
+                "label": "LOC"
+            },
+            {
+                "word": "Herculem",
+                "label": "PER"
+            },
+            {
+                "word": "Ferrariae",
+                "label": "LOC"
+            },
+            {
+                "word": "Ercole I",
+                "label": "PER"
+            },
+            {
+                "word": "Ferrara",
+                "label": "LOC"
+            },
+            {
+                "word": "Lombardia",
+                "label": "LOC"
+            },
+            {
+                "word": "Regis Ferdinandi",
+                "label": "PER"
+            }
+        ],
+        "gold_entities_normalized": [
+            "giove",
+            "lombardia",
+            "carlo vili",
+            "filli",
+            "folco ariosti",
+            "herculem",
+            "regis ferdinandi",
+            "puglia",
+            "pulci arrosti",
+            "italia",
+            "ferrara",
+            "philiroem",
+            "ercole i",
+            "panduiphum",
+            "ferrariae",
+            "egitto",
+            "filiroe"
+        ],
+        "local_entities_normalized": [
+            "giove",
+            "herculem ferrariae",
+            "lombardia",
+            "carlo vili",
+            "folco ariosti",
+            "puglia",
+            "italia",
+            "ferrara",
+            "egitto"
+        ],
+        "true_positives": 8
+    },
+    {
+        "filename": "gerusalemmeliberatatorquatotasso-cleaned.json",
+        "chunk_text": "il saggio duce. Volgon quelle gridando indietro il piede, scorto che si gran turba egli conduce, si che la prima guardia è da lor desta, e com’ può meglio a guerreggiar s’appresta. 2I Dan fiato allora a i barbari metalli gli Arabi, certi ornai d’essere sentiti. Van gridi orrendi al cielo, e de’ cavalli co ’I suon del calpestio misti i nitriti. Gli alti monti muggir, muggir le valli, e risposer gli abissi a i lor muggiti, Letteratura italiana Einaudi 27I Torquato Tasso  Gerusalemme liberata e la face inalzò di Flegetonte A letto, e ’I segno diede a quei del monte. 22 Corre inanzi il Soldano, e giunge a quella confusa ancora e inordinata guarda rapido si che torbida procella da’ cavernosi monti esce più tarda. Fiume ch’arbori insieme e case svella, folgore che le torri abbatta ed arda, terremoto che ’I mondo empia d’orrore, son picciole sembianze al suo furore. 23 Non cala il ferro mai ch’a pien non colga, né coglie a pien che piaga anco non faccia, né piaga fa che l’alma altrui non",
+        "gold_entities_raw": [
+            {
+                "word": "Soldano",
+                "label": "PER"
+            },
+            {
+                "word": "Flegetonte",
+                "label": "LOC"
+            },
+            {
+                "word": "Torquato Tasso",
+                "label": "PER"
+            }
+        ],
+        "gold_entities_normalized": [
+            "soldano",
+            "torquato tasso",
+            "flegetonte"
+        ],
+        "local_entities_normalized": [
+            "torquato tasso",
+            "soldano",
+            "arabi",
+            "flegetonte"
+        ],
+        "true_positives": 3
+    },
+    {
+        "filename": "091LeopardiPueriliSi163-cleaned.json",
+        "chunk_text": "163. Arriano, 154. Arsinoe, 92. Asia, 58, 179, 205, 210. Atene, 126, 162, 163. Attalia, 51. Augusto Cesare, 31, 100. Ausonio, 96, 109. Averno, 36. Babele, 245. Babilonia, 162. Bacco, 104, 105, 106, 107, in 286 INDICE DEI NOMI Bayle, 121, 122. Benedetto (san) da Filadelfia, 243. Berni Francesco, 96, Betlem, 145. Bettinelli Saverio, 98, ni. Bibbiena  Bernardo, 96. Boccaccio Giovanni, 96. Boileau, 95, 97. Bosforo, 36. Boudier, 97. Boursault, 97. Brebeuf, 67. Brotnius, no. Bruto, 93, 157, 212. Buonaparte Napoleone, 152, 153, 164, 165, 194. Caino, 245. California, 247. Callimaco, 242, 245, 249. Calvario, 143. Cam, 243.  Carascosa, 64. Catone  Perciò uticense), 16, 17, 18, 28, 40, 86, 92, 93, 107. Catullo  Valerio), 241, 246. Caucaso, 160. Cecilia (santa), 243. Cecilio, 96. Cesare  Giulio), 26, 27, 28, 29,  51. 52 e passim nel Pompeo in Egitto, 92, 93, 157. Chateaubriand, 162, 165, 250. Cicerone  Tullio), 18, 19, 121, 126, 151, 241. Cinna  Cornelio), 157. Cintia, 13. Ciprigna, 114.",
+        "gold_entities_raw": [
+            {
+                "word": "Arriano",
+                "label": "PER"
+            },
+            {
+                "word": "Arsinoe",
+                "label": "PER"
+            },
+            {
+                "word": "Asia",
+                "label": "LOC"
+            },
+            {
+                "word": "Atene",
+                "label": "LOC"
+            },
+            {
+                "word": "Attalia",
+                "label": "LOC"
+            },
+            {
+                "word": "Augusto Cesare",
+                "label": "PER"
+            },
+            {
+                "word": "Ausonio",
+                "label": "PER"
+            },
+            {
+                "word": "Averno",
+                "label": "LOC"
+            },
+            {
+                "word": "Babele",
+                "label": "LOC"
+            },
+            {
+                "word": "Babilonia",
+                "label": "LOC"
+            },
+            {
+                "word": "Bacco",
+                "label": "PER"
+            },
+            {
+                "word": "Bayle",
+                "label": "PER"
+            },
+            {
+                "word": "Benedetto da Filadelfia",
+                "label": "PER"
+            },
+            {
+                "word": "Berni Francesco",
+                "label": "PER"
+            },
+            {
+                "word": "Betlem",
+                "label": "LOC"
+            },
+            {
+                "word": "Bettinelli Saverio",
+                "label": "PER"
+            },
+            {
+                "word": "Bibbiena Bernardo",
+                "label": "PER"
+            },
+            {
+                "word": "Boccaccio Giovanni",
+                "label": "PER"
+            },
+            {
+                "word": "Boileau",
+                "label": "PER"
+            },
+            {
+                "word": "Bosforo",
+                "label": "LOC"
+            },
+            {
+                "word": "Boudier",
+                "label": "PER"
+            },
+            {
+                "word": "Boursault",
+                "label": "PER"
+            },
+            {
+                "word": "Brebeuf",
+                "label": "PER"
+            },
+            {
+                "word": "Brotnius",
+                "label": "PER"
+            },
+            {
+                "word": "Bruto",
+                "label": "PER"
+            },
+            {
+                "word": "Buonaparte Napoleone",
+                "label": "PER"
+            },
+            {
+                "word": "Caino",
+                "label": "PER"
+            },
+            {
+                "word": "California",
+                "label": "LOC"
+            },
+            {
+                "word": "Callimaco",
+                "label": "PER"
+            },
+            {
+                "word": "Calvario",
+                "label": "LOC"
+            },
+            {
+                "word": "Cam",
+                "label": "PER"
+            },
+            {
+                "word": "Carascosa",
+                "label": "PER"
+            },
+            {
+                "word": "Catone",
+                "label": "PER"
+            },
+            {
+                "word": "Catullo",
+                "label": "PER"
+            },
+            {
+                "word": "Caucaso",
+                "label": "LOC"
+            },
+            {
+                "word": "Cecilia",
+                "label": "PER"
+            },
+            {
+                "word": "Cecilio",
+                "label": "PER"
+            },
+            {
+                "word": "Cesare",
+                "label": "PER"
+            },
+            {
+                "word": "Chateaubriand",
+                "label": "PER"
+            },
+            {
+                "word": "Cicerone",
+                "label": "PER"
+            },
+            {
+                "word": "Cinna",
+                "label": "PER"
+            },
+            {
+                "word": "Cintia",
+                "label": "PER"
+            },
+            {
+                "word": "Ciprigna",
+                "label": "PER"
+            }
+        ],
+        "gold_entities_normalized": [
+            "ciprigna",
+            "cam",
+            "caino",
+            "cicerone",
+            "betlem",
+            "boudier",
+            "berni francesco",
+            "boursault",
+            "brebeuf",
+            "callimaco",
+            "ausonio",
+            "babilonia",
+            "arsinoe",
+            "chateaubriand",
+            "cinna",
+            "california",
+            "cesare",
+            "averno",
+            "bibbiena bernardo",
+            "catullo",
+            "attalia",
+            "catone",
+            "atene",
+            "boileau",
+            "boccaccio giovanni",
+            "bacco",
+            "babele",
+            "bayle",
+            "benedetto da filadelfia",
+            "arriano",
+            "augusto cesare",
+            "caucaso",
+            "buonaparte napoleone",
+            "calvario",
+            "bosforo",
+            "cecilio",
+            "bettinelli saverio",
+            "cintia",
+            "asia",
+            "carascosa",
+            "brotnius",
+            "bruto",
+            "cecilia"
+        ],
+        "local_entities_normalized": [
+            "buonaparte",
+            "boursa",
+            "caino",
+            "cicerone",
+            "betlem",
+            "callimaco",
+            "boudier",
+            "berni francesco",
+            "brebeuf",
+            "egitto",
+            "ausonio",
+            "arsinoe",
+            "cesare",
+            "bibbiena bernardo",
+            "catullo",
+            "catone",
+            "boileau",
+            "arriano",
+            "boccaccio",
+            "benedetto",
+            "augusto cesare",
+            "calvario",
+            "da filadelfia",
+            "cecilio",
+            "bettinelli saverio",
+            "cinna cornelio",
+            "carascosa",
+            "cecilia",
+            "pompeo"
+        ],
+        "true_positives": 21
+    },
+    {
+        "filename": "152SarpiIstoriaDelConcilioTridentino2Si225-cleaned.json",
+        "chunk_text": "questo avvisato Cesare, al quale il negozio era molto a core; e restò offeso per la pertinacia delli pontifici, che volessero per pontiglio metter un negozio di tanto rilievo in conquasso, e far nascer una guerra, la qual potesse in fine esser anco il loro esterminio: e rimandò ordine alli ambasciatori suoi e al cardinale Madruccio che facessero opera di quietare il legato e usassero l’autorità sua prima con pre ghiera, poi anco con parole alte, se non trovavano tempera mento che sodisfacesse ad ambe le parti; e constringessero con modi civili il legato e li nonci a condescendere al giusto. Li ambasciatori cesarei e il Madruccio, preso conseglio, risolsero di non tentar con li pontifici tutto insieme, ma per principio solo trattar del ricevere gli ambasciatori. Dopo longhe persuasioni (le quali miravano a mostrare che quando fossero li sassoni introdotti nel consesso, dove essi erano pre sidenti, si poteva dire che la presidenza era assai riconosciuta, quantunque non fosse complito",
+        "gold_entities_raw": [
+            {
+                "word": "Cesare",
+                "label": "PER"
+            },
+            {
+                "word": "Madruccio",
+                "label": "PER"
+            },
+            {
+                "word": "sassoni",
+                "label": "PER"
+            }
+        ],
+        "gold_entities_normalized": [
+            "madruccio",
+            "cesare",
+            "sassoni"
+        ],
+        "local_entities_normalized": [
+            "cardinale",
+            "madruccio",
+            "cesare"
+        ],
+        "true_positives": 2
+    },
+    {
+        "filename": "002_Bandello_Le_novelle_1_si286-cleaned.json",
+        "chunk_text": "core, ed altresi senza fine temo, veggendovi tanto giovane e bella, che io non ne ricevessi alcun disonore. Che subito eh’ io fossi partito, dubito che i baroni e gentiluomini de la contrada non si mettano con ogni loro sforzo per acquistare il vostro amore. Il che ogni volta che avvenisse, io come disonorato non potrei mai più sofferire d’esser veduto fra uomini di valore. E questo è tutto il nodo che mi tien legato qui, di modo che non so né posso a’ casi nostri provedere. Avete adunque, moglie mia carissima, da me udita la cagione dei miei pensieri.  E cosi detto, egli si tacque. La donna, che era valorosa e di gran core e che il marito senza fine amava, come senti quello aver finito il suo ragionamento, fatto allegro e buon viso, in tal maniera gli rispose:  Ulrico,  ché tale era il nome del cavaliere  io medesimamente più e più fiate ho pensato a la grandezza dei vostri e miei maggiori, da la quale parendomi che noi senza colpa nostra siamo assai lontani, mi andava imaginando",
+        "gold_entities_raw": [
+            {
+                "word": "Ulrico",
+                "label": "PER"
+            }
+        ],
+        "gold_entities_normalized": [
+            "ulrico"
+        ],
+        "local_entities_normalized": [
+            "ulrico"
+        ],
+        "true_positives": 1
+    },
+    {
+        "filename": "carteitaliane13univ-cleaned.json",
+        "chunk_text": "end o procreation and the commencement o the Sadian automation. Within the Deleuzian understanding o the Sadian economy, i fo Uows that men belong to nature only via »social conservatism,« and are subject to sadistic violence only insofar a they depart from their »essential« anarchie nature (becoming part o what Robert calls the »cretinismo maschile e di pudori«), while women become the sadistic victimspar excellence, since they are victimized for upholding their »true nature.« However, the Futurists distinguish between the essential (anatomical) and the normative (morphological) formations o identity: Valentine Saint-Point argues,  ASSURDO DIVIDERE L’UMANITÀ IN DONNE E UOMINI; essa è composta soltanto di FEMMINILITÀ e di MASCOLINITÀ.«» Despite the fact that the Futurists believe women are made and not bom, ie. gender i not an innate feature  sex maybe), but a sociocultural construction, and precisely for that reason i oppressive to women, the Futurists do not explode the",
+        "gold_entities_raw": [
+            {
+                "word": "Robert",
+                "label": "PER"
+            },
+            {
+                "word": "Valentine Saint-Point",
+                "label": "PER"
+            }
+        ],
+        "gold_entities_normalized": [
+            "valentine saintpoint",
+            "robert"
+        ],
+        "local_entities_normalized": [
+            "deleuzian",
+            "valentine saint  point",
+            "robert"
+        ],
+        "true_positives": 1
+    },
+    {
+        "filename": "SalgariTrenoVolante-cleaned.json",
+        "chunk_text": "erano muniti di cannocchiali, scorgevano bande di gazzelle e di anti lopi, selvaggina eccellente, che fornisce degli arrosti molto a prezzati anche dagli europei, oppure qualche truppa di giraffe dal collo smisurato e dalle gambe straordinarie e qualche coppia di zebre, specie, di asini bizzarramente rigati in bianco ed in nero con qualche riflesso giallastro.  Vorrei trovarmi in mezzo a quelle foreste  diceva il te60 EMILIO SALGARI desco, appassionato cacciatore e valente bersagliere.  Quei grossi animali mi tentano.  Chi c’impedisce di andarli a cacciare?  chiese l’arabo.  M’avete detto che il vostro pallone può abbassarsi.  Sì, sacrificando del gas.  È. troppo prezioso per perderlo?.  Ne ho parecchio in riserva, rinchiuso nei cilindri; però, come dite voi, è troppo prezioso per delle persone che devono andare molto lontano e poi tornare alla costa.  Come farete allora a discendere?  Si aspetta che scomparisca il sole  disse Matteo.  Sì, perchè raffreddandosi un po’ l’aria, il gas",
+        "gold_entities_raw": [
+            {
+                "word": "gazzelle",
+                "label": "PER"
+            },
+            {
+                "word": "Emilio Salgari",
+                "label": "PER"
+            },
+            {
+                "word": "Matteo",
+                "label": "PER"
+            }
+        ],
+        "gold_entities_normalized": [
+            "emilio salgari",
+            "gazzelle",
+            "matteo"
+        ],
+        "local_entities_normalized": [
+            "emilio salgari",
+            "matteo"
+        ],
+        "true_positives": 2
+    },
+    {
+        "filename": "storiadellaletteraturaitalianafrancescodesanctis-cleaned.json",
+        "chunk_text": "E con senso profondo Dante anche sulla faccia sfrontata di Vanni Fucci sco perto ladro gitta il rossore della vergogna: e di trista vergogna si dipinse. L’uomo che ha coscienza del suo vizio e se ne vergogna, in luogo di mostrarlo al naturale (ciò che produce la ca ricatura) cerca occultarlo sotto contraria apparenza: il poltrone fa il bravo. Nasce il contrasto tra l’essere e il parere: la situazione divien comica, e la sua forma è l’ironia. Lo spettatore indulgente e che vuole spassarsi a sue spese finge di crederlo e di secondarlo; accetta come seria l’apparenza che si dà, anzi la carica ancora di più; fa il bravo, ed egli lo chiama un «Orlando», ma accom pagnando le parole di un cotale ammiccar d’occhi che Letteratura italiana Einaudi 205 Francesco De Sanctis  Storia della letteratura italiana esprima scambievole intelligenza, di un tuono di voce in falsetto, di un riso equivoco, che vuol dire:  lo ti cono sco.  Perciò l’essenziale dell’ironia non è nell’immagi ne, ma nel",
+        "gold_entities_raw": [
+            {
+                "word": "Dante",
+                "label": "PER"
+            },
+            {
+                "word": "Vanni Fucci",
+                "label": "PER"
+            },
+            {
+                "word": "Orlando",
+                "label": "PER"
+            },
+            {
+                "word": "Francesco De Sanctis",
+                "label": "PER"
+            }
+        ],
+        "gold_entities_normalized": [
+            "dante",
+            "orlando",
+            "francesco de sanctis",
+            "vanni fucci"
+        ],
+        "local_entities_normalized": [
+            "dante",
+            "orlando",
+            "francesco de sanctis",
+            "vanni fucci"
+        ],
+        "true_positives": 4
+    },
+    {
+        "filename": "i-possessori-cleaned.json",
+        "chunk_text": "loro possono raggiungere  «Non possono? Quando sono pronti, devono soltanto togliere l’armadio. Niente di più facile.» «Cosa possiamo fare?» disse Jane. «Pensare, prima di cominciare a fare qualcosa,» disse George. «Non ce la siamo cavata molto bene, finora.» Aveva ragione, pensò Selby. Cercava di non pensare a Elizabeth, ma la visualizzazione lo riempiva di sofferenza. Tremava irrefrenabilmente. Douglas disse:  riuscissero  be’, a prenderci, senza diibbio non potrebbero arrivare lontano. Due miliardi... Potrebbero impadronirsi della razza umana? Non diceva sul serio, vero?» Parlare l’avrebbe aiutato a liberarsi la mente da quella  tortura ossessiva. Selby disse: «Diceva sul serio. Loro potrebbero farcela. Soprattutto con un elicottero a disposizione. Potrebbero disseminarsi 22515  Crrisro PHER  I Possessori nel Vallese, tanto per cominciare. In località isolate, magari  in attesa di qualche bambino non accompagnato. E poi il bambino va a casa, dai fratelli e dalle sorelle, dalla",
+        "gold_entities_raw": [
+            {
+                "word": "Jane",
+                "label": "PER"
+            },
+            {
+                "word": "George",
+                "label": "PER"
+            },
+            {
+                "word": "Selby",
+                "label": "PER"
+            },
+            {
+                "word": "Elizabeth",
+                "label": "PER"
+            },
+            {
+                "word": "Douglas",
+                "label": "PER"
+            },
+            {
+                "word": "Vallese",
+                "label": "LOC"
+            }
+        ],
+        "gold_entities_normalized": [
+            "selby",
+            "douglas",
+            "george",
+            "vallese",
+            "jane",
+            "elizabeth"
+        ],
+        "local_entities_normalized": [
+            "selby",
+            "douglas",
+            "george",
+            "vallese",
+            "jane",
+            "elizabeth"
+        ],
+        "true_positives": 6
+    },
+    {
+        "filename": "ebook-le-chant-de-l-27-ange-il-canto-dell-27-angelo_202004-cleaned.json",
+        "chunk_text": "tu lo chiamerai lui verrà da te, ora non ci sono più ostacoli, ma tu devi parlare! Alice scoppiò in lacrime, Michael la strinse sorridendo:  Levati dalla testa certe idee, tu sei la nostra Principessa. lo Raphael e Gabriel stavamo uscendo dalla serra. Da una delle finestre del corridoio vedemmo una sagoma apparire sul suolo del satellite di Giove.  Xantyan qui?  disse Raphael. Xantyan ci ignorava, i suoi occhi erano inchiodati su Gabriel.  Cosa cerca da te ancora?  dissi. Gabriel guardava Xantyan, non mi rispose.  Andiamo via  disse Raphael tirandolo per la manica del vestito  ti ha fatto abbastanza male  Finché si avvicina non lo possiamo abbandonare  rispose Gabriel  Vieni via!  insistette Raphael. No, Gabriel uscì e andò da Xantyan.  Credi che non abbia di meglio da fare che parlare con te?  gli disse duramente  Però sei venuto  Xantyan era arcigno. Sembrava si stessero sfidando.  Sei ancora in tempo  insistette Gabriel ammorbidendo il suo piglio  Non torno indietro!  Ho pena per",
+        "gold_entities_raw": [
+            {
+                "word": "Alice",
+                "label": "PER"
+            },
+            {
+                "word": "Michael",
+                "label": "PER"
+            },
+            {
+                "word": "Raphael",
+                "label": "PER"
+            },
+            {
+                "word": "Gabriel",
+                "label": "PER"
+            },
+            {
+                "word": "Giove",
+                "label": "LOC"
+            },
+            {
+                "word": "Xantyan",
+                "label": "PER"
+            }
+        ],
+        "gold_entities_normalized": [
+            "giove",
+            "alice",
+            "michael",
+            "xantyan",
+            "raphael",
+            "gabriel"
+        ],
+        "local_entities_normalized": [
+            "raphael",
+            "alice",
+            "michael",
+            "gabrieliove"
+        ],
+        "true_positives": 3
+    },
+    {
+        "filename": "vitalabenvenutocellini-cleaned.json",
+        "chunk_text": "in sua presenza e gli dissi: Tu lo sai, Cencio, se io ho peccato teco  il qual pia gnendo disse che no. Allora la madre, scotendo il capo, disse al figliuolo:  Ahi ribaldello, forse che io non so come si fa?  poi si volse a me, dicendomi che io lo te nessi nascosto in casa, perché il bargello ne cercava, e che l’arebbe preso ad ogni modo fuor di casa mia; ma che in casa mia non l’arebbon tocco. A questo io le dissi che in casa mia io aveva la sorella vedova con sei sante figlioline, e che io non volevo, in casa mia, persona. AIlora lei disse che ’I maiordomo aveva dato le commessione al bargello e che io sarei preso a ogni modo; ma poi ché io non volevo pigliare il figliuolo in casa, se io le davo cento scudi potevo non dubitar più di nulla, per ché essendo il maiordomo tanto grandissimo suo amico, io potevo star sicuro che lei gli arebbe fatto fare tutto quel che allei piaceva, purché io le dessi li cento scudi, lo ero venuto in tanto furore, col quale io le dissi:  Le",
+        "gold_entities_raw": [
+            {
+                "word": "Cencio",
+                "label": "PER"
+            }
+        ],
+        "gold_entities_normalized": [
+            "cencio"
+        ],
+        "local_entities_normalized": [
+            "cencio"
+        ],
+        "true_positives": 1
+    },
+    {
+        "filename": "canzoni-dombra-e-di-stelle-cleaned.json",
+        "chunk_text": "la sola cosa che aveva detto di concreto era stata: «Mondi di Jamson. Arik ci porta. Angeli uccidono». Cosa che aveva ripetuto interminabilmente fino a quando Ryther era riuscita infine a farle capire che, sì, li avrebbe portati. Gli altri due Jaenshi, la femmina incinta e il maschio con il laser, sembravano non parlare affatto. «Ancora statue», disse l’uomo dell’equipaggio dopo aver frugato ne H’ennesima cassa per vedere che cosa contenesse. Ryther si strinse nelle spalle; l’uomo continuò nella sua opera. Lei gli voltò la schiena e gironzolò per la base, fino ai bordi dello spazioporto dove riposava la Lights of Jolostar, con i portelli aperti illuminati di luce gialla nello splendido tramonto multicolore. Gli Haenshi la seguirono, come avevano fatto sempre fin dal suo arrivo; timorosi, senza dubbio, che lei potesse andarsene e lasciarli lì se solo avessero distolto per un attimo da lei i loro grandi occhi bronzei. «Statue», mormorò Ryther, in parte a se stessa e in parte agli",
+        "gold_entities_raw": [
+            {
+                "word": "Jamson",
+                "label": "PER"
+            },
+            {
+                "word": "Arik",
+                "label": "PER"
+            },
+            {
+                "word": "Ryther",
+                "label": "PER"
+            }
+        ],
+        "gold_entities_normalized": [
+            "jamson",
+            "ryther",
+            "arik"
+        ],
+        "local_entities_normalized": [],
+        "true_positives": 0
+    },
+    {
+        "filename": "203DeSanctisSaggi1Si094-cleaned.json",
+        "chunk_text": "si sottintenda molto: in tutti questi artifizi il Villemain è maestro. Ma ciò non basta. Non basta che ci sieno delle punzecchia ture, delle botte maestre. Un libro politico, che si proponga un effetto durabile, deve contenere in sé qualche cosa di sostan ziale, indipendente dalle circostanze accessorie, in mezzo alle quali nasce. In che è posta la sostanza, il fondo di questo lavoro? Il signor Villemain ha l’aria di voler raccontare le sue i pressioni giovanili, spettatore de’ cento giorni. Ma non ce la darà ad intendere. Il Villemain giovane è qui modificato ed interpretato dal Villemain del 1855. Sono i cento giorni narrati da un legittimista di fresca data, che si converte ad Enrico V, e pretende di rimanere orleanista, che vuole la bandiera bianca e crede alla bandiera tricolore. È l’utopia della fusione, il  Viva la libertà!  gridato dall’aristocrazia e dal clero. MEMORIE STORICHE E LETTERARIE DI VILLEMAIN 177 Il Villemain sceglie a campo di battaglia la caduta di Na poleone",
+        "gold_entities_raw": [
+            {
+                "word": "Villemain",
+                "label": "PER"
+            },
+            {
+                "word": "Enrico V",
+                "label": "PER"
+            },
+            {
+                "word": "Napoleone",
+                "label": "PER"
+            }
+        ],
+        "gold_entities_normalized": [
+            "napoleone",
+            "enrico v",
+            "villemain"
+        ],
+        "local_entities_normalized": [
+            "enrico v",
+            "villemain",
+            "na poleone"
+        ],
+        "true_positives": 2
+    },
+    {
+        "filename": "accanto-a-te-lamore-e-book-cleaned.json",
+        "chunk_text": "che lega le due cugine. La Crocefissione di Cristo La Crocefissione di Cristo Maria Cremonini peo Le Avventure del Duca e della Duchessa Balsamo nella Firenze degli anni trenta Un giorno, Ambra Dantès, attrice teatrale e cinematografica di successo, dopo aver perso una partita a tennis con il pittore di successo Edoardo Monchi (la posta era che se avesse perso avrebbe posato nuda per lui), nel rientrare a casa viene a sapere da suo marito, Alberto Balsamo, direttore di orchestra di fama internazionale, che la sua amica Caterina Penso si trova all’ospedale per un tentato avvelenamento. Ambra la va a trovare e Caterina Penso le racconta una strana storia accusando il pittore Edoardo Monchi di aver ucciso il suo fidanzato. Approfittando di un invito alla villa di Monchi, Ambra inizia ad indagare. Ma, a villa Monchi, la notte successiva alla sua visita avviene un delitto. Viene trovata pugnalata la figliastra del conte Allori, la giovane Margherita Mainardi. Del delitto viene accusata",
+        "gold_entities_raw": [
+            {
+                "word": "Maria Cremonini",
+                "label": "PER"
+            },
+            {
+                "word": "Firenze",
+                "label": "LOC"
+            },
+            {
+                "word": "Ambra Dantès",
+                "label": "PER"
+            },
+            {
+                "word": "Edoardo Monchi",
+                "label": "PER"
+            },
+            {
+                "word": "Alberto Balsamo",
+                "label": "PER"
+            },
+            {
+                "word": "Caterina Penso",
+                "label": "PER"
+            },
+            {
+                "word": "Allori",
+                "label": "PER"
+            },
+            {
+                "word": "Margherita Mainardi",
+                "label": "PER"
+            }
+        ],
+        "gold_entities_normalized": [
+            "alberto balsamo",
+            "firenze",
+            "ambra dantès",
+            "caterina penso",
+            "edoardo monchi",
+            "margherita mainardi",
+            "allori",
+            "maria cremonini"
+        ],
+        "local_entities_normalized": [
+            "alberto balsamo",
+            "firenze",
+            "ambra dantès",
+            "caterina penso",
+            "edoardo monchi",
+            "margherita mainardi",
+            "allori"
+        ],
+        "true_positives": 7
+    },
+    {
+        "filename": "rusteghiicarlogoldoni-cleaned.json",
+        "chunk_text": "petegolo; babuin! So pareghe l’ha confidà, e lu subito el lo xè andà a squaquarar? Co nosso, che noi xè quel puto, che credeva, che el fusse. Son squasi pentìo d’averla promessa, e ghe mancherave poco, vegnimo a dir el merito, che no strazzasse el contrato. simon. Ve n’aveu per mal, perché el ghe l’ha dito a so àmia? lunardo. Sior sì; chi no satàser, no gh’ha prudenza, e chi no gh’ha prudenza, no xè omo da maridar. simon. Gh’avè rason, caro vecchio; ma al dì d’ancuo  Letteratura italiana Einaudi Carlo Goldoni  rusteghi no ghe ne xè più de quei zoveni del nostro tempo. V'arecordeu? No se fava né più, né manco de quel che voleva nostro sior pare. lunardo. Mi gh’aveva do sorele maridae: no credo averle viste diese 68 volte in tempo de vita mia. simon. Mi no parlava squasi mai gnanca co mia siora mare. lunardo. Mi al dì d’ancuo no so cossa che sia un’ope ra, una comedia. simon. Mi i m’ha mena una sera per forza all’opera, e ho sempre dormìo. lunardo. Mio pare, co gierazovene, el",
+        "gold_entities_raw": [
+            {
+                "word": "Simon",
+                "label": "PER"
+            },
+            {
+                "word": "Lunardo",
+                "label": "PER"
+            },
+            {
+                "word": "Carlo Goldoni",
+                "label": "PER"
+            }
+        ],
+        "gold_entities_normalized": [
+            "simon",
+            "lunardo",
+            "carlo goldoni"
+        ],
+        "local_entities_normalized": [
+            "lunar",
+            "carlo goldoni"
+        ],
+        "true_positives": 1
+    },
+    {
+        "filename": "vitedepiueccellentipittoriscultoriedarchitettilegiorgiovasari-cleaned.json",
+        "chunk_text": "Scultori Fiorentini Se Papa Eugenio II II nel tempo che e’ liberò fare di bronzo la porta di S. Piero di Roma, avesse fatto diligenzia in cercare di avere uomini eccellenti a questo lavoro, si come ne’ tempi suoi agevolmente poteva fare essendo pur vivi Filippo di Ser Brunellesco, Donatello e altri ar tefici molto rari, non sarebbe condotta quella opera in cosi sciagurata maniera, come ella si vede ne’ tempi no stri. Ma forse intervenne a lui come il più delle volte suole advenire ad una buona parte de’ principi, che, o non si intendono de le opere, o ne pigliano poco diletto. Dove se e’ volessino considerare di quanta importanzia sia il fare stima delle persone eccellenti e rare nelle cose publiche, per la fama che se ne acquista, non sarebbono certo si straccurati, né essi, né i lor ministri. Perché chi si impaccia con artefici vili e inetti, dà poca vita alla fama sua; e inoltre vituperando se stesso, fa grandissima in giuria al publico e al secolo dove egli è nato. Credendo",
+        "gold_entities_raw": [
+            {
+                "word": "Eugenio II",
+                "label": "PER"
+            },
+            {
+                "word": "S. Piero",
+                "label": "LOC"
+            },
+            {
+                "word": "Roma",
+                "label": "LOC"
+            },
+            {
+                "word": "Filippo di Ser Brunellesco",
+                "label": "PER"
+            },
+            {
+                "word": "Donatello",
+                "label": "PER"
+            }
+        ],
+        "gold_entities_normalized": [
+            "eugenio ii",
+            "donatello",
+            "s piero",
+            "roma",
+            "filippo di ser brunellesco"
+        ],
+        "local_entities_normalized": [
+            "papa",
+            "eugenio ii ii",
+            "donatello",
+            "s piero",
+            "roma",
+            "filippo di ser brunellesco"
+        ],
+        "true_positives": 4
+    },
+    {
+        "filename": "265CastelvetroPoeticaDAristotele2Si072-cleaned.json",
+        "chunk_text": "d’uno animale all’occhio della fronte, e così come l’occhio della fronte non poteva in uno sguardo comprendere tutto uno animale troppo grande, così la memoria non poteva abbracciare una favola troppo grande; e ora di nuovo assegna questa ragione perché Omero non rassettasse in una favola tutta la guerra troiana, dicendo che questa guerra era troppo grande e non poteva agevolmente essere adocchiata, usando la traslazione della difficultà della veduta in luogo del comprendimento della memoria. La quale ragione di sopra rifiutammo, e mostrammo come alla difficultà del comprendimento della memoria si poteva sovenire per molte vie, e che altrove dee riguardare il poeta quando rifiuta la grandezza della favola, sì come altrove riguardò Omero quando, lasciate tante parti della guerra troiana da parte, ne prese solamente una parte per formare una favola, cioè lo sdegno d’Achille verso Agamemnone, il quale è una azzione d’una persona, di pochi dì, e nondimeno, narrato da Omero",
+        "gold_entities_raw": [
+            {
+                "word": "Omero",
+                "label": "PER"
+            },
+            {
+                "word": "Achille",
+                "label": "PER"
+            },
+            {
+                "word": "Agamemnone",
+                "label": "PER"
+            }
+        ],
+        "gold_entities_normalized": [
+            "achille",
+            "omero",
+            "agamemnone"
+        ],
+        "local_entities_normalized": [
+            "achille",
+            "omero",
+            "agamemnone"
+        ],
+        "true_positives": 3
+    },
+    {
+        "filename": "quaderniditalian161cana-cleaned.json",
+        "chunk_text": "Dante’s «delineazione fantastica» (Paratore 193) o his Cleopatra in tears because o the defeat a Actium a trace o Lucan’s imagery, but only in an antiphrastic form: Cleopatra who had been «sine lacrimis» before Caesar was forced a the end o her life to be «cum lacrimis» in front o Octavianus, Caesar’s avenger. While her behavior in the first instance had given her freedom and power, her behavior in the second announces her imminent death. Finally, i i important to add that in Juvenal’s locus Cleopatra i connected to Semiramis (another disreputable queen) and that this connection i conserved  Dante in the catalogue o the famous lovers in inf. 558-66.  Università di Roma, Tor Vergata OPERE CITATE Alighieri, Dante. La ’Commedia secondo l’antica vulgata. Ed. Giorgio Petrocchi. 4 voli. Milano: Mondadori, 1966-67. Brugnoli, Giorgio. Per suo richiamo. Pisa: Servizio editwiale dell’Opera Universitaria, 1981. Consoli, Domenico. «Tristo.» Enciclopedia dantesca. Voi. 5. Rana; Istituto",
+        "gold_entities_raw": [
+            {
+                "word": "Dante",
+                "label": "PER"
+            },
+            {
+                "word": "Paratore",
+                "label": "PER"
+            },
+            {
+                "word": "Cleopatra",
+                "label": "PER"
+            },
+            {
+                "word": "Actium",
+                "label": "LOC"
+            },
+            {
+                "word": "Lucan",
+                "label": "PER"
+            },
+            {
+                "word": "Caesar",
+                "label": "PER"
+            },
+            {
+                "word": "Octavianus",
+                "label": "PER"
+            },
+            {
+                "word": "Juvenal",
+                "label": "PER"
+            },
+            {
+                "word": "Semiramis",
+                "label": "PER"
+            },
+            {
+                "word": "Università di Roma",
+                "label": "LOC"
+            },
+            {
+                "word": "Tor Vergata",
+                "label": "LOC"
+            },
+            {
+                "word": "Alighieri, Dante",
+                "label": "PER"
+            },
+            {
+                "word": "Giorgio Petrocchi",
+                "label": "PER"
+            },
+            {
+                "word": "Milano",
+                "label": "LOC"
+            },
+            {
+                "word": "Mondadori",
+                "label": "PER"
+            },
+            {
+                "word": "Brugnoli, Giorgio",
+                "label": "PER"
+            },
+            {
+                "word": "Pisa",
+                "label": "LOC"
+            },
+            {
+                "word": "Domenico Consoli",
+                "label": "PER"
+            }
+        ],
+        "gold_entities_normalized": [
+            "alighieri dante",
+            "cleopatra",
+            "milano",
+            "brugnoli giorgio",
+            "tor vergata",
+            "lucan",
+            "domenico consoli",
+            "actium",
+            "semiramis",
+            "mondadori",
+            "dante",
+            "caesar",
+            "università di roma",
+            "giorgio petrocchi",
+            "juvenal",
+            "pisa",
+            "paratore",
+            "octavianus"
+        ],
+        "local_entities_normalized": [
+            "domenico",
+            "cleopatra",
+            "milano",
+            "brugnoli giorgio",
+            "consoli",
+            "lucan",
+            "tristo",
+            "actium",
+            "semiramis",
+            "dante",
+            "caesar",
+            "giorgio petrocchi",
+            "juvenal",
+            "pisa",
+            "paratore",
+            "octavianus",
+            "alighieri"
+        ],
+        "true_positives": 13
+    },
+    {
+        "filename": "rimeveronicagambara-cleaned.json",
+        "chunk_text": "occhi lucenti, del frale viver mio fermo sostegno: a voi ricorro ed a voi sempre vegno per dar qualche riposo a’ miei tormenti; 4 ch’ai fulgurar de’ vostri raggi ardenti fuggeogni affanno, ogni gravoso sdegno, e di tal gioia poi resta ’I cor pregno che loco in me non han pensier dolenti. 8 Da voi solo procede, occhi beati, tutto quel ben ch’in questa mortai vita darmi può ’I Cielo o mia benigna sorte; 11 siatemi dunque più cortesi e grati, e col splendor de la beltà infinita liberate il mio cor d’acerba morte. 1423 Se più stanno a parir quei duo bei lumi che pon rasserenar mia vita oscura e d’ogni oltraggio uman farla sicura temo ch’anzi ’I suo dì non si consumi. 4 E pria senz’acqua correran i fiumi, né àvra più ’I mondo di morte paura, Letteratura italiana Einaudi Veronica Gambara -Rime e la legge del Ciel, che eterna dura, si romperà, qual nebbia al vento o fumi, 8 ch’io possa senza lor viver un’ora, che pur son la mia scorta, e per lor soli la via di gir al Ciel scorgo ed",
+        "gold_entities_raw": [
+            {
+                "word": "Cielo",
+                "label": "LOC"
+            },
+            {
+                "word": "Veronica Gambara",
+                "label": "PER"
+            },
+            {
+                "word": "Ciel",
+                "label": "LOC"
+            }
+        ],
+        "gold_entities_normalized": [
+            "veronica gambara",
+            "ciel",
+            "cielo"
+        ],
+        "local_entities_normalized": [
+            "veronica gambara",
+            "cie",
+            "ciel",
+            "cielo"
+        ],
+        "true_positives": 3
+    },
+    {
+        "filename": "amorumlibrimatteomariaboiardo-cleaned.json",
+        "chunk_text": "tres con lo emispero nostro me scoloro, poiché me è tolto l’uno e l’altro Sole. 1418 [138] Ligiadro veroncello, ove è colei che de sua luce aluminar te sòie? Ben vedo che il tuo danno a te non dole, ma quanto meco lamentar te dei! 4 Ché sanza sua vagheza nulla sei, deserti e fiori e seche le viole: al veder nostro il giorno non ha sole, la notte non ha stelle senza lei. 8 Pur me rimembra che io te vidi adorno, tra  bianchi marmi e il colorito fiore, de una fiorita e candida persona. 1I A’ toi balconi alor si stava Amore, che or te soletto e misero abandona, perché a quella gentil dimora intorno. 1419 [139] Io sento ancor nel spirto il dolce tono de l’angelica voce, e le parole formate dentro al cor ancor mi sono. Questo fra tanta zoglia sol mi dole, che tolto m’ha Fortuna il rivederle: 5 quando vedrò più mai nel dolce dire da quelle rose discoprir le perle? Quando vedrò più mai lo avorio e l’ostro nel suave silenzio ricoprire ligiadre parolete? Il tacer vostro 10 contro a mia voglia",
+        "gold_entities_raw": [
+            {
+                "word": "Amore",
+                "label": "PER"
+            },
+            {
+                "word": "Fortuna",
+                "label": "PER"
+            }
+        ],
+        "gold_entities_normalized": [
+            "fortuna",
+            "amore"
+        ],
+        "local_entities_normalized": [
+            "fortuna"
+        ],
+        "true_positives": 1
+    },
+    {
+        "filename": "pasqua-nera-cleaned.json",
+        "chunk_text": "conseguen za siamo noi che l’abbiamo fatto accadere. Terzo: sta per dimostrarsi che ci siamo sbagliati circa il risultato, ma qualunque esso sia è il nostro risultato: l’abbiamo ERIC noi. Diavoli, dischi volanti, pioggia Tadio Atitt i che. differenza fa? Questi sono solo dei segni dell equazione, dei parametri che possiamo sostituire con qualunque cos: che rappresenti per noi il significato più accettabile. Lei si. sente più a posto con gli elettroni che con i demoni? Okay, buon per lei. Ma quello che piace a me, Adolph, quello che piace a me è il risultato. Me ne infischio del mezzo. Il risultato l’ho ideato io, l’ho prodotto io, lo sto pagando io, e in qualunque altro modo lo si voglia definire, l’ho fatto io ed è mio. Chiaro? È mio. Ogni altra possibile cosa al riguardo, quale risulti in definitiva, è uno stupidissimo particolare tecnico, e io pago apposta persone come lei e Ware per non esserne infastidito.  Mi sembra  disse Hess con voce cupamente monotona  che siamo tutti",
+        "gold_entities_raw": [
+            {
+                "word": "Adolph",
+                "label": "PER"
+            },
+            {
+                "word": "Ware",
+                "label": "PER"
+            },
+            {
+                "word": "Hess",
+                "label": "PER"
+            }
+        ],
+        "gold_entities_normalized": [
+            "ware",
+            "hess",
+            "adolph"
+        ],
+        "local_entities_normalized": [
+            "tadio atitt",
+            "ware",
+            "hess",
+            "adolph"
+        ],
+        "true_positives": 3
+    },
+    {
+        "filename": "favoladibelfagorniccolomachiavelli-cleaned.json",
+        "chunk_text": "quella della moglie supe riore; ma diventò di lunga maggiore, come prima quella si accorse dello amore che il marito le portava; e paren dole poterlo da ogni parte signoreggiare, sanza alcuna piata o rispetto lo comandava, né dubitava, quando da lui alcuna cosa gli era negata, con parole villane e iniuriose morderlo: il che era a Roderigo cagione di inesti mabile noia. Pur nondimeno il suocero, i frategli, il parentado, l’obligo del matrimonio e, sopratutto, il grande amore le portava gli faceva havere pazienza, lo voglo lasciare ire le grande spese, che, per contentarla, faceva in vestir la di nuove usanze e contentarla di nuove fogge, che continuamente la nostra città per sua naturale consuetu dine varia; ché fu necessitato, volendo stare in pace con lei, aiutare al suocero maritare l’altre sue figluole: dove spese grossa somma di danari. Dopo questo, volendo havere bene con quella, gli convenne mandare uno de’ frategli in Levante con panni, un altro in Ponemte con drappi,",
+        "gold_entities_raw": [
+            {
+                "word": "Roderigo",
+                "label": "PER"
+            }
+        ],
+        "gold_entities_normalized": [
+            "roderigo"
+        ],
+        "local_entities_normalized": [
+            "levante",
+            "roderigo",
+            "ponemte"
+        ],
+        "true_positives": 1
+    },
+    {
+        "filename": "Poemi-cleaned.json",
+        "chunk_text": "fuoco, e chi  vin dolce beve e’ incaca il vento, la pioggia e la nieve. 33 Durando la stagion fra piogge e venti, i paladin sono a covare il fuoco; bramano oprar più che le mani i denti: chi brava il scalco e chi minaccia il cuoco; a la ritonda tavola i valenti paladin si rubar l’un l’altro il loco. Or, su l’alzare il fianco, tutti atomo tremar come conigli al suon d’un corno. 34 Il suon del corno era questo ch’io dico: era comparso a la campagna fuore un gigantaccio, e  ciel non cura un fico, non pur la Francia e Carlo imperadore; era sei braccia dal capo al bellico. Del suon del corno era questo il tenore:  Te Carlo Magno e la paladinaglia disfido in campo a micidial battaglia. 35 L’Arcifanfan son io, re di Baldacco, 169 che con la lancia e con la scimitarra n’ammazzo le migliaia, mai mi stracco: a portarli non bastan mille carra. Or de’ tuo paladin vengo a far fiacco a campo aperto, chiuso e fuor di sbarra. Vien fuor, che chi non viene oggi prometto pigliare ognun come poltrone",
+        "gold_entities_raw": [
+            {
+                "word": "paladin",
+                "label": "PER"
+            },
+            {
+                "word": "Carlo",
+                "label": "PER"
+            },
+            {
+                "word": "Francia",
+                "label": "LOC"
+            },
+            {
+                "word": "Arcifanfan",
+                "label": "PER"
+            },
+            {
+                "word": "Baldacco",
+                "label": "LOC"
+            },
+            {
+                "word": "Carlo Magno",
+                "label": "PER"
+            }
+        ],
+        "gold_entities_normalized": [
+            "francia",
+            "carlo magno",
+            "baldacco",
+            "carlo",
+            "paladin",
+            "arcifanfan"
+        ],
+        "local_entities_normalized": [
+            "carlo magno",
+            "baldacco",
+            "carlo",
+            "francia",
+            "arcifanfan"
+        ],
+        "true_positives": 5
+    },
+    {
+        "filename": "il-gatto-dalle-unghie-gentili-a-4_202306-cleaned.json",
+        "chunk_text": "quando sarò grande, vorrò fare l’intellettuale. sto studiando per farlo. 5  nel suo lago no, così non va bene. uffa, devo smetterla di fare il poeta. se no si abitua troppo bene. mi spremerà come un limone per tirarmi fuori le parole più dolci per lei. non che sia una brutta cosa. i gatti e i poeti  Corriere di Tunisi« Corriere Euromediterraneo  Supplemento   96 (Nuova Serie) Luglio-Agosto 201I Vli devi corteggiare se li vuoi tenere in casa. però adesso vorrei fare di più il gatto. e meno il poeta. anche un intellettuale, sì, un intellettuale, ha bisogno di vivere con i piedi per terra. beh, io ho sempre avuto i piedi per terra. è che la testa mi è rimasta tra le nuvole. no, non quelle di un lenzuolo blu notte. dico proprio nuvole nuvole. così la gente non mi prende in considerazione su tante cose. anche se a me interessa solo la sua considerazione. lo so che questo è un rischio. ma non posso farci niente. uffa, devo correrlo e basta. se voglio ancora ascoltare la voce del",
+        "gold_entities_raw": [
+            {
+                "word": "Tunisi",
+                "label": "LOC"
+            }
+        ],
+        "gold_entities_normalized": [
+            "tunisi"
+        ],
+        "local_entities_normalized": [],
+        "true_positives": 0
+    },
+    {
+        "filename": "104MaffeiOpereSi170-cleaned.json",
+        "chunk_text": "nuovo essa a l’Olimpo di Giove egidarmato e d’altri dèi negli alberghi. Ma Achille ancor da l’ira non cessava e oltraggiò di nuovo Atride: 285  Pien di vin, cor di cervo, occhi di cane, tu né vestir l’usbergo e gir con gli altri in battaglia già mai, né a perigliose portarti insidie co’ migliori osasti. Questo a te par sicura morte; meglio 290 di molto al certo è ne l’armata starsi e a chi si opponga al tuo voler suoi premi rapir. Divorator del popol sei, perché su gente vii regni; per altro l’ultima or certo avresti ingiuria fatta. 295 Ma io ti dico  (ed altamente il giuro per questo scettro che mai rami e frondi non metterà, mentre lasciò ne’ monti il tronco, e verdeggiar più non vedrassi, poiché di scorza fu spogliato e i greci 300 giudici in mano il portano e coloro che da Giove han le leggi in guardia; questo gran giuramento per te sia):  disio, disio d’Achille verrà certo un giorno a’ greci tutti e lor soccorso in vano 305 di portar bramerai misero, allora che folti sotto",
+        "gold_entities_raw": [
+            {
+                "word": "Giove",
+                "label": "PER"
+            },
+            {
+                "word": "Achille",
+                "label": "PER"
+            },
+            {
+                "word": "Atride",
+                "label": "PER"
+            }
+        ],
+        "gold_entities_normalized": [
+            "giove",
+            "atride",
+            "achille"
+        ],
+        "local_entities_normalized": [
+            "achille",
+            "at",
+            "olimpo di giove"
+        ],
+        "true_positives": 1
+    },
+    {
+        "filename": "102AlfieriDellaTirannideSi004-cleaned.json",
+        "chunk_text": "tempo che la libertà era pur sempre ne cessaria a quei primi scienziati scopritori delle leggi dei corpi, per crearle; ma non necessaria ai susseguenti per ampliarle, spingerle all’ultima possibilità, ed anche, con gli stessi già sco perti mezzi affatto variandole, in un certo modo, di bel nuovo crearle. Il posare dunque i loro principi, lo inventare, o il primo ritrovare, egli è quel tal pregio in cui e le lettere e le scienze ebbero tra loro comune la sorte; pregio che ottener non poteano se non in un libero governo, fra uomini molto e arditamente pensanti. Ma nel loro progredire poi, le une dalle altre si sco stano, quanto i due scopi ch’elle si propongono dissimili sono fra sé e quanto sono diversi i soggetti ch’elle trattano; cioè la LIBRO III  CAPITOLO III 199 materia e il morale delle cose. E in fatti, le lettere sono per venute al loro sommo anice nella libertà, non protette; le scienze, par che facessero lentissimi progressi fra quei due sovrani po poli, greci e romani,",
+        "gold_entities_raw": [
+            {
+                "word": "greci",
+                "label": "LOC"
+            },
+            {
+                "word": "romani",
+                "label": "LOC"
+            }
+        ],
+        "gold_entities_normalized": [
+            "romani",
+            "greci"
+        ],
+        "local_entities_normalized": [
+            "romani",
+            "greci"
+        ],
+        "true_positives": 2
+    },
+    {
+        "filename": "172RimatoriSi214-cleaned.json",
+        "chunk_text": "terza spera, perch’è contra di me cotanto strana! io Or dolente tapin, son io giudeo che nulla vai per me merzede umana? In che ventura e  che punto nacqu’eo, ch’a tutto  mondo sete umile e piana e sol vèr me tenete  cor si reo? XLIX Si mi stringe l’Amore mortalemente in ciascun membro, o lasso! che sospirar non lasso, né altro già non so dicer né fare. 5 II corpo piange il core, eh’ è dipartito e dato gli ha consorte, in loco di sé, morte, cioè Amor che  fa per morto stare; con questo è pur penare io né si può rallegrare né sé riscuoter già sol per Mercede, se la vostra figura RIME DI CINO DA PISTOIA non veggio, donna, in cui è il viver meo. Cosi m’aiuti Deo! ché già per altro voi non pongo cura. Sempre con fede pura lievo gli occhi miei, ch’arrecan vita a la mia ammortita persona, lassa quando voi non vede. Non è già maraviglia, donna, se a veder voi mi rattegno, ché ciò pur far convegno  io vo’ campar di morte e vita avere. Ma gran cosa simiglia, poi ch’io mi son per aventura",
+        "gold_entities_raw": [
+            {
+                "word": "Amore",
+                "label": "PER"
+            },
+            {
+                "word": "Mercede",
+                "label": "PER"
+            },
+            {
+                "word": "Deo",
+                "label": "PER"
+            },
+            {
+                "word": "Cino da Pistoia",
+                "label": "PER"
+            }
+        ],
+        "gold_entities_normalized": [
+            "cino da pistoia",
+            "deo",
+            "mercede",
+            "amore"
+        ],
+        "local_entities_normalized": [
+            "mercede"
+        ],
+        "true_positives": 1
+    },
+    {
+        "filename": "129TassoniProsePoliticheSi253-cleaned.json",
+        "chunk_text": "istrione e l’altro eccellente arciero riusci essendo stati i padri loro famosi in più nobili arti. Ma molte volte la cattiva educazione ed elezione de’ padri fa parer dappochi i figliuoli, forzandogli ad applicarsi a professioni, che alla loro inclinazione e abilità naturale sono contrarie in tutto. Una cosa notabile riferisce Antigono nel suo libro delle mirabili narrative; che in Elide una donna fu ingravidata da un’etiopo, e partorì una figliuola bianca; la quale ingravidata poscia da un uomo bianco, partorì un figliuolo nero com’era l’avo, il che mostra, che sia vero, che nel seme si conservino non solamente le qualità individuali del generante; ma quelle eziandio della discendenza e della stirpe fino al quarto grado. QUISITO I In che lingua favellerebbe un fanciullo, che non avesse sentito mai favellare? Vantavansi gli egiziani (come scrive Erodoto nel principio dell ’Euterpe) d’esser la più antica nazione del mondo: e durò questa loro credenza sino al regno di Psammetico, il",
+        "gold_entities_raw": [
+            {
+                "word": "Antigono",
+                "label": "PER"
+            },
+            {
+                "word": "Elide",
+                "label": "LOC"
+            },
+            {
+                "word": "Erodoto",
+                "label": "PER"
+            },
+            {
+                "word": "Euterpe",
+                "label": "LOC"
+            },
+            {
+                "word": "egiziani",
+                "label": "LOC"
+            },
+            {
+                "word": "Psammetico",
+                "label": "PER"
+            }
+        ],
+        "gold_entities_normalized": [
+            "psammetico",
+            "antigono",
+            "egiziani",
+            "elide",
+            "euterpe",
+            "erodoto"
+        ],
+        "local_entities_normalized": [
+            "erodoto",
+            "antigono",
+            "eli",
+            "psammetico"
+        ],
+        "true_positives": 3
+    },
+    {
+        "filename": "di-alcune-annotazioni-inedite-manzoniane-alle-opere-del-trissino-cleaned.json",
+        "chunk_text": "come il Manzoni tenesse all’unità della lingua, capisce il valore negativo che egli attribuisce alla osservazione del Trissino. Il quale, in realtà, è debole nel ragionamento e inefficace nel confronto. Al di sopra dei dialetti toscano e romanesco sta come genere la lingua italiana? Essa sarebbe adunque solo una ibrida mescolanza di parole attinte a vari dialetti? O non forse, in un certo senso, volendo considerare come specie i dialetti, il genere potrebbe, al massimo, essere il latino volgare in quanto i vari dialetti italici derivano tutti 6 spagnolo ed il francese. Così il caso trasportato in campo più ampio diventa più evidente. benchè una piccola obiezione al Manzoni si potrebbe fare da un pedante, al quale sarebbe agevole dire che chi parli con vocaboli mezzi spagnoli e mezzi francesi  non parlerebbe nessuna lingua, ma un misto di linguaggio neolatino. Ora la osservazione del pedante è proprio quella cui vuole giungere, a mio avviso, il Manzoni: non la lingua italiana,",
+        "gold_entities_raw": [
+            {
+                "word": "Manzoni",
+                "label": "PER"
+            },
+            {
+                "word": "Trissino",
+                "label": "PER"
+            },
+            {
+                "word": "toscano",
+                "label": "LOC"
+            },
+            {
+                "word": "romanesco",
+                "label": "LOC"
+            }
+        ],
+        "gold_entities_normalized": [
+            "manzoni",
+            "romanesco",
+            "trissino",
+            "toscano"
+        ],
+        "local_entities_normalized": [
+            "manzoni",
+            "trissino",
+            "toscano"
+        ],
+        "true_positives": 3
+    },
+    {
+        "filename": "sonettiecanzoniguittonedarezzo-cleaned.json",
+        "chunk_text": "vita mia sol con bone parole, a bon servente. 1453 Ai mala Noia, mal vo doni Deo, ché maldicente a forza me fate; unde ciascun per cortesia recheo che me  perdon’, poi ch’è fòr volontate. 4 Malvagia donna, poi lo fatto meo vi spiace, perché amor mi dimostrate? Bon è  senbrante, e lo parlar è reo: misteri è che l’un sia de falsitate. 8 Letteratura italiana Einaudi 30 Guittone d‘Arezzo  Canzoniere Or  or  mostratemi sovente; partir né star no oso in vostro amore; ni mor’ né vivo, tale è  convenente. 1I Deo!, mala donna, siatene signore a dir o  o  ben fermamente, ch’eo parta en tutto, o ve stia servidore! 1454 Deo! che mal aggia mia fed’e mi’ amore e la mia gioventa e  mio piacere, e mal aggia mia forza e mio valore e mi’ arte e mio ’ngegno e mio savere; 4 e mal aggia mia cortesia e mi’ onore e mi’ detto e mi’ fatto e mio podere, e mia canzon mal aggia e mio clamore e mio servire e mio mercé cherere, 8 poi c’al magior mister c’avesse mai, o cred’aver, no m’àn valuto fiore.  con’ mal,",
+        "gold_entities_raw": [
+            {
+                "word": "Deo",
+                "label": "PER"
+            },
+            {
+                "word": "Guittone d'Arezzo",
+                "label": "PER"
+            }
+        ],
+        "gold_entities_normalized": [
+            "deo",
+            "guittone darezzo"
+        ],
+        "local_entities_normalized": [
+            "guittone"
+        ],
+        "true_positives": 0
+    },
+    {
+        "filename": "confessionidiunitalianoleippolitonievo-cleaned.json",
+        "chunk_text": "fu additata una alla destra di Porta Codalunga, ove appunto pochi anni or sono fu costruito il gazometro. Mi vi avviai col mio fardello sotto il braccio, seguitato da alcuni birichi ni che ammiravano il mio vestimento orientale: entratovi  Letteratura italiana Einaudi 642 Ippolito Nievo  Le confessioni di un italiano chiesi una stanza, e qualche cosa da ristorarmi. Là mi cangiai di abito, presi un po’ di cibo, non volli saperne di vino, e pagato il piccolo scotto, uscii dalla bettola di cendo a voce alta che vestito a quel modo sperava di non dar nell’occhio ai monelli della città. Infatti feci le viste di avviarmivi; ma giunto alla porta tirai oltre e la diedi giù per un viottolo che a mia memoria doveva riuscire sulla strada di Vicenza. Uscendo dall’osteria avea sbir ciato un tale che aveva muso di tenermi dietro avvisatamente; e voleva chiarirmi della verità. Infatti guardando di traverso io vedeva sempre quest’ombra che seguitava la mia, che allentava sollecitava e fermava il",
+        "gold_entities_raw": [
+            {
+                "word": "Porta Codalunga",
+                "label": "LOC"
+            },
+            {
+                "word": "Ippolito Nievo",
+                "label": "PER"
+            },
+            {
+                "word": "Vicenza",
+                "label": "LOC"
+            }
+        ],
+        "gold_entities_normalized": [
+            "porta codalunga",
+            "vicenza",
+            "ippolito nievo"
+        ],
+        "local_entities_normalized": [
+            "porta codalunga",
+            "vicenza",
+            "ippolito nievo"
+        ],
+        "true_positives": 3
+    },
+    {
+        "filename": "adventureecommodore64-cleaned.json",
+        "chunk_text": "nel Reference Guide, se non avete familiari tà con essi. Creazione dello sprite Che cos’è esattamente uno sprite? lo lo intendo come un gruppo di “pixel” programmabi li, piuttosto che un maxi-carattere definibile dall’utente. In altre parole usando poche istruzioni DATA potete creare un oggetto di alta risoluzione che si muoverà sullo schermo (senza tutte le ammucchiate di POKE e PEEK che di solito accompagnano i grafici, e senza far uso di POKE di spazi bianchi per muoverli). Il Reference Guide del Commodore riassume tutto ciò quando dice...  cito tra virgolette): “tutto quello che dovete fare è dire ’a cosa deve somigliare’ ’di che colore deve essere’ e ’come deve apparire’ uno sprite. Il chip del Vic-ll farà il resto!”. Per creare uno sprite è necessario per prima cosa sapere a cosa deve somigliare. Ci sono diversi modi di arrivare a ciò ma il più facile è di disegnarlo su una griglia di 21  24 come nell’User Manual. Nella Figura 81 ho preso una copia di questa griglia e l’ho",
+        "gold_entities_raw": [
+            {
+                "word": "Commodore",
+                "label": "PER"
+            },
+            {
+                "word": "Vic-ll",
+                "label": "PER"
+            }
+        ],
+        "gold_entities_normalized": [
+            "commodore",
+            "vicll"
+        ],
+        "local_entities_normalized": [],
+        "true_positives": 0
+    },
+    {
+        "filename": "testi-e-note-n.-2-cleaned.json",
+        "chunk_text": "occupassero tutti gli scienziati, di tutte le nazionalità.  No, no. Ne abbiamo già discusso più volte. La scoperta è nostra e resterà nostra.  In questo caso rimarrà una scoperta di scarsa portata. Permettetemi che vi spieghi una volta di più. Il generale guardò l’ora.  Sarebbe inutile.  Ho un nuovo soggetto. Una nuova dimostrazione. Dal momento che vi siete deciso a venire fin qui, generale, non volete darmi ascolto per un momento? Eviterò i particolari scientifici, nei limiti del possibile, e dirò solo che è possibile registrare sotto forma di piccole onde irregolari le variazioni dei potenziali elettrici delle cellule cerebrali.  Elettroencefalogrammi. Sî, lo so. E’ un secolo che li fanno. E so anche a cosa vi servono..   già  Harding prese coraggio.  Le onde cerebrali di per se stesse trasportano le informazioni di cui sono cariche in modo troppo compatto. Ci offrono l’insteme 55 cana SE È ario  d del complesso di cambiamenti di cento miliardi di cellule cerebrali",
+        "gold_entities_raw": [
+            "Harding",
+            "PER"
+        ],
+        "gold_entities_normalized": [],
+        "local_entities_normalized": [
+            "harding"
+        ],
+        "true_positives": 0
+    },
+    {
+        "filename": "100StraparolaLePiacevoliNottiLibro1Si243-cleaned.json",
+        "chunk_text": "cose ai tutto sprezzava. Carlo adunque, infiammato di lascivo amore, di giorno in giorno la sollecitava, e il di che egli non la ve deva, da doglia si sentiva morire. Più volte egli tentò con G. F.  a parola, Le piacevoli notti. 682 NOTTE SECONDA lusinghe, con doni e con ambasciate ridurla a’ suoi piaceri, ma egli nel vero s’affaticava indarno, perciò che, come gio vane prudente e savia, ogni cosa rifiutava, e cotidianamente pregava Iddio che lo rimovesse da tai disonesti pensieri. Non potendo il giovane far più resistenza all’ardente amore, anzi bestiai furore, e ramaricandosi di esser refutato da colei che più che la vita sua amava, propose nell’animo, intra venga che si voglia, di rapirla e contentare il suo concupiscibile a petito. Ma pur temea far tumulto, e che  popolo, che l’odiava molto, non lo uccidesse; ma vinto dalla sfrenata voglia e di venuto come rabbioso cane, compose con duo suoi servi, uomini audacissimi, di volerla affatto rapire. Laonde un giorno,",
+        "gold_entities_raw": [
+            {
+                "word": "Carlo",
+                "label": "PER"
+            }
+        ],
+        "gold_entities_normalized": [
+            "carlo"
+        ],
+        "local_entities_normalized": [
+            "carlo",
+            "g f"
+        ],
+        "true_positives": 1
+    },
+    {
+        "filename": "quaderniditalian171cana-cleaned.json",
+        "chunk_text": "o  New York: Doubleday, 1988. de Giusti, Luciano, ed. Pasolini. Cinema informa di poesia. Pordenone: Cinemazero, 1979. Falaschi. Giovanni, ed. Pier Paolo Pasolini, l dialogfii. Roma: Editori Riuniti, 1992. Colino, Enzo. Il sogno di una cosa. Bologna: Il Mulmo, 1985. Greene, Naomi. Pier Paolo Pasolini: Cinema a Heresy. Princeton: Princeton U, 1990. Lowell. Robert. Trans. The Oresteia o Aeschylus. London: Faber, 1979. Macafee, Nomian, and Luciano Martinengo, trans. Pier Paolo Pasolini. Poems. New York; Random House, 1982. Naldini. Nico. Pasolini, una vita. Torino: Einaudi, 1989. Pasolini, Pier Paolo. Orestiade. Torino: Einaudi, 1960..  sogno di una cosa. Milano: Garzanti, 1962.. Sopraluoghi in Palestina, documentary film. Arco Film, 1964.. Appunti per un film sull’India, documentary film, RAI. 1968..L’odore dell’ India. Milano: Longanesi, 1974..Il padre selvaggio. Tonno: Einaudi, 1975..Le poesie. Milano: Garzanti, 1975.. Le belle bandiere. Ed. Gian Cario Ferretti. Roma: Editori",
+        "gold_entities_raw": [
+            {
+                "word": "New York",
+                "label": "LOC"
+            },
+            {
+                "word": "de Giusti, Luciano",
+                "label": "PER"
+            },
+            {
+                "word": "Pier Paolo Pasolini",
+                "label": "PER"
+            },
+            {
+                "word": "Pordenone",
+                "label": "LOC"
+            },
+            {
+                "word": "Falaschi, Giovanni",
+                "label": "PER"
+            },
+            {
+                "word": "Roma",
+                "label": "LOC"
+            },
+            {
+                "word": "Colino, Enzo",
+                "label": "PER"
+            },
+            {
+                "word": "Bologna",
+                "label": "LOC"
+            },
+            {
+                "word": "Greene, Naomi",
+                "label": "PER"
+            },
+            {
+                "word": "Princeton",
+                "label": "LOC"
+            },
+            {
+                "word": "Lowell, Robert",
+                "label": "PER"
+            },
+            {
+                "word": "Aeschylus",
+                "label": "PER"
+            },
+            {
+                "word": "London",
+                "label": "LOC"
+            },
+            {
+                "word": "Macafee, Nomian",
+                "label": "PER"
+            },
+            {
+                "word": "Martinengo, Luciano",
+                "label": "PER"
+            },
+            {
+                "word": "Naldini, Nico",
+                "label": "PER"
+            },
+            {
+                "word": "Torino",
+                "label": "LOC"
+            },
+            {
+                "word": "Einaudi",
+                "label": "PER"
+            },
+            {
+                "word": "Milano",
+                "label": "LOC"
+            },
+            {
+                "word": "Garzanti",
+                "label": "PER"
+            },
+            {
+                "word": "Palestina",
+                "label": "LOC"
+            },
+            {
+                "word": "India",
+                "label": "LOC"
+            },
+            {
+                "word": "Ferretti, Gian Carlo",
+                "label": "PER"
+            }
+        ],
+        "gold_entities_normalized": [
+            "princeton",
+            "lowell robert",
+            "pordenone",
+            "palestina",
+            "torino",
+            "pier paolo pasolini",
+            "london",
+            "de giusti luciano",
+            "garzanti",
+            "falaschi giovanni",
+            "bologna",
+            "greene naomi",
+            "new york",
+            "milano",
+            "india",
+            "colino enzo",
+            "naldini nico",
+            "einaudi",
+            "aeschylus",
+            "ferretti gian carlo",
+            "macafee nomian",
+            "roma",
+            "martinengo luciano"
+        ],
+        "local_entities_normalized": [
+            "princeton",
+            "pordenone",
+            "tonno",
+            "nico",
+            "pier paolo pasolini",
+            "london",
+            "de giusti luciano",
+            "falaschi giovanni",
+            "robert",
+            "bologna",
+            "greene naomi",
+            "new york",
+            "milano",
+            "naldini",
+            "lowell",
+            "pasolini",
+            "colino enzo",
+            "gian cario ferretti",
+            "macafee nomian",
+            "luciano martinengo",
+            "roma"
+        ],
+        "true_positives": 13
+    },
+    {
+        "filename": "il-regno-del-crepuscolo-cleaned.json",
+        "chunk_text": "la foto là fuori mostra che ti infili degli aghi in tutto il corpo.  È esatto.  L’anziano uomo esitò.  Ho fatto passare dell’acciaio attraverso tutte le parti del mio corpo. Ho fatto degli spettacoli per il Johnny   Si interruppe, si tolse gli occhiali e guardò nel buio.  Cosa vuoi che faccia?  Mettitelo    Risatina. La voce della ragazza.  Oh, nella lingua. Geoff si costrinse a guardare. Era Sherron. Era stata lei per tutto quel tempo.  Mio Dio, Sher...  tentò di pronunciare il suo nome.  Mio Dio. Il vecchio uomo la guardava, così come tutti gli altri. Si era avvicinata alla pedana.  No, non così. Questo l’ho già visto. Fai passare l’ago attraverso...  Sì, signorina? —...Attraverso, oh, il tuo orecchio  disse impaziente.  Infilatelo nell’orecchio. Il vecchio uomo controllò di nuovo l’orologio. Lo spettacolo stava per finire. Lui la studiò. Si tirò indietro i capelli, che avrebbero avuto bisogno di un buon taglio, e spinse in avanti il suo lungo orecchio. Capelli sale e pepe",
+        "gold_entities_raw": [
+            {
+                "word": "Johnny",
+                "label": "PER"
+            },
+            {
+                "word": "Geoff",
+                "label": "PER"
+            },
+            {
+                "word": "Sherron",
+                "label": "PER"
+            },
+            {
+                "word": "Sher",
+                "label": "PER"
+            }
+        ],
+        "gold_entities_normalized": [
+            "geoff",
+            "sherron",
+            "sher",
+            "johnny"
+        ],
+        "local_entities_normalized": [
+            "mettitelo risatina",
+            "sher",
+            "johnny",
+            "sherron",
+            "geoff"
+        ],
+        "true_positives": 4
+    },
+    {
+        "filename": "marte-un-mondo-perduto-cleaned.json",
+        "chunk_text": "Miya.  Acceso. La luce del sole li abbagliò. Giorno e notte diventarono impulsi stroboscopici. Zeera imprecò e strinse forte gli occhi. Miya guardò fuori, torva, a occhi socchiusi. Svetz si calò il casco. Ora il sole era un punto scuro che correva da est a ovest, in continuazione, ma il panorama chiaro-scuro-chiaro metteva ancora a disagio. Tende pressurizzate e veicoli comparvero in un disegno non del tutto centrato nel punto dove la Minim si muoveva nel tempo, tutti costruiti alla maniera marziana. Il Tanker scomparve a sezioni. Pochi minuti dopo, ogni attività dell’altopiano sparì. La sede temporanea cominciò a decadere e collassare. Miya spense  e si trovarono nel tardo pomeriggio di un giorno imprecisato. L’Hangtree era alto nel cielo, da est a sud. Mazzi di enormi fiori argentei sbocciavano alle sue estremità. La parte inferiore, scheggiata, si era rimarginata: era a punta, come un gambo che sporgesse da un argenteo mazzolino di fiori d’appuntarsi al petto, diecimila",
+        "gold_entities_raw": [
+            {
+                "word": "Miya",
+                "label": "PER"
+            },
+            {
+                "word": "Zeera",
+                "label": "PER"
+            },
+            {
+                "word": "Svetz",
+                "label": "PER"
+            },
+            {
+                "word": "Minim",
+                "label": "LOC"
+            },
+            {
+                "word": "Tanker",
+                "label": "LOC"
+            },
+            {
+                "word": "Hangtree",
+                "label": "LOC"
+            }
+        ],
+        "gold_entities_normalized": [
+            "zeera",
+            "hangtree",
+            "miya",
+            "svetz",
+            "minim",
+            "tanker"
+        ],
+        "local_entities_normalized": [
+            "zeera",
+            "hangtree",
+            "miya",
+            "svetz",
+            "minim"
+        ],
+        "true_positives": 5
+    }
+]

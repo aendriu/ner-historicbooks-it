@@ -7,11 +7,10 @@ import logging
 from sqlalchemy.orm import Session
 from app.config import BASE_DIR, DATA_DIR
 from app.database import Book, BookStatus, Chapter, Summary
-from app.ocr.llm_cleaner import run_llm_cleaner
-from app.ner.ner_extractor import extract_ner_from_file
-from app.semantic.chunker import run_semantic_chunker
-from app.semantic.chapter_grouper import run_chapter_grouper
-from app.semantic.summarizer import generate_chapter_summary
+from app.pipeline.ocr import run_llm_cleaner
+from app.pipeline.ner import extract_ner_from_file
+from app.pipeline.chunker import run_semantic_chunker
+from app.pipeline.summarizer import run_hierarchical_summarization
 
 logger = logging.getLogger(__name__)
 
@@ -96,62 +95,25 @@ def process_book_pipeline(book_id: int, db: Session, progress_cb=None):
         book.chunk_manifest_path = manifest_chunk
         db.commit()
 
-        book.status = BookStatus.CHAPTER_GROUPING
-        db.commit()
-
-        logger.info(f"[Book {book_id}] Fase 3: Raggruppamento capitoli...")
-        manifest_chapters = run_chapter_grouper(filename_no_ext, chunk_dir)
-        book.chapter_manifest_path = manifest_chapters
-        db.commit()
-
-        # Salva capitoli nel DB
-        with open(manifest_chapters, "r", encoding="utf-8") as f:
-            chapter_manifest = json.load(f)
-
-        cap_models = []
-        for cap_data in chapter_manifest.get("chapters", []):
-            ch = Chapter(
-                book_id=book.id,
-                chapter_id_num=cap_data["chapter_id"],
-                title=cap_data["title"],
-                char_start=cap_data["char_start"],
-                char_end=cap_data["char_end"],
-            )
-            db.add(ch)
-            cap_models.append((ch, cap_data))
-        db.commit()
-
-        # ── FASE 4: SUMMARIZATION ──
         book.status = BookStatus.SUMMARIZING
         db.commit()
 
-        logger.info(f"[Book {book_id}] Fase 4: Generazione riassunti...")
-        chapters_dir = os.path.join(DATA_DIR, "chapters", filename_no_ext)
-
-        for chapter_model, cap_data in cap_models:
-            chunks_data = []
-            for cid in cap_data.get("chunk_ids", []):
-                chunk_file = os.path.join(
-                    chapters_dir, str(cap_data["chapter_id"]), f"chunk_{cid:03d}.json"
-                )
-                if os.path.exists(chunk_file):
-                    with open(chunk_file, "r", encoding="utf-8") as f:
-                        chunks_data.append(json.load(f))
-
-            try:
-                summary_text = generate_chapter_summary(cap_data["title"], chunks_data)
-                if summary_text:
-                    db.add(Summary(chapter_id=chapter_model.id, level=0, content=summary_text))
-            except Exception as sum_err:
-                logger.error(f"[Book {book_id}] Errore riassunto capitolo {cap_data.get('chapter_id')}: {sum_err}")
-                continue  # non bloccare gli altri capitoli
-
-        db.commit()
+        logger.info(f"[Book {book_id}] Fase 4: Hierarchical Summarization (Livello 0)...")
+        try:
+            run_hierarchical_summarization(
+                book_name=filename_no_ext,
+                method="embed",
+                semantic_dir=os.path.join(DATA_DIR, "semantic"),
+                summaries_dir=os.path.join(DATA_DIR, "summaries"),
+            )
+        except Exception as sum_err:
+            logger.error(f"[Book {book_id}] Errore summarization: {sum_err}")
 
         # ── COMPLETATO ──
         book.status = BookStatus.COMPLETED
         db.commit()
         logger.info(f"[Book {book_id}] Pipeline completata con successo.")
+
 
     except Exception as e:
         logger.error(f"[Book {book_id}] Errore pipeline: {e}")

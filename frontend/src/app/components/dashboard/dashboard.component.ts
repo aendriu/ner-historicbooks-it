@@ -493,12 +493,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
       alert('⚠️ Errore: Esegui prima l\'estrazione NER!');
       return;
     }
-    if (phase === 'chapters' && !book.has_chunks) {
+    if (phase === 'summaries' && !book.has_chunks) {
       alert('⚠️ Errore: Esegui prima il Chunking Semantico!');
-      return;
-    }
-    if (phase === 'summaries' && !book.has_chapters) {
-      alert('⚠️ Errore: Genera prima i Capitoli!');
       return;
     }
 
@@ -518,15 +514,16 @@ export class DashboardComponent implements OnInit, OnDestroy {
         case 'clean': return this.api.runClean(book.id);
         case 'ner': return this.api.runNer(book.id);
         case 'chunking': return this.api.runChunking(book.id, this.selectedChunkMethod());
-        case 'chapters': return this.api.runChapters(book.id);
-        case 'summaries': return this.api.runSummaries(book.id);
+        case 'summaries': return this.api.runSummarize(book.id, 'embed');
         default: return this.api.runAll(book.id);
       }
     };
 
     callApi().subscribe({
       next: () => {
-        this.startProgressPolling(book.id, phase, finish);
+        // Il backend usa chiave diversa per i riassunti: '{id}_summarize_embed'
+        const progressKey = phase === 'summaries' ? 'summarize_embed' : phase;
+        this.startProgressPolling(book.id, progressKey, finish);
       },
       error: (e) => {
         this.progressStatus.set('error');

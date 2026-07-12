@@ -5,7 +5,7 @@ import re
 from pathlib import Path
 
 from transformers import AutoModelForTokenClassification, AutoTokenizer, pipeline
-from .chunking import make_chunks
+from .ner_chunking import make_chunks
 
 # ====== CONFIG ======
 MODEL_NAME = "aendriu/bert-ner-italian-historical"

@@ -225,6 +225,15 @@ Chart.register(...registerables);
       outline: none;
     }
     .search-input:focus { border-color: var(--accent); }
+
+    /* ── Modal ── */
+    .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 100; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
+    .modal-content { background: var(--bg-base); border-radius: 16px; width: 600px; max-width: 90vw; box-shadow: 0 10px 25px rgba(0,0,0,0.2); border: 1px solid var(--border); overflow: hidden; display: flex; flex-direction: column; }
+    .modal-header { padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: var(--bg-surface); }
+    .modal-header h3 { margin: 0; font-size: 1.1rem; color: var(--text-primary); }
+    .close-btn { background: none; border: none; font-size: 1.2rem; cursor: pointer; color: var(--text-muted); }
+    .close-btn:hover { color: var(--text-primary); }
+    .modal-body { padding: 1.5rem; max-height: 70vh; overflow-y: auto; }
   `],
   template: `
   <div class="layout-wrapper">
@@ -248,6 +257,9 @@ Chart.register(...registerables);
       </button>
       <button class="nav-btn" [class.active]="view() === 'summaries'" (click)="view.set('summaries')">
         <span class="icon">📝</span> Riassunti
+      </button>
+      <button class="nav-btn" [class.active]="view() === 'compare'" (click)="view.set('compare'); loadReport()">
+        <span class="icon">🔬</span> Confronta Metodi
       </button>
     </aside>
 
@@ -365,106 +377,111 @@ Chart.register(...registerables);
         </div>
       </ng-container>
 
-      <!-- ════ VIEW: READER (Testo + NER in-line) ════ -->
+      <!-- ════ VIEW: READER (Capitoli veri + NER in-line) ════ -->
       <ng-container *ngIf="view() === 'reader'">
         <div class="page-header" style="display:flex; align-items:center; justify-content:space-between;">
           <div>
-            <h2>📖 Capitoli Semantici</h2>
+            <h2>📖 {{ readerMethod === 'embed' ? 'Capitoli Semantici' : 'Sezioni NER' }}</h2>
             <p>Seleziona un capitolo e leggi il testo con le entità storiche evidenziate in colori</p>
           </div>
           <div style="display:flex; gap:0.5rem; align-items:center;">
-            <select class="w-input" style="width: auto; padding: 0.5rem; font-size: 0.85rem;" [(ngModel)]="selectedReaderMethod" (change)="loadSemanticChunksForReader()">
-              <option value="embed">🔢 Metodo Embed</option>
-              <option value="ner">🏷️ Metodo NER</option>
+            <select style="padding:0.5rem 0.75rem; font-size:0.85rem; border-radius:8px; border:1px solid var(--border); background:var(--bg-surface); color:var(--text-primary); cursor:pointer;"
+                    [(ngModel)]="readerMethod" (change)="switchReaderMethod()">
+              <option value="embed">🔢 Metodo Embed (Capitoli)</option>
+              <option value="ner">🏷️ Metodo NER (Sezioni)</option>
             </select>
             <button class="nav-btn" style="width:auto; padding:0.6rem 1rem; background:rgba(99,102,241,0.1); color:var(--accent); border:1px solid rgba(99,102,241,0.3);"
-                    (click)="loadReport()">
+                    (click)="view.set('compare'); loadReport()">
               🔬 Confronta Metodi
             </button>
           </div>
         </div>
         <div class="reader-layout" style="flex:1; overflow:hidden;">
-          <!-- Chapter list gerarchico -->
+          <!-- Chapter list -->
           <div class="chapter-list">
             <input class="search-input" type="text" placeholder="🔎 Cerca capitolo..."
                    [(ngModel)]="chapterSearch" style="font-size:0.78rem;padding:0.45rem 0.65rem;">
+            <div *ngIf="loading() || readerLoading()" class="loading-state" style="padding:1rem;">⏳ Caricamento...</div>
 
-            <ng-container *ngFor="let group of groupedSemanticChunks()">
-              <!-- Voce capitolo -->
-              <div class="chapter-item"
-                   [class.active]="selectedSectionNum() === group.sectionNum"
-                   style="display:flex; align-items:center; justify-content:space-between; gap:0.5rem;"
-                   (click)="selectSemanticSection(group)">
-                <span style="flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
-                  📂 {{ group.label }}
-                </span>
-                <!-- Chevron espandi solo se ci sono più parti -->
-                <span *ngIf="group.parts.length > 1"
-                      style="font-size:0.75rem; opacity:0.6; cursor:pointer; flex-shrink:0;"
-                      (click)="$event.stopPropagation(); toggleSection(group.sectionNum)">
-                  {{ isSectionExpanded(group.sectionNum) ? '▲' : '▼' }}
-                  <span style="font-size:0.68rem;">({{ group.parts.length }})</span>
-                </span>
+            <!-- EMBED: capitoli reali -->
+            <ng-container *ngIf="readerMethod === 'embed'">
+              <div *ngFor="let ch of filteredChaptersForReader()"
+                   class="chapter-item"
+                   [class.active]="selectedReaderChapter()?.id === ch.id"
+                   (click)="selectReaderChapter(ch)">
+                {{ ch.title || 'Capitolo ' + ch.chapter_id_num }}
               </div>
+              <div *ngIf="!loading() && !chaptersData()?.length" class="empty-state" style="padding:1rem;">
+                Nessun capitolo trovato. Esegui prima il chapter grouping.
+              </div>
+            </ng-container>
 
-              <!-- Sotto-voci parti (visibili solo se espanso e ci sono più parti) -->
-              <ng-container *ngIf="group.parts.length > 1 && isSectionExpanded(group.sectionNum)">
-                <div *ngFor="let part of group.parts; let pi = index"
-                     class="chapter-item"
-                     [class.active]="selectedSemanticChunk()?.chunk_id === part.chunk_id && selectedSectionNum() === group.sectionNum"
-                     style="padding-left:1.75rem; font-size:0.78rem; opacity:0.85;"
-                     (click)="selectSemanticChunk(part)">
-                  └ Parte {{ pi + 1 }}
-                </div>
-              </ng-container>
+            <!-- NER: sezioni grezze -->
+            <ng-container *ngIf="readerMethod === 'ner'">
+              <div *ngFor="let sec of filteredNerSections()"
+                   class="chapter-item"
+                   [class.active]="selectedNerSection() === sec.sectionNum"
+                   (click)="selectNerSection(sec)">
+                {{ sec.label }}
+              </div>
+              <div *ngIf="!loading() && !nerSections().length" class="empty-state" style="padding:1rem;">
+                Sezioni NER non disponibili. Esegui il chunking NER dalla dashboard.
+              </div>
             </ng-container>
           </div>
 
           <!-- Text content -->
           <div class="reader-content">
-            <div *ngIf="!selectedSemanticChunk()" class="empty-state" style="padding:3rem;">
-              ← Seleziona un capitolo/sezione dalla lista per leggere il testo
-            </div>
-            <ng-container *ngIf="selectedSemanticChunk()">
-              <ng-container *ngFor="let group of groupedSemanticChunks()">
-                <ng-container *ngIf="group.sectionNum === selectedSectionNum()">
-                  <h3>
-                    {{ group.label }}
-                    <span *ngIf="group.parts.length > 1 && chunkTexts().length === 1"
-                          style="font-size:0.8rem; font-weight:400; color:var(--text-muted);">
-                      — Parte {{ group.parts.indexOf(selectedSemanticChunk()) + 1 }} di {{ group.parts.length }}
+            <ng-container *ngIf="readerMethod === 'embed'">
+              <div *ngIf="!selectedReaderChapter()" class="empty-state" style="padding:3rem;">
+                ← Seleziona un capitolo dalla lista per leggere il testo
+              </div>
+              <ng-container *ngIf="selectedReaderChapter()">
+                <h3>{{ selectedReaderChapter()!.title || 'Capitolo ' + selectedReaderChapter()!.chapter_id_num }}</h3>
+                <div class="legend">
+                  <span *ngFor="let lbl of ['PER','LOC','ORG','DATE','WORK','FANT','TIT','REL']" class="badge" [ngClass]="getEntClass(lbl)" style="pointer-events:none; font-size:0.72rem;">{{ labelName(lbl) }}</span>
+                </div>
+                <div class="entity-accordion" *ngIf="!readerLoading() && chapterEntities().length">
+                  <div class="accordion-header" (click)="entitiesOpen = !entitiesOpen">
+                    <span>🏷️ Entità di questo capitolo ({{ chapterEntities().length }} distinte)</span>
+                    <span>{{ entitiesOpen ? '▲' : '▼' }}</span>
+                  </div>
+                  <div class="accordion-body" *ngIf="entitiesOpen">
+                    <span *ngFor="let e of chapterEntities()" class="accordion-tag" [ngClass]="getEntClass(e.label)" [title]="e.label">
+                      <span style="opacity:0.6;font-size:0.68rem;">{{ e.label }}</span> {{ e.word }}
                     </span>
-                  </h3>
-                </ng-container>
+                  </div>
+                </div>
+                <div *ngIf="readerLoading()" class="loading-state">⏳ Caricamento del capitolo...</div>
+                <div *ngIf="!readerLoading()" [innerHTML]="renderedChapterHtml()" class="text-block"></div>
+                <div *ngIf="!readerLoading() && chunkTexts().length === 0" class="empty-state">Nessun testo trovato per questo capitolo.</div>
               </ng-container>
+            </ng-container>
 
-              <!-- Legend -->
-              <div class="legend">
-                <span *ngFor="let lbl of ['PER','LOC','ORG','DATE','WORK','FANT','TIT','REL']" class="badge" [ngClass]="getEntClass(lbl)" style="pointer-events:none; font-size:0.72rem;">
-                  {{ labelName(lbl) }}
-                </span>
+            <ng-container *ngIf="readerMethod === 'ner'">
+              <div *ngIf="selectedNerSection() === null" class="empty-state" style="padding:3rem;">
+                ← Seleziona una sezione dalla lista per leggere il testo
               </div>
-
-              <!-- Collapsible entity list -->
-              <div class="entity-accordion" *ngIf="!readerLoading() && chapterEntities().length">
-                <div class="accordion-header" (click)="entitiesOpen = !entitiesOpen">
-                  <span>🏷️ Entità di questo capitolo ({{ chapterEntities().length }} distinte)</span>
-                  <span>{{ entitiesOpen ? '▲' : '▼' }}</span>
+              <ng-container *ngIf="selectedNerSection() !== null">
+                <h3>{{ nerSections()[selectedNerSection()!]?.label }}</h3>
+                <div class="legend">
+                  <span *ngFor="let lbl of ['PER','LOC','ORG','DATE','WORK','FANT','TIT','REL']" class="badge" [ngClass]="getEntClass(lbl)" style="pointer-events:none; font-size:0.72rem;">{{ labelName(lbl) }}</span>
                 </div>
-                <div class="accordion-body" *ngIf="entitiesOpen">
-                  <span *ngFor="let e of chapterEntities()"
-                        class="accordion-tag" [ngClass]="getEntClass(e.label)"
-                        [title]="e.label">
-                    <span style="opacity:0.6;font-size:0.68rem;">{{ e.label }}</span>
-                    {{ e.word }}
-                  </span>
+                <div class="entity-accordion" *ngIf="!readerLoading() && chapterEntities().length">
+                  <div class="accordion-header" (click)="entitiesOpen = !entitiesOpen">
+                    <span>🏷️ Entità di questa sezione ({{ chapterEntities().length }} distinte)</span>
+                    <span>{{ entitiesOpen ? '▲' : '▼' }}</span>
+                  </div>
+                  <div class="accordion-body" *ngIf="entitiesOpen">
+                    <span *ngFor="let e of chapterEntities()" class="accordion-tag" [ngClass]="getEntClass(e.label)" [title]="e.label">
+                      <span style="opacity:0.6;font-size:0.68rem;">{{ e.label }}</span> {{ e.word }}
+                    </span>
+                  </div>
                 </div>
-              </div>
-
-              <div *ngIf="readerLoading()" class="loading-state">⏳ Caricamento del capitolo...</div>
-              <div *ngIf="!readerLoading()" [innerHTML]="renderedChapterHtml()" class="text-block"></div>
-              
-              <div *ngIf="!readerLoading() && chunkTexts().length === 0" class="empty-state">Nessun testo trovato per questo capitolo.</div>
+                <div *ngIf="readerLoading()" class="loading-state">⏳ Caricamento...</div>
+                <div *ngIf="!readerLoading()" [innerHTML]="renderedChapterHtml()" class="text-block"></div>
+                <div *ngIf="!readerLoading() && chunkTexts().length === 0" class="empty-state">Nessun testo trovato per questa sezione.</div>
+              </ng-container>
             </ng-container>
           </div>
         </div>
@@ -474,51 +491,291 @@ Chart.register(...registerables);
       <!-- ════ VIEW: SUMMARIES ════ -->
       <ng-container *ngIf="view() === 'summaries'">
         <div class="page-header">
-          <h2>📝 Riassunti per Capitolo</h2>
-          <p>Riassunti narrativi generati da AI per ogni capitolo del libro. Scorri per validare la comprensione del modello.</p>
+          <h2>📝 Riassunti Semantici</h2>
+          <p>Riassunti narrativi generati da AI per ogni sezione semantica. La NER retention misura quante entità chiave sopravvivono nel riassunto.</p>
         </div>
-        <div class="reader-layout" style="flex:1;overflow:hidden;">
-          <!-- Chapter nav -->
+
+        <!-- Sinossi globale: barra collassabile + modal fullscreen -->
+        <div *ngIf="bookGlobalSummary()" style="margin: 0 1rem 0.75rem 1rem; flex-shrink: 0;">
+          <!-- Barra compatta cliccabile -->
+          <div (click)="globalSummaryExpanded.set(true)"
+               style="display:flex; align-items:center; justify-content:space-between;
+                      padding: 0.65rem 1rem; border-radius: 10px; cursor: pointer;
+                      border: 1px solid rgba(99,102,241,0.35);
+                      background: rgba(99,102,241,0.06);
+                      transition: background 0.15s;"
+               onmouseenter="this.style.background='rgba(99,102,241,0.12)'"
+               onmouseleave="this.style.background='rgba(99,102,241,0.06)'">
+            <span style="color:#6366f1; font-weight:700; font-size:0.9rem;">📖 Sinossi Globale — Livello 0</span>
+            <span style="color:#6366f1; font-size:0.8rem; opacity:0.75;">Espandi ↗</span>
+          </div>
+        </div>
+
+        <!-- Modal fullscreen sinossi -->
+        <div *ngIf="globalSummaryExpanded()" style="
+             position:fixed; inset:0; z-index:2000;
+             background:rgba(0,0,0,0.55); backdrop-filter:blur(6px);
+             display:flex; align-items:center; justify-content:center;
+             padding: 2rem;"
+             (click)="globalSummaryExpanded.set(false)">
+          <div (click)="$event.stopPropagation()"
+               style="background:var(--bg-surface); border:1px solid rgba(99,102,241,0.4);
+                      border-radius:16px; width:100%; max-width:820px; max-height:85vh;
+                      display:flex; flex-direction:column; box-shadow:0 20px 60px rgba(0,0,0,0.4);">
+            <!-- Header modal -->
+            <div style="display:flex; align-items:center; justify-content:space-between;
+                        padding:1.25rem 1.5rem; border-bottom:1px solid var(--border); flex-shrink:0;">
+              <h3 style="color:#6366f1; margin:0; font-size:1.1rem;">📖 Sinossi Globale — Livello 0</h3>
+              <button (click)="globalSummaryExpanded.set(false)"
+                      style="background:transparent; border:none; color:var(--text-muted);
+                             font-size:1.4rem; cursor:pointer; line-height:1; padding:0.25rem 0.5rem;
+                             border-radius:6px; transition:background 0.15s;"
+                      onmouseenter="this.style.background='var(--bg-base)'"
+                      onmouseleave="this.style.background='transparent'">✕</button>
+            </div>
+            <!-- Testo scrollabile -->
+            <div style="overflow-y:auto; padding:1.5rem; flex:1;">
+              <p style="font-size:0.95rem; line-height:1.8; color:var(--text-primary);
+                        white-space:pre-wrap; margin:0;">{{ bookGlobalSummary() }}</p>
+            </div>
+          </div>
+        </div>
+
+
+
+        <div *ngIf="!summariesData()" class="empty-state" style="padding:3rem;text-align:center;">
+          <p style="font-size:1.1rem;margin-bottom:0.5rem;">📭 Nessun riassunto disponibile</p>
+          <p style="font-size:0.85rem;color:var(--text-muted);">Avvia la fase <strong>Riassunti</strong> dalla Dashboard, poi ricarica questa pagina.</p>
+        </div>
+
+        <div *ngIf="summariesData()" class="reader-layout" style="flex:1; min-height:0; overflow:hidden;">
+          <!-- Section nav -->
           <div class="chapter-list">
-            <input class="search-input" type="text" placeholder="🔎 Cerca capitolo..."
+            <input class="search-input" type="text" placeholder="🔎 Cerca sezione..."
                    [(ngModel)]="summarySearch" style="font-size:0.78rem;padding:0.45rem 0.65rem;">
-            <div *ngFor="let ch of filteredSummaryChapters()"
+            <div *ngFor="let sec of filteredSummarySections()"
                  class="chapter-item"
-                 [class.active]="selectedSummaryChapter()?.id === ch.id"
-                 (click)="selectedSummaryChapter.set(ch)">
-              <span [style.opacity]="ch.summaries.length ? '1' : '0.4'">
-                {{ ch.summaries.length ? '✅' : '○' }}
+                 [class.active]="selectedSummarySection()?.section_idx === sec.section_idx"
+                 (click)="selectedSummarySection.set(sec)">
+              <span [style.opacity]="sec.summary ? '1' : '0.4'">
+                {{ sec.summary ? '✅' : '○' }}
               </span>
-              {{ ch.title || 'Cap. ' + ch.chapter_id_num }}
+              {{ sec.topic_hint || 'Sezione ' + sec.section_idx }}
             </div>
           </div>
 
           <!-- Summary content -->
           <div class="reader-content">
-            <div *ngIf="!selectedSummaryChapter()" class="empty-state" style="padding:3rem;">
-              ← Seleziona un capitolo per leggere il suo riassunto
+            <div *ngIf="!selectedSummarySection()" class="empty-state" style="padding:3rem;">
+              ← Seleziona una sezione per leggere il suo riassunto
             </div>
-            <ng-container *ngIf="selectedSummaryChapter()">
-              <h3>{{ selectedSummaryChapter()!.title || 'Capitolo ' + selectedSummaryChapter()!.chapter_id_num }}</h3>
-              <div class="summary-card" *ngIf="selectedSummaryChapter()!.summaries.length">
-                <p class="summary-text">{{ selectedSummaryChapter()!.summaries[0].content }}</p>
+            <ng-container *ngIf="selectedSummarySection() as sec">
+              <h3>{{ sec.topic_hint || 'Sezione ' + sec.section_idx }}</h3>
+              <p style="font-size:0.78rem;color:var(--text-muted);margin-bottom:1rem;">
+                {{ sec.num_chunks }} chunk · {{ sec.total_chars | number }} caratteri
+                <span *ngIf="sec.ner_retention" style="margin-left:1rem;">
+                  🏷️ NER retention: <strong style="color:var(--accent)">{{ sec.ner_retention.retention_percent }}%</strong>
+                </span>
+              </p>
+              <div class="summary-card" *ngIf="sec.summary">
+                <p class="summary-text">{{ sec.summary }}</p>
               </div>
-              <div *ngIf="!selectedSummaryChapter()!.summaries.length" class="summary-card">
-                <p class="no-summary">Nessun riassunto generato per questo capitolo. Completa la fase "Genera Riassunti" dalla Dashboard.</p>
+              <div *ngIf="!sec.summary" class="summary-card">
+                <p class="no-summary">Nessun riassunto generato per questa sezione.</p>
+              </div>
+
+              <!-- Entità perse -->
+              <div *ngIf="sec.ner_retention?.lost?.length" style="margin-top:1rem;padding:0.75rem;border-radius:8px;background:rgba(239,68,68,0.05);border:1px solid rgba(239,68,68,0.2);">
+                <p style="font-size:0.78rem;color:#ef4444;margin:0;">
+                  ⚠️ Entità perse nel riassunto: {{ sec.ner_retention.lost.join(', ') }}
+                </p>
               </div>
 
               <!-- Navigation -->
               <div style="display:flex;gap:1rem;margin-top:1rem;">
-                <button (click)="prevSummary()" [disabled]="selectedSummaryChapterIndex() === 0"
+                <button (click)="prevSummarySection()" [disabled]="selectedSummarySectionIndex() === 0"
                   style="padding:0.5rem 1rem;border-radius:8px;border:1px solid var(--border);background:var(--bg-surface);color:var(--text-primary);cursor:pointer;font-weight:600;">
                   ← Precedente
                 </button>
-                <button (click)="nextSummary()" [disabled]="selectedSummaryChapterIndex() === chaptersData()!.length - 1"
+                <button (click)="nextSummarySection()" [disabled]="selectedSummarySectionIndex() >= (summariesData()?.sections?.length - 1)"
                   style="padding:0.5rem 1rem;border-radius:8px;border:1px solid var(--border);background:var(--bg-surface);color:var(--text-primary);cursor:pointer;font-weight:600;">
                   Successivo →
                 </button>
               </div>
             </ng-container>
+          </div>
+        </div>
+      </ng-container>
+
+      <!-- ════ VIEW: CONFRONTO METODI ════ -->
+      <ng-container *ngIf="view() === 'compare'">
+        <div class="page-header">
+          <h2>🔬 Confronto Scientifico dei Metodi di Chunking</h2>
+          <p>Analisi quantitativa: Metodo Embed (cosine similarity) vs Metodo NER (sovrapposizione entità). Dati richiesti dalla tesi.</p>
+        </div>
+        <div class="scroll-area">
+          <div *ngIf="reportLoading()" class="loading-state">⏳ Calcolo metriche in corso...</div>
+
+          <ng-container *ngIf="!reportLoading() && reportData()">
+
+            <!-- ── Sezione 1: Statistiche riepilogative ── -->
+            <h3 style="font-size:0.9rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;margin:0 0 .75rem">1 · Riepilogo strutturale</h3>
+            <div class="stat-grid" style="grid-template-columns:repeat(5,1fr);margin-bottom:2rem">
+              <div class="stat-card">
+                <div class="label">Chunk totali Embed</div>
+                <div class="value blue">{{ reportData().embed_total_chunks ?? 'N/D' }}</div>
+              </div>
+              <div class="stat-card">
+                <div class="label">Sezioni Embed</div>
+                <div class="value blue">{{ reportData().embed_total_sections ?? 'N/D' }}</div>
+              </div>
+              <div class="stat-card">
+                <div class="label">Chunk totali NER</div>
+                <div class="value purple">{{ reportData().ner_total_chunks ?? 'N/D' }}</div>
+              </div>
+              <div class="stat-card">
+                <div class="label">Sezioni NER</div>
+                <div class="value purple">{{ reportData().ner_total_sections ?? 'N/D' }}</div>
+              </div>
+              <div class="stat-card">
+                <div class="label">Confini Embed confermati da NER</div>
+                <div class="value" [class.green]="reportData().avg_jaccard_score >= 0.6" [class.red]="reportData().avg_jaccard_score < 0.4">
+                  {{ reportData().avg_jaccard_score !== null ? (reportData().avg_jaccard_score * 100).toFixed(1) + '%' : 'N/D' }}
+                </div>
+                <div style="font-size:0.68rem;color:var(--text-muted);margin-top:.2rem">su {{ reportData().embed_total_sections ?? 0 }} confini Embed</div>
+              </div>
+            </div>
+
+            <!-- ── Sezione 2: Profilo di Similarità Coseno ── -->
+            <h3 style="font-size:0.9rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;margin:0 0 .75rem">2 · Profilo di coerenza testuale (TF-IDF cosine similarity)</h3>
+            <div class="diff-grid" style="margin-bottom:2rem">
+              <!-- Embed -->
+              <div class="card" *ngIf="reportData().embed_similarity">
+                <h3>🔢 Metodo Embed</h3>
+                <div class="stat-grid" style="grid-template-columns:1fr 1fr 1fr;margin-bottom:.75rem">
+                  <div class="stat-card">
+                    <div class="label">Sim. intra-sezione</div>
+                    <div class="value green">{{ reportData().embed_similarity.avg_intra !== null ? reportData().embed_similarity.avg_intra.toFixed(3) : '—' }}</div>
+                  </div>
+                  <div class="stat-card">
+                    <div class="label">Sim. al confine</div>
+                    <div class="value red">{{ reportData().embed_similarity.avg_boundary !== null ? reportData().embed_similarity.avg_boundary.toFixed(3) : '—' }}</div>
+                  </div>
+                  <div class="stat-card">
+                    <div class="label">Sim. cross-sezione</div>
+                    <div class="value red">{{ reportData().embed_similarity.avg_cross !== null ? reportData().embed_similarity.avg_cross.toFixed(3) : '—' }}</div>
+                  </div>
+                </div>
+                <p style="font-size:0.78rem;color:var(--text-muted);line-height:1.5;margin:0">
+                  Un buon metodo mostra: <strong style="color:#4ade80">intra alta</strong> · <strong style="color:#f87171">al confine bassa</strong> · <strong style="color:#f87171">cross bassissima</strong>.
+                  Il Δ = intra − confine misura la "nitidezza" del taglio.
+                  <br><strong>Δ Embed = {{ reportData().embed_similarity.avg_intra !== null && reportData().embed_similarity.avg_boundary !== null ? (reportData().embed_similarity.avg_intra - reportData().embed_similarity.avg_boundary).toFixed(3) : '—' }}</strong>
+                  <span style="opacity:0.6">· {{ reportData().embed_similarity.n_intra }} coppie intra · {{ reportData().embed_similarity.n_boundary }} al confine · {{ reportData().embed_similarity.n_cross }} cross</span>
+                </p>
+              </div>
+              <!-- NER -->
+              <div class="card" *ngIf="reportData().ner_similarity">
+                <h3>🏷️ Metodo NER</h3>
+                <div class="stat-grid" style="grid-template-columns:1fr 1fr 1fr;margin-bottom:.75rem">
+                  <div class="stat-card">
+                    <div class="label">Sim. intra-sezione</div>
+                    <div class="value green">{{ reportData().ner_similarity.avg_intra !== null ? reportData().ner_similarity.avg_intra.toFixed(3) : '—' }}</div>
+                  </div>
+                  <div class="stat-card">
+                    <div class="label">Sim. al confine</div>
+                    <div class="value red">{{ reportData().ner_similarity.avg_boundary !== null ? reportData().ner_similarity.avg_boundary.toFixed(3) : '—' }}</div>
+                  </div>
+                  <div class="stat-card">
+                    <div class="label">Sim. cross-sezione</div>
+                    <div class="value red">{{ reportData().ner_similarity.avg_cross !== null ? reportData().ner_similarity.avg_cross.toFixed(3) : '—' }}</div>
+                  </div>
+                </div>
+                <p style="font-size:0.78rem;color:var(--text-muted);line-height:1.5;margin:0">
+                  <strong>Δ NER = {{ reportData().ner_similarity.avg_intra !== null && reportData().ner_similarity.avg_boundary !== null ? (reportData().ner_similarity.avg_intra - reportData().ner_similarity.avg_boundary).toFixed(3) : '—' }}</strong>
+                  — Il metodo con Δ maggiore segmenta in modo più netto.
+                  <span style="opacity:0.6">· {{ reportData().ner_similarity.n_intra }} coppie intra · {{ reportData().ner_similarity.n_boundary }} al confine · {{ reportData().ner_similarity.n_cross }} cross</span>
+                </p>
+              </div>
+            </div>
+
+            <!-- ── Sezione 3: Tabella Boundary Agreement ── -->
+            <h3 style="font-size:0.9rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;margin:0 0 .75rem">3 · Corrispondenza confini Embed ↔ NER (tolleranza ±{{ reportData().tolerance_chars }} car.)</h3>
+            <div class="card" style="overflow-x:auto;margin-bottom:2rem;padding:0">
+              <table style="width:100%;border-collapse:collapse;font-size:0.8rem">
+                <thead>
+                  <tr style="background:var(--bg-base);">
+                    <th style="padding:.6rem .9rem;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border)">#Embed</th>
+                    <th style="padding:.6rem .9rem;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border)">Topic Embed</th>
+                    <th style="padding:.6rem .9rem;text-align:right;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border)">Char Embed</th>
+                    <th style="padding:.6rem .9rem;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border)">#NER</th>
+                    <th style="padding:.6rem .9rem;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border)">Topic NER</th>
+                    <th style="padding:.6rem .9rem;text-align:right;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border)">Char NER</th>
+                    <th style="padding:.6rem .9rem;text-align:right;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border)">Distanza</th>
+                    <th style="padding:.6rem .9rem;text-align:center;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border)">Match</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let row of reportData().comparison"
+                      [style.background]="row.is_match ? 'rgba(74,222,128,0.04)' : 'rgba(248,113,113,0.04)'">
+                    <td style="padding:.55rem .9rem;color:var(--text-muted)">{{ row.embed_chunk_id }}</td>
+                    <td style="padding:.55rem .9rem;color:var(--text-primary)">{{ row.embed_topic }}</td>
+                    <td style="padding:.55rem .9rem;text-align:right;color:var(--text-muted);font-variant-numeric:tabular-nums">{{ row.embed_char | number }}</td>
+                    <td style="padding:.55rem .9rem;color:var(--text-muted)">{{ row.best_ner_chunk_id }}</td>
+                    <td style="padding:.55rem .9rem;color:var(--text-primary)">{{ row.ner_topic }}</td>
+                    <td style="padding:.55rem .9rem;text-align:right;color:var(--text-muted);font-variant-numeric:tabular-nums">{{ row.ner_char | number }}</td>
+                    <td style="padding:.55rem .9rem;text-align:right;font-variant-numeric:tabular-nums" [style.color]="row.dist_chars > reportData().tolerance_chars ? '#f87171' : '#4ade80'">{{ row.dist_chars | number }}</td>
+                    <td style="padding:.55rem .9rem;text-align:center">{{ row.is_match ? '✅' : '❌' }}</td>
+                  </tr>
+                </tbody>
+              </table>
+              <div *ngIf="!reportData().comparison?.length" class="empty-state" style="padding:1rem">Esegui entrambi i metodi di chunking per visualizzare la tabella.</div>
+            </div>
+
+            <!-- ── Sezione 4: Esempi di coppie ── -->
+            <h3 style="font-size:0.9rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;margin:0 0 .75rem">4 · Esempi di coppie (Metodo Embed)</h3>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;margin-bottom:2rem">
+              <!-- Intra -->
+              <div class="card">
+                <h3 style="color:#4ade80">✅ Intra-sezione (alta similarità attesa)</h3>
+                <div *ngFor="let e of reportData().embed_similarity?.intra?.slice(0,5)" style="margin-bottom:.6rem;padding:.5rem;background:var(--bg-base);border-radius:8px;font-size:0.78rem">
+                  <div style="color:var(--text-muted);margin-bottom:.2rem">Chunk {{ e.chunk_a }} → {{ e.chunk_b }}</div>
+                  <div style="color:var(--text-primary);font-weight:600">{{ e.topic_a }}</div>
+                  <div style="display:flex;align-items:center;gap:.5rem;margin-top:.3rem">
+                    <div style="flex:1;background:var(--border);border-radius:4px;height:6px"><div [style.width.%]="e.similarity*100" style="background:#4ade80;height:6px;border-radius:4px"></div></div>
+                    <span style="color:#4ade80;font-weight:700;min-width:42px">{{ e.similarity.toFixed(3) }}</span>
+                  </div>
+                </div>
+              </div>
+              <!-- Boundary -->
+              <div class="card">
+                <h3 style="color:#fb7185">🔀 Al confine semantico (bassa similarità attesa)</h3>
+                <div *ngFor="let e of reportData().embed_similarity?.boundary?.slice(0,5)" style="margin-bottom:.6rem;padding:.5rem;background:var(--bg-base);border-radius:8px;font-size:0.78rem">
+                  <div style="color:var(--text-muted);margin-bottom:.2rem">Chunk {{ e.chunk_a }} → {{ e.chunk_b }}</div>
+                  <div style="color:var(--text-primary);font-weight:600">{{ e.topic_a }} ↦ {{ e.topic_b }}</div>
+                  <div style="display:flex;align-items:center;gap:.5rem;margin-top:.3rem">
+                    <div style="flex:1;background:var(--border);border-radius:4px;height:6px"><div [style.width.%]="e.similarity*100" style="background:#fb7185;height:6px;border-radius:4px"></div></div>
+                    <span style="color:#fb7185;font-weight:700;min-width:42px">{{ e.similarity.toFixed(3) }}</span>
+                  </div>
+                </div>
+              </div>
+              <!-- Cross -->
+              <div class="card">
+                <h3 style="color:#f87171">↔ Cross-sezione (bassissima attesa)</h3>
+                <div *ngFor="let e of reportData().embed_similarity?.cross?.slice(0,5)" style="margin-bottom:.6rem;padding:.5rem;background:var(--bg-base);border-radius:8px;font-size:0.78rem">
+                  <div style="color:var(--text-muted);margin-bottom:.2rem">Chunk {{ e.chunk_a }} ↔ {{ e.chunk_b }}</div>
+                  <div style="color:var(--text-primary);font-weight:600">{{ e.topic_a }} ↦ {{ e.topic_b }}</div>
+                  <div style="display:flex;align-items:center;gap:.5rem;margin-top:.3rem">
+                    <div style="flex:1;background:var(--border);border-radius:4px;height:6px"><div [style.width.%]="e.similarity*100" style="background:#f87171;height:6px;border-radius:4px"></div></div>
+                    <span style="color:#f87171;font-weight:700;min-width:42px">{{ e.similarity.toFixed(3) }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </ng-container>
+
+          <div *ngIf="!reportLoading() && !reportData()" class="empty-state">
+            ❌ Esegui prima il chunking con entrambi i metodi (Embed e NER) dalla dashboard del libro.
           </div>
         </div>
       </ng-container>
@@ -531,23 +788,110 @@ export class AnalysisComponent implements OnInit {
   @ViewChild('pieCanvas') pieCanvas?: ElementRef<HTMLCanvasElement>;
   chartInstance: any;
 
-  view = signal<'ocr' | 'ner' | 'reader' | 'summaries'>('ocr');
+  view = signal<'ocr' | 'ner' | 'reader' | 'summaries' | 'compare'>('ocr');
   loading = signal(true);
   readerLoading = signal(false);
 
   textData = signal<any>(null);
   nerData = signal<NerResult | null>(null);
   chaptersData = signal<Chapter[] | null>(null);
+  bookGlobalSummary = signal<string | null>(null);
+
+  // Nuovo sistema riassunti (JSON file-based)
+  summariesData = signal<any>(null);
+  selectedSummarySection = signal<any>(null);
+  globalSummaryExpanded = signal(false);
 
   selectedLabel = signal<string | null>(null);
   selectedChapter = signal<Chapter | null>(null);
   selectedSummaryChapter = signal<Chapter | null>(null);
   
-  // Semantic chunks logic for reader
-  selectedReaderMethod = 'embed';
-  semanticChunks = signal<any[]>([]);
-  selectedSemanticChunk = signal<any>(null);
-  semanticChunksLoaded = false;
+  selectedReaderChapter = signal<Chapter | null>(null);
+  readerMethod: 'embed' | 'ner' = 'embed';
+
+  // NER mode state
+  nerSections = signal<{ sectionNum: number; label: string; parts: any[] }[]>([]);
+  selectedNerSection = signal<number | null>(null);
+
+  filteredChaptersForReader = computed(() => {
+    const chapters = this.chaptersData() || [];
+    const q = this.chapterSearch.toLowerCase().trim();
+    if (!q) return chapters;
+    return chapters.filter(c => (c.title || '').toLowerCase().includes(q) || String(c.chapter_id_num).includes(q));
+  });
+
+  filteredNerSections = computed(() => {
+    const secs = this.nerSections();
+    const q = this.chapterSearch.toLowerCase().trim();
+    if (!q) return secs;
+    return secs.filter(s => s.label.toLowerCase().includes(q));
+  });
+
+  switchReaderMethod() {
+    this.selectedReaderChapter.set(null);
+    this.selectedNerSection.set(null);
+    this.chunkTexts.set([]);
+    this.entitiesOpen = false;
+    if (this.readerMethod === 'ner' && !this.nerSections().length) {
+      this.loadNerSections();
+    }
+  }
+
+  loadNerSections() {
+    this.readerLoading.set(true);
+    this.api.getSemanticChunks(this.bookId(), 'ner').subscribe({
+      next: (chunks: any[]) => {
+        const groups = new Map<number, { sectionNum: number; label: string; parts: any[] }>();
+        for (const c of chunks) {
+          const m = (c.topic_hint || '').match(/(\d+)/);
+          const secNum = m ? parseInt(m[1]) : c.chunk_id;
+          if (!groups.has(secNum)) {
+            groups.set(secNum, { sectionNum: secNum, label: '', parts: [] });
+          }
+          groups.get(secNum)!.parts.push(c);
+        }
+        // Ordina e rinomina progressivamente come "Capitolo 1, 2, ..."
+        const sorted = Array.from(groups.values()).sort((a, b) => a.sectionNum - b.sectionNum);
+        sorted.forEach((s, i) => { s.label = `Capitolo ${i + 1}`; });
+        this.nerSections.set(sorted);
+        this.readerLoading.set(false);
+      },
+      error: () => {
+        this.nerSections.set([]);
+        this.readerLoading.set(false);
+      }
+    });
+  }
+
+  selectNerSection(sec: { sectionNum: number; label: string; parts: any[] }) {
+    this.selectedNerSection.set(sec.sectionNum);
+    this.entitiesOpen = false;
+    this.chunkTexts.set(sec.parts.map((c: any) => ({
+      text: c.text,
+      entities: c.entities || [],
+      char_start: c.char_start ?? 0
+    })));
+  }
+
+
+  selectReaderChapter(ch: Chapter) {
+    if (this.selectedReaderChapter()?.id === ch.id) return;
+    this.selectedReaderChapter.set(ch);
+    this.entitiesOpen = false;
+    this.readerLoading.set(true);
+    this.chunkTexts.set([]);
+    this.api.getChapterChunks(this.bookId(), ch.chapter_id_num).subscribe({
+      next: (chunks: any[]) => {
+        this.chunkTexts.set(chunks.map((c: any) => ({
+          text: c.text,
+          entities: c.entities || [],
+          char_start: c.char_start ?? 0
+        })));
+        this.readerLoading.set(false);
+      },
+      error: () => { this.readerLoading.set(false); }
+    });
+  }
 
   searchQuery = '';
   chapterSearch = '';
@@ -566,9 +910,6 @@ export class AnalysisComponent implements OnInit {
   reportLoading = signal(false);
   reportData = signal<any>(null);
 
-  // Sezioni espanse nella sidebar dei capitoli semantici
-  expandedSections = new Set<number>();
-  selectedSectionNum = signal<number | null>(null);
 
   // ── Computed ──
 
@@ -615,35 +956,29 @@ export class AnalysisComponent implements OnInit {
       .sort((a, b) => b.count - a.count);
   });
 
-  filteredSemanticChunks = computed(() => {
-    const chunks = this.semanticChunks() || [];
-    const q = this.chapterSearch.toLowerCase().trim();
-    if (!q) return chunks;
-    return chunks.filter(c => (c.topic_hint || '').toLowerCase().includes(q) ||
-      String(c.chunk_id).includes(q));
-  });
-
-  // Raggruppa i chunk per numero di sezione semantica
-  groupedSemanticChunks = computed(() => {
-    const chunks = this.filteredSemanticChunks();
-    const groups = new Map<number, { sectionNum: number; label: string; parts: any[] }>();
-    for (const c of chunks) {
-      const m = (c.topic_hint || '').match(/(\d+)/);
-      const secNum = m ? parseInt(m[1]) : c.chunk_id;
-      if (!groups.has(secNum)) {
-        const baseLabel = (c.topic_hint || `Sezione ${secNum}`).replace(/ \(parte\)/, '');
-        groups.set(secNum, { sectionNum: secNum, label: baseLabel, parts: [] });
-      }
-      groups.get(secNum)!.parts.push(c);
-    }
-    return Array.from(groups.values());
-  });
-
   filteredSummaryChapters = computed(() => {
     const chapters = this.chaptersData() || [];
     const q = this.summarySearch.toLowerCase().trim();
     if (!q) return chapters;
     return chapters.filter(c => (c.title || '').toLowerCase().includes(q));
+  });
+
+  // Computed per il nuovo sistema sezioni
+  filteredSummarySections = computed(() => {
+    const sections: any[] = this.summariesData()?.sections || [];
+    const q = this.summarySearch.toLowerCase().trim();
+    if (!q) return sections;
+    return sections.filter((s: any) =>
+      (s.topic_hint || '').toLowerCase().includes(q)
+    );
+  });
+
+  selectedSummarySectionIndex = computed(() => {
+    const sel = this.selectedSummarySection();
+    if (!sel) return -1;
+    return (this.summariesData()?.sections || []).findIndex(
+      (s: any) => s.section_idx === sel.section_idx
+    );
   });
 
   selectedSummaryChapterIndex = computed(() => {
@@ -735,65 +1070,6 @@ export class AnalysisComponent implements OnInit {
         setTimeout(() => this.renderChart(), 100);
       }
     });
-
-    // Load semantic chunks when switching to reader view
-    effect(() => {
-      if (this.view() === 'reader' && !this.semanticChunksLoaded) {
-        this.semanticChunksLoaded = true;
-        this.loadSemanticChunksForReader();
-      }
-    });
-  }
-
-  loadSemanticChunksForReader() {
-    if (!this.bookId()) return;
-    this.readerLoading.set(true);
-    this.semanticChunks.set([]);
-    this.selectedSemanticChunk.set(null);
-    this.chunkTexts.set([]);
-    
-    this.api.getSemanticChunks(this.bookId(), this.selectedReaderMethod as 'embed'|'ner').subscribe({
-      next: (chunks) => {
-        this.semanticChunks.set(chunks);
-        this.readerLoading.set(false);
-      },
-      error: () => {
-        this.semanticChunks.set([]);
-        this.readerLoading.set(false);
-      }
-    });
-  }
-
-  selectSemanticChunk(ch: any) {
-    this.selectedSemanticChunk.set(ch);
-    this.chunkTexts.set([{
-      text: ch.text,
-      entities: ch.entities || [],
-      char_start: ch.char_start || 0
-    }]);
-  }
-
-  /** Seleziona un intero capitolo semantico (tutti i suoi chunk concatenati) */
-  selectSemanticSection(group: { sectionNum: number; label: string; parts: any[] }) {
-    this.selectedSectionNum.set(group.sectionNum);
-    this.selectedSemanticChunk.set(group.parts[0]);
-    this.chunkTexts.set(group.parts.map(c => ({
-      text: c.text,
-      entities: c.entities || [],
-      char_start: c.char_start || 0
-    })));
-  }
-
-  toggleSection(secNum: number) {
-    if (this.expandedSections.has(secNum)) {
-      this.expandedSections.delete(secNum);
-    } else {
-      this.expandedSections.add(secNum);
-    }
-  }
-
-  isSectionExpanded(secNum: number) {
-    return this.expandedSections.has(secNum);
   }
 
   ngOnInit() {
@@ -807,16 +1083,22 @@ export class AnalysisComponent implements OnInit {
   loadData(bookId: number) {
     this.loading.set(true);
     let loaded = 0;
-    const done = () => { if (++loaded === 3) this.loading.set(false); };
+    const done = () => { if (++loaded === 4) this.loading.set(false); };
 
     this.api.getBookText(bookId).subscribe({ next: d => { this.textData.set(d); done(); }, error: done });
     this.api.getNer(bookId).subscribe({ next: d => { this.nerData.set(d); done(); }, error: () => { this.nerData.set(null); done(); } });
     this.api.getChapters(bookId).subscribe({ next: d => { this.chaptersData.set(d); done(); }, error: () => { this.chaptersData.set(null); done(); } });
-    
-    this.semanticChunksLoaded = false;
-    if (this.view() === 'reader') {
-      this.loadSemanticChunksForReader();
-    }
+    // Carica i nuovi riassunti file-based
+    this.api.getSummaries(bookId, 'embed').subscribe({
+      next: d => {
+        this.summariesData.set(d);
+        this.bookGlobalSummary.set(d.global_summary || null);
+        // Preseleziona prima sezione
+        if (d.sections?.length) this.selectedSummarySection.set(d.sections[0]);
+        done();
+      },
+      error: () => { this.summariesData.set(null); this.bookGlobalSummary.set(null); done(); }
+    });
   }
 
   selectChapter(ch: Chapter) {
@@ -854,6 +1136,18 @@ export class AnalysisComponent implements OnInit {
     const idx = this.selectedSummaryChapterIndex();
     const chapters = this.chaptersData() || [];
     if (idx < chapters.length - 1) this.selectedSummaryChapter.set(chapters[idx + 1]);
+  }
+
+  prevSummarySection() {
+    const idx = this.selectedSummarySectionIndex();
+    const sections = this.summariesData()?.sections || [];
+    if (idx > 0) this.selectedSummarySection.set(sections[idx - 1]);
+  }
+
+  nextSummarySection() {
+    const idx = this.selectedSummarySectionIndex();
+    const sections = this.summariesData()?.sections || [];
+    if (idx < sections.length - 1) this.selectedSummarySection.set(sections[idx + 1]);
   }
 
   renderChart() {

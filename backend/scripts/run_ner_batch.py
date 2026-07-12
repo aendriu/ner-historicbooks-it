@@ -9,7 +9,7 @@ if BASE_DIR not in sys.path:
     sys.path.insert(0, BASE_DIR)
 
 from app.database import Book, BookStatus
-from app.ner.ner_extractor import extract_ner_from_file
+from app.pipeline.ner import extract_ner_from_file
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)

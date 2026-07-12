@@ -48,7 +48,12 @@ export interface NerResult {
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
-  private base = 'http://localhost:8000/api';
+  private readonly base = 'http://localhost:8000/api';
+
+  // URL Ollama (Colab/Cloudflare) — usato per operazioni LLM pesanti
+  getOllamaUrl(): string {
+    return localStorage.getItem('OLLAMA_BASE_URL') || '';
+  }
 
   constructor(private http: HttpClient) {}
 
@@ -88,12 +93,13 @@ export class ApiService {
     return this.http.post<{ message: string }>(`${this.base}/books/${id}/run/chunking`, { method });
   }
 
-  runChapters(id: number): Observable<{ message: string }> {
-    return this.http.post<{ message: string }>(`${this.base}/books/${id}/run/chapters`, {});
+
+  runSummarize(id: number, method: 'embed' | 'ner' = 'embed'): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.base}/books/${id}/run/summarize`, { method });
   }
 
-  runSummaries(id: number): Observable<{ message: string }> {
-    return this.http.post<{ message: string }>(`${this.base}/books/${id}/run/summaries`, {});
+  getSummaries(id: number, method: 'embed' | 'ner' = 'embed'): Observable<any> {
+    return this.http.get<any>(`${this.base}/books/${id}/summaries?method=${method}`);
   }
 
   // ── Progress ──
@@ -118,12 +124,17 @@ export class ApiService {
     return this.http.get<Chapter[]>(`${this.base}/books/${id}/chapters`);
   }
 
+  getBookGlobalSummary(id: number): Observable<{ content: string | null }> {
+    return this.http.get<{ content: string | null }>(`${this.base}/books/${id}/global-summary`);
+  }
+
   getChapterChunks(bookId: number, chapterId: number): Observable<SemanticChunk[]> {
     return this.http.get<SemanticChunk[]>(`${this.base}/books/${bookId}/chapters/${chapterId}/chunks`);
   }
 
-  getSummaries(id: number): Observable<any[]> {
-    return this.http.get<any[]>(`${this.base}/books/${id}/summaries`);
+  // Alias backward-compat → usa il nuovo endpoint JSON
+  getSummariesLegacy(id: number): Observable<{book_summary: string | null, chapters: any[]}> {
+    return this.http.get<{book_summary: string | null, chapters: any[]}>(`${this.base}/books/${id}/summaries`);
   }
 
   getChapterSummary(bookId: number, chapterId: number): Observable<{ content: string; level: number }> {

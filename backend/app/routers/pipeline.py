@@ -14,12 +14,12 @@ import logging
 from typing import Literal
 
 from app.database import SessionLocal, Book, BookStatus, Chapter, Summary
-from app.config import DATA_DIR
+from app.config import DATA_DIR, settings
 from app.services import process_book_pipeline, process_book_cleaning
-from app.ner.ner_extractor import extract_ner_from_file
-from app.semantic.chunker import run_semantic_chunker, EMBED_SUBDIR, NER_SUBDIR
-from app.semantic.chapter_grouper import run_chapter_grouper
-from app.semantic.summarizer import generate_chapter_summary
+from app.pipeline.ner import extract_ner_from_file
+from app.pipeline.chunker import run_semantic_chunker, EMBED_SUBDIR, NER_SUBDIR
+
+from app.pipeline.summarizer import run_hierarchical_summarization
 
 
 class ChunkingRequest(BaseModel):
@@ -27,9 +27,10 @@ class ChunkingRequest(BaseModel):
 
 logger = logging.getLogger("uvicorn.error")
 
-NER_DIR = os.path.join(DATA_DIR, "ner")
-SEMANTIC_DIR = os.path.join(DATA_DIR, "semantic")
-CHAPTERS_DIR = os.path.join(DATA_DIR, "chapters")
+NER_DIR      = os.path.join(DATA_DIR, "ner")
+SEMANTIC_DIR  = os.path.join(DATA_DIR, "semantic")
+SUMMARIES_DIR = os.path.join(DATA_DIR, "summaries")
+
 
 router = APIRouter(tags=["pipeline"])
 
@@ -82,7 +83,10 @@ def run_all(book_id: int, background_tasks: BackgroundTasks, db: Session = Depen
 
     def _do_all():
         progress_key = f"{book_id}_all"
-        progress_store[progress_key] = {"status": "running", "logs": ["Avvio pipeline completa..."]}
+        progress_store[progress_key] = {"status": "running", "logs": [
+            f"🤖 LLM: {settings.OLLAMA_HOST} | modello: {settings.OLLAMA_MODEL}",
+            "Avvio pipeline completa..."
+        ]}
         local_db = SessionLocal()
 
         def _cb(current, total, detail=""):
@@ -116,7 +120,10 @@ def run_clean(book_id: int, background_tasks: BackgroundTasks, db: Session = Dep
 
     def _do_clean():
         progress_key = f"{book_id}_clean"
-        progress_store[progress_key] = {"status": "running", "logs": ["Avvio pulizia OCR..."]}
+        progress_store[progress_key] = {"status": "running", "logs": [
+            f"🤖 LLM: {settings.OLLAMA_HOST} | modello: {settings.OLLAMA_MODEL}",
+            "Avvio pulizia OCR..."
+        ]}
         local_db = SessionLocal()
 
         def _cb(current, total, detail=""):
@@ -238,7 +245,10 @@ def run_chunking(book_id: int, body: ChunkingRequest, background_tasks: Backgrou
 
 @router.get("/api/books/{book_id}/chunking-report")
 def get_chunking_report(book_id: int, db: Session = Depends(get_db)):
-    """Confronto tra i risultati dei due metodi di chunking (embed vs ner)."""
+    """Confronto scientifico tra i risultati dei due metodi di chunking (embed vs ner)."""
+    import re
+    import math
+
     book = _get_book_or_404(book_id, db)
     filename_no_ext = os.path.splitext(book.filename)[0]
 
@@ -254,87 +264,263 @@ def get_chunking_report(book_id: int, db: Session = Depends(get_db)):
     if not embed_available and not ner_available:
         raise HTTPException(404, "Nessun risultato di chunking disponibile per questo libro.")
 
-    # ── Calcola Boundary Agreement ──
-    # Estraiamo i veri tagli semantici ignorando i sub-chunk "(parte)"
-    import re
+    STOPWORDS = {
+        "il","lo","la","i","gli","le","un","uno","una","di","a","da","in",
+        "con","su","per","tra","fra","e","o","ma","se","che","non","si","è",
+        "era","ai","del","dei","delle","della","degli","al","allo","alla","agli",
+        "nel","nello","nella","nei","negli","nelle","col","coi","sui","come",
+        "anche","già","più","suo","sua","suoi","sue","mio","mia","questo","quella",
+        "essere","fare","avere","anche","così","poi","però","quando","dove","quello",
+    }
+
+    def _tf(text: str) -> dict:
+        """Frequenza termini normalizzata per lunghezza."""
+        words = re.findall(r'\b[a-zA-ZÀ-ÿ]{3,}\b', text.lower())
+        freq: dict = {}
+        for w in words:
+            if w not in STOPWORDS:
+                freq[w] = freq.get(w, 0) + 1
+        total = sum(freq.values()) or 1
+        return {w: c / total for w, c in freq.items()}
+
+    def _build_tfidf(tf_list: list[dict]) -> list[dict]:
+        """Calcola TF-IDF da una lista di vettori TF.
+        IDF = log(N / df) — penalizza parole che appaiono in molti chunk.
+        """
+        N = len(tf_list)
+        df: dict = {}
+        for tf in tf_list:
+            for word in tf:
+                df[word] = df.get(word, 0) + 1
+        idf = {word: math.log(N / count) for word, count in df.items() if count < N}
+        return [
+            {w: v * idf[w] for w, v in tf.items() if w in idf}
+            for tf in tf_list
+        ]
+
+    def _cosine(a: dict, b: dict) -> float:
+        common = set(a) & set(b)
+        if not common:
+            return 0.0
+        dot   = sum(a[w] * b[w] for w in common)
+        mag_a = math.sqrt(sum(v**2 for v in a.values()))
+        mag_b = math.sqrt(sum(v**2 for v in b.values()))
+        return round(dot / (mag_a * mag_b), 4) if mag_a and mag_b else 0.0
+
+    def _load_chunks_text(manifest_path: str) -> list[dict]:
+        base = os.path.dirname(manifest_path)
+        manifest = json.load(open(manifest_path, encoding="utf-8"))
+        chunks = []
+        for c in manifest.get("chunks", []):
+            chunk_file = os.path.join(base, f"chunk_{c['chunk_id']:03d}.json")
+            text = ""
+            if os.path.exists(chunk_file):
+                try:
+                    text = json.load(open(chunk_file, encoding="utf-8")).get("text", "")
+                except Exception:
+                    pass
+            chunks.append({**c, "text": text})
+        return chunks
+
+    def _sec_num(hint: str) -> int:
+        m = re.search(r'(\d+)', hint or "")
+        return int(m.group(1)) if m else 0
+
+    def _compute_similarity_profile(chunks: list[dict]) -> dict:
+        """
+        Calcola il profilo di coerenza usando TF-IDF cosine similarity:
+        - intra: chunk consecutivi nella STESSA sezione semantica
+        - boundary: chunk consecutivi su sezioni DIVERSE (i tagli semantici)
+        - cross: coppie di chunk da sezioni lontane (distanza >= metà delle sezioni totali)
+        """
+        if len(chunks) < 3:
+            return {"intra": [], "boundary": [], "cross": [],
+                    "avg_intra": None, "avg_boundary": None, "avg_cross": None}
+
+        # Costruisci TF-IDF su tutti i chunk
+        tf_list  = [_tf(c.get("text", "")) for c in chunks]
+        vecs     = _build_tfidf(tf_list)
+
+        intra, boundary = [], []
+        for i in range(len(chunks) - 1):
+            s_i  = _sec_num(chunks[i].get("topic_hint", ""))
+            s_i1 = _sec_num(chunks[i + 1].get("topic_hint", ""))
+            sim  = _cosine(vecs[i], vecs[i + 1])
+            entry = {
+                "chunk_a": chunks[i]["chunk_id"],
+                "chunk_b": chunks[i + 1]["chunk_id"],
+                "topic_a": chunks[i].get("topic_hint", ""),
+                "topic_b": chunks[i + 1].get("topic_hint", ""),
+                "similarity": sim,
+                "same_section": s_i == s_i1,
+            }
+            (intra if s_i == s_i1 else boundary).append(entry)
+
+        # Cross: prendi UN rappresentante per ogni sezione, poi campiona coppie
+        # a distanza >= max(3, total_sections // 3)
+        section_rep: dict[int, int] = {}   # sec_num → indice chunk
+        for idx, c in enumerate(chunks):
+            s = _sec_num(c.get("topic_hint", ""))
+            if s not in section_rep:
+                section_rep[s] = idx
+
+        sec_nums    = sorted(section_rep.keys())
+        total_secs  = len(sec_nums)
+        min_gap     = max(3, total_secs // 3)
+
+        cross = []
+        for idx_i, s_i in enumerate(sec_nums):
+            for s_j in sec_nums[idx_i + 1:]:
+                if s_j - s_i >= min_gap:
+                    ci, cj = section_rep[s_i], section_rep[s_j]
+                    cross.append({
+                        "chunk_a": chunks[ci]["chunk_id"],
+                        "chunk_b": chunks[cj]["chunk_id"],
+                        "topic_a": chunks[ci].get("topic_hint", ""),
+                        "topic_b": chunks[cj].get("topic_hint", ""),
+                        "similarity": _cosine(vecs[ci], vecs[cj]),
+                        "same_section": False,
+                    })
+                    break   # una coppia per sezione sorgente
+            if len(cross) >= 20:
+                break
+
+        def _avg(lst):
+            return round(sum(x["similarity"] for x in lst) / len(lst), 4) if lst else None
+
+        return {
+            "intra":        intra[:30],
+            "boundary":     boundary[:30],
+            "cross":        cross,
+            "avg_intra":    _avg(intra),
+            "avg_boundary": _avg(boundary),
+            "avg_cross":    _avg(cross),
+            "n_intra":      len(intra),
+            "n_boundary":   len(boundary),
+            "n_cross":      len(cross),
+        }
+
+    # ── Boundary Agreement ──
     def extract_boundaries(chunks):
-        boundaries = []
-        last_section = None
+        boundaries, last_section = [], None
         for c in chunks:
             m = re.search(r'(\d+)', c.get("topic_hint", ""))
             if m:
                 sec_num = int(m.group(1))
                 if sec_num != last_section:
                     boundaries.append({
-                        "char": c["char_start"],
+                        "char":       c["char_start"],
                         "topic_hint": c["topic_hint"].replace(" (parte)", ""),
-                        "chunk_id": c["chunk_id"]
+                        "chunk_id":   c["chunk_id"],
                     })
                     last_section = sec_num
         return boundaries
 
-    comparison = []
-    avg_jaccard = None
+    comparison     = []
+    avg_jaccard    = None
     embed_sec_count = 0
-    ner_sec_count = 0
-    tolerance = 1500  # 1500 caratteri di tolleranza per considerare due tagli coincidenti
+    ner_sec_count   = 0
+    tolerance       = 1500
+
+    embed_profile = None
+    ner_profile   = None
+
+    if embed_available:
+        try:
+            embed_chunks_full = _load_chunks_text(embed_manifest_path)
+            embed_profile     = _compute_similarity_profile(embed_chunks_full)
+            embed_sec_count   = len(extract_boundaries(embed_manifest.get("chunks", [])))
+        except Exception as e:
+            logger.warning(f"Similarity embed fallita: {e}")
+            embed_sec_count = len(extract_boundaries(embed_manifest.get("chunks", [])))
+
+    if ner_available:
+        try:
+            ner_chunks_full = _load_chunks_text(ner_manifest_path)
+            ner_profile     = _compute_similarity_profile(ner_chunks_full)
+            ner_sec_count   = len(extract_boundaries(ner_manifest.get("chunks", [])))
+        except Exception as e:
+            logger.warning(f"Similarity NER fallita: {e}")
+            ner_sec_count = len(extract_boundaries(ner_manifest.get("chunks", [])))
 
     if embed_available and ner_available:
-        embed_chunks = embed_manifest.get("chunks", [])
-        ner_chunks   = ner_manifest.get("chunks", [])
+        embed_b = extract_boundaries(embed_manifest.get("chunks", []))
+        ner_b   = extract_boundaries(ner_manifest.get("chunks", []))
 
-        embed_b = extract_boundaries(embed_chunks)
-        ner_b = extract_boundaries(ner_chunks)
-        
-        embed_sec_count = len(embed_b)
-        ner_sec_count = len(ner_b)
-
-        # Confrontiamo ogni boundary di embed con il più vicino in ner
         for eb in embed_b:
             if not ner_b:
                 break
-            # Trova il taglio ner più vicino
             closest_nb = min(ner_b, key=lambda nb: abs(nb["char"] - eb["char"]))
-            dist = abs(closest_nb["char"] - eb["char"])
+            dist  = abs(closest_nb["char"] - eb["char"])
             match = dist <= tolerance
-            
             comparison.append({
-                "embed_chunk_id": eb["chunk_id"],
-                "embed_topic": eb["topic_hint"],
+                "embed_chunk_id":    eb["chunk_id"],
+                "embed_topic":       eb["topic_hint"],
+                "embed_char":        eb["char"],
                 "best_ner_chunk_id": closest_nb["chunk_id"],
-                "jaccard_score": 1.0 if match else 0.0, # Manteniamo il campo per retrocompatibilità UI se serve
-                "dist_chars": dist,
-                "is_match": match
+                "ner_char":          closest_nb["char"],
+                "ner_topic":         closest_nb["topic_hint"],
+                "dist_chars":        dist,
+                "is_match":          match,
             })
-            
+
         matches = sum(1 for r in comparison if r["is_match"])
-        if max(embed_sec_count, ner_sec_count) > 0:
-            avg_jaccard = round(matches / max(embed_sec_count, ner_sec_count), 2)
-        else:
-            avg_jaccard = 0.0
+        # Denominatore = embed_sec_count: "quanti confini Embed sono confermati da NER?"
+        avg_jaccard = round(matches / embed_sec_count, 2) if embed_sec_count > 0 else 0.0
 
     return {
-        "book_id": book_id,
-        "embed_available": embed_available,
-        "ner_available": ner_available,
-        "embed_total_chunks": embed_sec_count if embed_available else None,
-        "ner_total_chunks": ner_sec_count if ner_available else None,
-        "avg_jaccard_score": avg_jaccard,
-        "comparison": comparison,
-        "tolerance_chars": tolerance
+        "book_id":              book_id,
+        "embed_available":      embed_available,
+        "ner_available":        ner_available,
+        "embed_total_chunks":   embed_manifest.get("total_chunks") if embed_available else None,
+        "ner_total_chunks":     ner_manifest.get("total_chunks")   if ner_available   else None,
+        "embed_total_sections": embed_sec_count if embed_available else None,
+        "ner_total_sections":   ner_sec_count   if ner_available   else None,
+        "avg_jaccard_score":    avg_jaccard,
+        "comparison":           comparison,
+        "tolerance_chars":      tolerance,
+        "embed_similarity":     embed_profile,
+        "ner_similarity":       ner_profile,
     }
 
 
-@router.post("/api/books/{book_id}/run/chapters")
-def run_chapters(book_id: int, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
-    """Esegue solo il raggruppamento capitoli."""
-    book = _get_book_or_404(book_id, db)
-    if not book.chunk_manifest_path or not os.path.exists(book.chunk_manifest_path):
-        raise HTTPException(400, "Chunk manifest non disponibile. Esegui prima il chunking.")
 
-    def _do_chapters():
-        progress_key = f"{book_id}_chapters"
-        progress_store[progress_key] = {"status": "running", "logs": []}
+
+
+
+@router.post("/api/books/{book_id}/run/summarize")
+def run_summarize(
+    book_id: int,
+    body: ChunkingRequest,
+    background_tasks: BackgroundTasks,
+    db: Session = Depends(get_db),
+):
+    """
+    Avvia la Hierarchical Summarization (Livello 0) sui chunk semantici.
+    method: embed | ner
+    """
+    book = _get_book_or_404(book_id, db)
+    method = body.method
+
+    # Verifica che il chunking sia disponibile per il metodo scelto
+    method_subdir = EMBED_SUBDIR if method == "embed" else NER_SUBDIR
+    filename_no_ext = os.path.splitext(book.filename)[0]
+    manifest_path = os.path.join(SEMANTIC_DIR, method_subdir, filename_no_ext, "manifest.json")
+    if not os.path.exists(manifest_path):
+        raise HTTPException(
+            400,
+            f"Chunking '{method}' non disponibile. Esegui prima il chunking semantico.",
+        )
+
+    def _do_summarize():
+        progress_key = f"{book_id}_summarize_{method}"
+        progress_store[progress_key] = {
+            "status": "running",
+            "logs": [
+                f"🤖 LLM: {settings.OLLAMA_HOST} | modello: {settings.OLLAMA_MODEL}",
+                f"Avvio Hierarchical Summarization ({method.upper()})...",
+            ],
+        }
 
         def _cb(current, total, detail=""):
             progress_store[progress_key]["logs"].append(f"[{current}/{total}] {detail}")
@@ -344,105 +530,48 @@ def run_chapters(book_id: int, background_tasks: BackgroundTasks, db: Session = 
             local_book = local_db.query(Book).filter(Book.id == book_id).first()
             if not local_book:
                 return
-
-            local_book.status = BookStatus.CHAPTER_GROUPING
-            local_db.commit()
-            filename_no_ext = os.path.splitext(local_book.filename)[0]
-            chunk_dir = os.path.dirname(local_book.chunk_manifest_path)
-            manifest_path = run_chapter_grouper(filename_no_ext, chunk_dir, progress_cb=_cb)
-            local_book.chapter_manifest_path = manifest_path
-
-            # Salva capitoli nel DB
-            with open(manifest_path, "r", encoding="utf-8") as f:
-                ch_manifest = json.load(f)
-            local_db.query(Chapter).filter(Chapter.book_id == local_book.id).delete()
-            for cap in ch_manifest.get("chapters", []):
-                local_db.add(Chapter(
-                    book_id=local_book.id,
-                    chapter_id_num=cap["chapter_id"],
-                    title=cap["title"],
-                    char_start=cap.get("char_start", 0),
-                    char_end=cap.get("char_end", 0),
-                ))
-            local_book.status = BookStatus.COMPLETED
-            progress_store[progress_key]["status"] = "completed"
-            local_db.commit()
-        except Exception as e:
-            logger.error(f"Chapter grouping error: {e}")
-            progress_store[progress_key]["status"] = "error"
-            progress_store[progress_key]["logs"].append(f"Errore: {e}")
-        finally:
-            local_db.close()
-
-    background_tasks.add_task(_do_chapters)
-    return {"message": "Chapter grouping avviato in background"}
-
-
-@router.post("/api/books/{book_id}/run/summaries")
-def run_summaries(book_id: int, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
-    """Genera i riassunti per tutti i capitoli del libro."""
-    book = _get_book_or_404(book_id, db)
-    chapters = db.query(Chapter).filter(Chapter.book_id == book_id).all()
-    if not chapters:
-        raise HTTPException(400, "Capitoli non disponibili. Esegui prima il chapter grouping.")
-
-    def _do_summaries():
-        progress_key = f"{book_id}_summaries"
-        progress_store[progress_key] = {"status": "running", "logs": []}
-
-        def _cb(current, total, detail=""):
-            progress_store[progress_key]["logs"].append(f"Capitolo {current}/{total}: {detail}")
-
-        local_db = SessionLocal()
-        try:
-            local_book = local_db.query(Book).filter(Book.id == book_id).first()
-            if not local_book:
-                return
-
             local_book.status = BookStatus.SUMMARIZING
             local_db.commit()
-            filename_no_ext = os.path.splitext(local_book.filename)[0]
-            chapters_dir = os.path.join(CHAPTERS_DIR, filename_no_ext)
 
-            cap_models = local_db.query(Chapter).filter(
-                Chapter.book_id == local_book.id
-            ).order_by(Chapter.chapter_id_num).all()
-            total_caps = len(cap_models)
-
-            with open(local_book.chapter_manifest_path, "r", encoding="utf-8") as f:
-                ch_manifest = json.load(f)
-            cap_data_map = {c["chapter_id"]: c for c in ch_manifest.get("chapters", [])}
-
-            for i, ch_model in enumerate(cap_models):
-                cap_data = cap_data_map.get(ch_model.chapter_id_num)
-                if not cap_data:
-                    continue
-
-                chunks_data = []
-                for cid in cap_data.get("chunk_ids", []):
-                    chunk_file = os.path.join(
-                        chapters_dir, str(cap_data["chapter_id"]), f"chunk_{cid:03d}.json"
-                    )
-                    if os.path.exists(chunk_file):
-                        with open(chunk_file, "r", encoding="utf-8") as f:
-                            chunks_data.append(json.load(f))
-
-                _cb(i + 1, total_caps, f"Generazione riassunto Capitolo {ch_model.chapter_id_num}")
-                if summary_text := generate_chapter_summary(cap_data["title"], chunks_data):
-                    local_db.query(Summary).filter(
-                        Summary.chapter_id == ch_model.id, Summary.level == 0
-                    ).delete()
-                    local_db.add(Summary(chapter_id=ch_model.id, level=0, content=summary_text))
+            fn = os.path.splitext(local_book.filename)[0]
+            run_hierarchical_summarization(
+                book_name=fn,
+                method=method,
+                semantic_dir=SEMANTIC_DIR,
+                summaries_dir=SUMMARIES_DIR,
+                progress_cb=_cb,
+            )
 
             local_book.status = BookStatus.COMPLETED
             progress_store[progress_key]["status"] = "completed"
             local_db.commit()
         except Exception as e:
-            logger.error(f"Summarizing error: {e}")
+            logger.error(f"Summarization error: {e}")
             progress_store[progress_key]["status"] = "error"
             progress_store[progress_key]["logs"].append(f"Errore: {e}")
         finally:
             local_db.close()
 
-    background_tasks.add_task(_do_summaries)
-    return {"message": "Generazione riassunti avviata in background"}
+    background_tasks.add_task(_do_summarize)
+    return {"message": f"Hierarchical Summarization ({method}) avviata in background"}
+
+
+@router.get("/api/books/{book_id}/summaries")
+def get_summaries(book_id: int, method: str = "embed", db: Session = Depends(get_db)):
+    """
+    Restituisce i risultati della Hierarchical Summarization salvati su disco.
+    method: embed | ner
+    """
+    book = _get_book_or_404(book_id, db)
+    method_subdir = EMBED_SUBDIR if method == "embed" else NER_SUBDIR
+    filename_no_ext = os.path.splitext(book.filename)[0]
+    summaries_path = os.path.join(SUMMARIES_DIR, method_subdir, filename_no_ext, "summaries.json")
+
+    if not os.path.exists(summaries_path):
+        raise HTTPException(
+            404,
+            "Riassunti non ancora generati. Usa POST /run/summarize prima.",
+        )
+
+    with open(summaries_path, encoding="utf-8") as f:
+        return json.load(f)

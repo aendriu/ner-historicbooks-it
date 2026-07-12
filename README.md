@@ -15,7 +15,10 @@ Il sistema pulisce gli errori di digitalizzazione, estrae entità storiche (pers
   - [Fase 1 — Pulizia OCR](#fase-1--pulizia-ocr)
   - [Fase 2 — Estrazione Entità (NER)](#fase-2--estrazione-entità-ner)
   - [Fase 3 — Chunking Semantico e Capitoli](#fase-3--chunking-semantico-e-capitoli)
-  - [Fase 4 — Riassunti AI](#fase-4--riassunti-ai)
+  - [Fase 4 — Riassunti AI (Livello 0)](#fase-4--riassunti-ai-livello-0)
+- [Valutazione della Pipeline](#valutazione-della-pipeline)
+  - [Valutazione NER (Fase 2)](#valutazione-ner-fase-2)
+  - [Valutazione Chunking (Fase 3)](#valutazione-chunking-fase-3)
 - [Interfaccia Web](#interfaccia-web)
 - [Struttura del Progetto](#struttura-del-progetto)
 - [Prerequisiti](#prerequisiti)
@@ -33,7 +36,7 @@ Il sistema pulisce gli errori di digitalizzazione, estrae entità storiche (pers
 
 Il progetto mira a trasformare l'enorme patrimonio letterario storico italiano — spesso confinato a testi digitalizzati grezzi (OCR) pieni di errori e privi di struttura — in una base di conoscenza interrogabile ed esplorabile semanticamente.
 
-Non si tratta solo di correggere gli errori di scansione, ma di arricchire il testo: la pipeline estrae automaticamente le entità storiche (personaggi, luoghi, eventi), ne comprende la struttura logica raggruppandolo in capitoli e, infine, genera riassunti narrativi avanzati tramite AI. Il tutto avviene in 4 fasi completamente automatizzate:
+Non si tratta solo di correggere gli errori di scansione, ma di arricchire il testo: la pipeline estrae automaticamente le entità storiche (personaggi, luoghi, eventi), ne comprende la struttura logica raggruppandolo in capitoli semantici e, infine, genera riassunti narrativi gerarchici tramite AI locale. Il tutto avviene in 4 fasi completamente automatizzate:
 
 ```
                   ┌─────────────────────────────────────────────────────────────┐
@@ -42,7 +45,7 @@ Non si tratta solo di correggere gli errori di scansione, ma di arricchire il te
 
   📄 Upload              🧹 Fase 1              🏷️ Fase 2             📐 Fase 3              📝 Fase 4
   Testo OCR    ───►    Pulizia OCR    ───►   Estrazione NER   ───►   Chunking +    ───►   Riassunti AI
-  (grezzo)           (LLM + C Rules)        (BERT fine-tuned)        Capitoli            (Claude Haiku)
+  (grezzo)           (LLM + C Rules)        (BERT fine-tuned)        Capitoli            (Ollama SLM)
 ```
 
 Il dataset incluso contiene **95 testi** della letteratura italiana — dall'Orlando Furioso alla Divina Commedia, dai Promessi Sposi al Decameron, passando per Leopardi, Machiavelli, Goldoni, Tasso, Vasari e molti altri.
@@ -57,21 +60,15 @@ Il dataset incluso contiene **95 testi** della letteratura italiana — dall'Orl
 │                                                                         │
 │  ┌──────────────────┐   ┌──────────────────┐   ┌────────────────────┐  │
 │  │    Frontend       │   │     Backend      │   │      Ollama        │  │
-│  │   (Angular 21)    │   │    (FastAPI)      │   │   (qwen2.5:3b)    │  │
+│  │   (Angular 21)    │   │    (FastAPI)      │   │   (qwen3.5:2b)    │  │
 │  │                   │   │                   │   │                    │  │
-│  │  Dashboard        │   │  REST API         │   │  LLM locale per   │  │
-│  │  Analisi NER      │──►│  Pipeline Engine  │──►│  pulizia OCR      │  │
-│  │  Lettore Capitoli │   │  SQLite DB        │   │                    │  │
+│  │  Dashboard        │   │  REST API         │   │  SLM locale per:  │  │
+│  │  Analisi NER      │──►│  Pipeline Engine  │──►│  • pulizia OCR    │  │
+│  │  Lettore Capitoli │   │  SQLite DB        │   │  • riassunti      │  │
 │  │  Riassunti        │   │  File I/O         │   │                    │  │
 │  │                   │   │                   │   │                    │  │
 │  │  :80 (nginx)      │   │  :8000 (uvicorn)  │   │  :11434            │  │
-│  └──────────────────┘   └────────┬──────────┘   └────────────────────┘  │
-│                                  │                                       │
-│                          ┌───────┴────────┐                              │
-│                          │   SLM Locale    │                              │
-│                          │(WIP: Riassunti) │                              │
-│                          │                 │                              │
-│                          └────────────────┘                              │
+│  └──────────────────┘   └──────────────────┘   └────────────────────┘  │
 └─────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -79,8 +76,7 @@ Il dataset incluso contiene **95 testi** della letteratura italiana — dall'Orl
 |---|---|
 | **Frontend** | SPA Angular con dashboard di gestione, viewer con evidenziazione entità, grafici NER e lettore di riassunti |
 | **Backend** | API FastAPI che orchestra la pipeline, gestisce il database SQLite e serve i dati al frontend |
-| **Ollama** | Server LLM locale che esegue il modello `qwen2.5:3b` per la correzione intelligente degli errori OCR |
-| **SLM Locale (WIP)** | Modello locale per la generazione dei riassunti (attualmente in sviluppo) |
+| **Ollama** | Server SLM locale che esegue il modello `qwen3.5:2b` per la pulizia OCR e la generazione dei riassunti |
 
 ---
 
@@ -92,7 +88,7 @@ La pulizia avviene in **due passaggi** complementari: un LLM per le correzioni c
 
 #### 1a. LLM Cleaner (Ollama)
 
-Il testo viene diviso in chunk da ~1500 caratteri e inviato a `qwen2.5:3b` con un prompt specializzato in filologia italiana. Il modello restituisce un array JSON di correzioni:
+Il testo viene diviso in chunk da ~1500 caratteri e inviato a `qwen3.5:2b` con un prompt specializzato in filologia italiana. Il modello restituisce un array JSON di correzioni:
 
 ```json
 [
@@ -124,7 +120,7 @@ Utilizza un modello **BERT fine-tuned** su testi storici italiani (`aendriu/bert
 **9 categorie di entità**:
 
 | Label | Tipo | Esempio |
-|-------|------|---------|
+|-------|------|---------| 
 | `PER` | Persona | *Ludovico Ariosto*, *Don Rodrigo* |
 | `LOC` | Luogo | *Milano*, *Lago di Como* |
 | `ORG` | Organizzazione | *Chiesa*, *Repubblica di Venezia* |
@@ -160,13 +156,132 @@ Utilizza **SentenceTransformer** (`paraphrase-multilingual-MiniLM-L12-v2`) per s
 5. Vengono anche rilevati i confini espliciti nel testo (`CAPITOLO`, `CANTO`, `LIBRO`, `PARTE` + numerali romani/arabi)
 6. Ogni chunk risultante contiene: testo, offset nel documento, suggerimento di argomento (`topic_hint`) e le entità NER presenti
 
-#### 3b. Raggruppamento Capitoli
+#### 3b. Raggruppamento Capitoli Semantici
 
-I chunk semantici vengono raggruppati sequenzialmente in macro-capitoli (ogni 8 chunk). Ogni capitolo viene salvato nel database con i suoi estremi di testo e i chunk corrispondenti vengono copiati in sottocartelle numerate.
+I chunk semantici vengono raggruppati in **capitoli semantici** in base al loro `topic_hint`: chunk consecutivi con lo stesso argomento di base (es. tutti i sotto-chunk di `"Capitolo Semantico 5"`) vengono uniti in un unico capitolo. Se il testo contiene capitoli espliciti (es. `CAPITOLO I`), questi vengono rispettati come confini naturali. Il risultato è un insieme di capitoli semantici con numero variabile di chunk (mediamente 5–15 chunk per capitolo).
 
-### Fase 4 — Riassunti AI (Work in Progress)
+### Fase 4 — Riassunti AI (Livello 0)
 
-> ⚠️ **Fase in riscrittura**: L'utilizzo di AWS Bedrock e Claude Haiku è stato rimosso per mantenere il progetto 100% locale ed esente da API key esterne. Questa fase è attualmente un placeholder testuale in attesa dell'integrazione di un SLM (Small Language Model) locale dedicato alla sintesi testuale.
+La fase 4 implementa una **Hierarchical Summarization** per produrre il riassunto di Livello 0 dell'opera — il riassunto più alto e completo che copre l'intera narrativa.
+
+#### Architettura della pipeline di riassunto
+
+```
+996 chunk semantici
+        │
+        ▼ (raggruppamento per topic_hint)
+115 capitoli semantici
+        │
+        ▼ (1 chiamata Ollama per capitolo)
+115 riassunti di capitolo  ← Livello 2
+        │
+        ▼ (1 chiamata Ollama con tutti i riassunti)
+Sinossi globale dell'opera  ← Livello 0
+```
+
+#### Dettagli tecnici
+
+- **Modello**: `qwen3.5:2b` via Ollama (esecuzione locale, zero costi API)
+- **Contesto per capitolo**: 8.192 token
+- **Contesto per Livello 0**: 32.768 token (tutti i riassunti di capitolo in una singola chiamata)
+- **Esecuzione**: sequenziale per evitare saturazione VRAM
+
+#### Metrica di valutazione: NER Retention
+
+Per ogni capitolo viene calcolata la **NER Retention**: la percentuale di entità `PER` e `LOC` presenti nel testo originale che compaiono anche nel riassunto generato. Questa metrica misura quanto il modello preserva i nomi storicamente rilevanti durante la sintesi.
+
+```
+NER Retention = (entità sopravvissute nel riassunto) / (entità totali nel testo) × 100
+```
+
+---
+
+## Valutazione della Pipeline
+
+Per evitare costi ripetuti con le API di Claude durante i test automatici, l'architettura di valutazione separa la **generazione dei Gold Standard** dall'**esecuzione dei test**.
+
+### Valutazione NER (Fase 2)
+
+```
+scripts/generate_ner_gold.py          ← eseguito MANUALMENTE (chiama Claude + BERT)
+         │
+         └─► tests/evaluations/results/ner_evaluation_results.json   ← versionato su git
+                      │
+                      └─► tests/evaluations/test_phase2_ner.py        ← pytest (zero API, < 5s)
+```
+
+**1. Generare (o aggiornare) il gold standard NER**
+Richiede la chiave Anthropic nel `.env`.
+```bash
+python3 scripts/generate_ner_gold.py --files 20
+```
+
+**2. Eseguire i test**
+```bash
+cd tests
+python3 -m pytest -v -s evaluations/test_phase2_ner.py
+```
+
+| Metrica | Valore | Soglia minima |
+|---------|:------:|:-------------:|
+| **Precision** | 0.77 | 0.60 |
+| **Recall** | 0.65 | 0.50 |
+| **F1-Score** | 0.70 | — |
+
+---
+
+### Valutazione Chunking Semantico (Fase 3)
+
+La fase 3 viene valutata confrontando i confini dei capitoli semantici individuati localmente (tramite `SentenceTransformers` + Regex) con i confini individuati da Claude su un campione di paragrafi (es. "I Promessi Sposi"). Viene applicata una **tolleranza di $\pm 2$ paragrafi**.
+
+```
+scripts/generate_chunking_gold.py     ← eseguito MANUALMENTE (chiama Claude)
+         │
+         └─► tests/evaluations/results/chunking_evaluation_results.json
+                      │
+                      └─► tests/evaluations/test_phase3_chunking.py   ← pytest
+```
+
+**1. Generare (o aggiornare) il gold standard Chunking**
+```bash
+python3 scripts/generate_chunking_gold.py --book promessi_sposi-cleaned.json --paras 250
+```
+
+**2. Eseguire i test**
+```bash
+cd tests
+python3 -m pytest -v -s evaluations/test_phase3_chunking.py
+```
+
+| Metrica | Valore | Soglia minima |
+|---------|:------:|:-------------:|
+| **Precision** | 0.50 | 0.45 |
+| **Recall** | 1.00 | 0.60 |
+| **F1-Score** | 0.67 | — |
+
+> Il modello vettoriale ha una Recall del 100% (individua **tutti** i macro-capitoli di Claude), ma tende a "sovra-segmentare" leggermente i testi rispetto a un umano/LLM (Precision ~50%). Questo comportamento è atteso e desiderato per mantenere i blocchi piccoli prima del taglio forzato a 2000 caratteri.
+
+### Valutazione Chunking NER (Alternativa)
+
+Per fini comparativi, è stata creata anche un'architettura di test per valutare il **Metodo NER**.
+Questo test divide il testo in blocchi fissi da 2000 caratteri e valuta la capacità dell'algoritmo (Jaccard Index sulle entità) di trovare i cambi di scena rispetto a un umano/LLM. La tolleranza applicata è di **$\pm 1$ blocco**.
+
+```bash
+# Per aggiornare il gold standard NER Chunking
+python3 scripts/generate_ner_chunking_gold.py --book promessi_sposi-cleaned.json --ner 45e11373_promessi_sposi.txt_entities.json --blocks 50
+
+# Per eseguire i test
+cd tests
+python3 -m pytest -v -s evaluations/test_phase3_ner_chunking.py
+```
+
+| Metrica | Valore | Soglia minima |
+|---------|:------:|:-------------:|
+| **Precision** | 0.52 | 0.40 |
+| **Recall** | 0.58 | 0.40 |
+| **F1-Score** | 0.55 | — |
+
+> **Analisi Comparativa:** L'F1-Score del Metodo NER (0.55) è chiaramente inferiore a quello del Metodo Vettoriale Embed (0.67). Questo dimostra scientificamente perché il Metodo Embed è stato scelto come default per l'applicazione: la segmentazione vettoriale sui pseudo-paragrafi è molto più accurata della segmentazione a blocchi basata sui personaggi.
 
 ---
 
@@ -214,7 +329,7 @@ Colori entità: `PER` rosa, `LOC` blu, `ORG` giallo, `DATE` verde, `WORK` viola,
 #### 📝 Riassunti
 Navigazione e lettura dei riassunti generati:
 - Lista capitoli con indicatore ✅/○ (riassunto presente/assente)
-- Testo del riassunto narrativo generato da Claude
+- Testo del riassunto narrativo generato da `qwen3.5:2b` via Ollama
 - Navigazione Precedente/Successivo
 
 ---
@@ -235,7 +350,7 @@ ner-historicbooks-it/
 │   │   │   ├── pipeline.py           # Avvio fasi pipeline + progress
 │   │   │   └── data.py               # Endpoint di lettura dati (testo, NER, chunk)
 │   │   ├── ocr/
-│   │   │   ├── llm_cleaner.py        # Pulizia OCR tramite Ollama (qwen2.5:3b)
+│   │   │   ├── llm_cleaner.py        # Pulizia OCR tramite Ollama (qwen3.5:2b)
 │   │   │   └── c_cleaner/
 │   │   │       ├── src/ocr_cleaner.c # Pulizia OCR rule-based in C (671 righe)
 │   │   │       ├── src/cJSON.c       # Libreria JSON parser
@@ -243,12 +358,12 @@ ner-historicbooks-it/
 │   │   ├── ner/
 │   │   │   ├── ner_extractor.py      # Pipeline NER con BERT fine-tuned
 │   │   │   └── chunking.py           # Utilità di segmentazione testo
-│   │   └── semantic/
-│   │       ├── chunker.py            # Chunking basato su embeddings
-│   │       ├── chapter_grouper.py    # Raggruppamento chunk in capitoli
-│   │       └── summarizer.py         # Generazione riassunti (Claude Haiku)
+│   │   └── pipeline/
+│   │       ├── chunker.py            # Chunking semantico basato su embeddings
+│   │       ├── chapter_grouper.py    # Raggruppamento chunk in capitoli semantici
+│   │       └── summarizer.py         # Hierarchical Summarization (Livello 0)
 │   ├── data/
-│   │   └── raw/                      # 189 testi italiani digitalizzati
+│   │   └── raw/                      # Testi italiani digitalizzati
 │   ├── Dockerfile                    # Multi-stage: compilazione C + runtime Python
 │   ├── requirements.txt
 │   └── .env.example
@@ -263,6 +378,25 @@ ner-historicbooks-it/
 │   │       └── book-state.service.ts # Stato globale con Angular Signals
 │   ├── Dockerfile                    # Multi-stage: build Angular + Nginx
 │   └── nginx.conf                    # Routing SPA + reverse proxy /api/
+│
+├── scripts/                          # Script di utilità (eseguiti manualmente)
+│   ├── generate_ner_gold.py          # Genera il gold standard NER (Claude + BERT)
+│   ├── generate_chunking_gold.py     # Genera gold standard Chunking (Claude)
+│   └── generate_ner_chunking_gold.py # Genera gold standard per Chunking NER
+│
+├── tests/                            # Suite di test (pytest)
+│   ├── evaluations/
+│   │   ├── results/
+│   │   │   ├── ner_evaluation_results.json
+│   │   │   ├── chunking_evaluation_results.json
+│   │   │   └── ner_chunking_evaluation_results.json
+│   │   ├── test_phase2_ner.py               # Verifica metriche NER (zero API)
+│   │   ├── test_phase3_chunking.py          # Verifica metriche Chunking (zero API)
+│   │   ├── test_phase3_ner_chunking.py      # Verifica metriche Chunking NER (zero API)
+│   │   └── test_phase4_summaries.py
+│   ├── utils/
+│   │   └── anthropic_client.py       # Client Anthropic per la generazione gold
+│   └── requirements-test.txt
 │
 ├── docker-compose.yml                # 3 servizi: backend + frontend + ollama
 └── start.sh                          # Script avvio locale (sviluppo)
@@ -319,8 +453,8 @@ cp .env.example .env
 # Installa Ollama
 curl -fsSL https://ollama.com/install.sh | sh
 
-# Scarica il modello LLM
-ollama pull qwen2.5:3b
+# Scarica il modello SLM
+ollama pull qwen3.5:2b
 ```
 
 #### 5. Installa le dipendenze
@@ -365,7 +499,7 @@ L'applicazione sarà disponibile su:
 docker compose up --build
 ```
 
-Al primo avvio, Ollama scaricherà automaticamente il modello `qwen2.5:3b` (~2 GB). Il backend attenderà che Ollama sia pronto (healthcheck) prima di partire.
+Al primo avvio, Ollama scaricherà automaticamente il modello `qwen3.5:2b` (~2 GB). Il backend attenderà che Ollama sia pronto (healthcheck) prima di partire.
 
 | Servizio | URL |
 |---|---|
@@ -374,7 +508,7 @@ Al primo avvio, Ollama scaricherà automaticamente il modello `qwen2.5:3b` (~2 G
 
 ### Avvio Veloce (Demo senza Ollama)
 
-L'immagine Docker base di Ollama combinata al modello `qwen2.5:3b` richiede il download di circa 5.2 GB. Se hai bisogno di avviare il progetto al volo per una presentazione o una dimostrazione, puoi usare il file Compose alleggerito che esclude completamente Ollama:
+L'immagine Docker base di Ollama combinata al modello `qwen3.5:2b` richiede il download di circa 5.2 GB. Se hai bisogno di avviare il progetto al volo per una presentazione o una dimostrazione, puoi usare il file Compose alleggerito che esclude completamente Ollama:
 
 ```bash
 docker compose -f docker-compose.demo.yml up --build
@@ -389,10 +523,10 @@ docker compose -f docker-compose.demo.yml up --build
 Tutte le impostazioni sono gestite tramite variabili d'ambiente nel file `.env`:
 
 ```env
-# ── Ollama (LLM per pulizia OCR) ─────────────────────────
+# ── Ollama (SLM per pulizia OCR e riassunti) ─────────────
 OLLAMA_HOST=localhost              # IP/hostname del server Ollama
 OLLAMA_PORT=11434
-OLLAMA_MODEL=qwen2.5:3b           # Modello LLM da utilizzare
+OLLAMA_MODEL=qwen3.5:2b           # Modello SLM da utilizzare
 
 # ── NER ───────────────────────────────────────────────────
 NER_MODEL_NAME=aendriu/bert-ner-italian-historical
@@ -400,11 +534,15 @@ NER_SCORE_THRESHOLD=0.65          # Soglia confidenza (0.0–1.0)
 NER_MIN_ENTITY_CHARS=3            # Lunghezza minima entità
 
 # ── Chunking Semantico ───────────────────────────────────
-SEMANTIC_EMBEDDING_MODEL=paraphrase-multilingual-MiniLM-L12-v2
+EMBED_MODEL=paraphrase-multilingual-MiniLM-L12-v2
 SEMANTIC_SIMILARITY_THRESHOLD=0.5 # Soglia per confini di chunk
 
 # ── Database ──────────────────────────────────────────────
 DB_FILENAME=historicbooks.db
+
+# ── Testing (opzionale) ───────────────────────────────────
+ANTHROPIC_API_KEY=                # Solo per generare i gold standard di test
+ANTHROPIC_MODEL=claude-sonnet-5   # Modello Claude per la generazione gold
 ```
 
 ---
@@ -497,9 +635,9 @@ I Promessi Sposi/
 │   ├── manifest.json                       # Indice di tutti i chunk
 │   └── chunk_NNN.json                      # Singolo chunk semantico
 ├── 04_capitoli/
-│   └── capitoli.json                       # Manifest dei capitoli
+│   └── capitoli.json                       # Manifest dei capitoli semantici
 └── 05_riassunti/
-    ├── capitolo_001_Capitolo_1.txt         # Riassunto per capitolo
+    ├── summaries.json                      # Riassunti + sinossi Livello 0 + NER retention
     └── _tutti_i_riassunti.txt              # Tutti i riassunti concatenati
 ```
 
@@ -527,13 +665,41 @@ I Promessi Sposi/
 {
   "book_name": "promessi_sposi",
   "chunk_id": 42,
-  "total_chunks": 145,
+  "total_chunks": 996,
   "text": "Quel ramo del lago di Como...",
   "char_start": 52340,
   "char_end": 54280,
-  "topic_hint": "Descrizione del paesaggio lombardo",
+  "topic_hint": "Capitolo Semantico 12",
   "entities": [
     {"word": "Como", "label": "LOC", "score": 0.95}
+  ]
+}
+```
+
+### Formato Riassunti (summaries.json)
+
+```json
+{
+  "book_name": "promessi_sposi",
+  "method": "embed",
+  "model": "qwen3.5:2b",
+  "created_at": "2026-07-12T10:00:00",
+  "total_sections": 115,
+  "avg_ner_retention": 72.4,
+  "global_summary": "I Promessi Sposi narra la storia di Renzo e Lucia...",
+  "sections": [
+    {
+      "section_idx": 1,
+      "topic_hint": "Il paesaggio del lago di Como",
+      "num_chunks": 4,
+      "summary": "...",
+      "ner_retention": {
+        "retention_percent": 85.7,
+        "total_key_entities": 7,
+        "survived": ["Como", "Lecco", "Adda"],
+        "lost": ["Resegone"]
+      }
+    }
   ]
 }
 ```
@@ -546,13 +712,14 @@ I Promessi Sposi/
 |---|---|---|
 | **Backend API** | FastAPI + Uvicorn | Server REST asincrono |
 | **Database** | SQLite + SQLAlchemy | Storage libri, capitoli, riassunti |
-| **Pulizia OCR (AI)** | Ollama + Qwen 2.5 3B | Correzione contestuale errori OCR |
+| **Pulizia OCR (AI)** | Ollama + Qwen 3.5 2B | Correzione contestuale errori OCR |
 | **Pulizia OCR (regole)** | C nativo (gcc) | Euristiche deterministiche ad alte prestazioni |
-| **NER** | BERT fine-tuned (`dbmdz/bert-base-italian-cased`) | Estrazione entità storiche italiane |
+| **NER** | BERT fine-tuned (`aendriu/bert-ner-italian-historical`) | Estrazione entità storiche italiane |
 | **Embeddings** | SentenceTransformer (MiniLM-L12-v2) | Segmentazione semantica del testo |
-| **Riassunti (WIP)** | SLM Locale (Placeholder) | Generazione riassunti narrativi (In sviluppo) |
+| **Riassunti** | Ollama + Qwen 3.5 2B | Hierarchical Summarization (Livello 0) locale |
 | **Frontend** | Angular 21 (standalone, signals) | Interfaccia web SPA |
 | **Grafici** | Chart.js 4.5 | Visualizzazione distribuzione entità |
 | **Web Server** | Nginx | Serving SPA + reverse proxy API |
 | **Container** | Docker Compose | Deploy con 3 servizi orchestrati |
 | **ML Runtime** | PyTorch + HuggingFace Transformers | Inferenza modello NER |
+| **Testing Gold** | Anthropic Claude (solo script offline) | Generazione gold standard per valutazione |

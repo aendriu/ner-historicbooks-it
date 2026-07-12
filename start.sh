@@ -73,9 +73,9 @@ echo ""
 echo "[3/4] Installazione dipendenze (se necessarie)..."
 
 # Controllo C Cleaner
-if [ ! -f "backend/app/ocr/c_cleaner/bin/ocr_cleaner" ]; then
+if [ ! -f "backend/app/pipeline/c_cleaner/bin/ocr_cleaner" ]; then
     echo "⚙️ Compilazione C Cleaner..."
-    cd backend/app/ocr/c_cleaner
+    cd backend/app/pipeline/c_cleaner
     make > /dev/null
     cd ../../../../
 fi
@@ -104,8 +104,8 @@ cd backend
 ./.venv/bin/python3 -m uvicorn app.main:app --env-file ../.env --host 0.0.0.0 --port 8000 &
 BACKEND_PID=$!
 
-# Trappola per killare il backend quando premi Ctrl+C
-trap "kill $BACKEND_PID" EXIT
+# Trappola per killare il backend quando premi Ctrl+C (uccisione forzata immediata)
+trap "kill -9 $BACKEND_PID 2>/dev/null" EXIT
 
 cd ../frontend/
 npm start
