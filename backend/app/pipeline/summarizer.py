@@ -38,59 +38,86 @@ NUM_CTX_GLOBAL     = 32_768   # contesto per sinossi Livello 0 (tutti i riassunt
 
 # ─── Ollama helper ────────────────────────────────────────────────────────────
 
+def _strip_thinking(text: str) -> str:
+    """Rimuove i blocchi <think>...</think> generati da modelli Qwen3 in thinking mode."""
+    return re.sub(r"<think>[\s\S]*?</think>", "", text, flags=re.IGNORECASE).strip()
+
+
 def _call_ollama(prompt: str, timeout: int = 480) -> str:
-    """Singola chiamata all'API Ollama con streaming."""
+    """Singola chiamata all'API Ollama con streaming. Retry automatico se risposta vuota."""
     host = settings.OLLAMA_HOST.rstrip("/")
     if not host.startswith(("http://", "https://")):
         host = f"http://{host}:{settings.OLLAMA_PORT}"
     url = f"{host}/api/generate"
-    try:
-        r = requests.post(
-            url,
-            json={
-                "model":   settings.OLLAMA_MODEL,
-                "prompt":  prompt,
-                "stream":  True,
-                "options": {"temperature": 0.1, "num_ctx": NUM_CTX},
-            },
-            stream=True,
-            timeout=timeout,
-        )
-        r.raise_for_status()
-        full_response = []
-        for line in r.iter_lines():
-            if not line:
-                continue
-            try:
-                chunk = json.loads(line)
-                full_response.append(chunk.get("response", ""))
-                if chunk.get("done", False):
-                    break
-            except json.JSONDecodeError:
-                continue
-        return "".join(full_response).strip()
-    except Exception as e:
-        logger.error(f"Errore chiamata Ollama: {e}")
-        return ""
+
+    def _do_call(p: str) -> str:
+        try:
+            r = requests.post(
+                url,
+                json={
+                    "model":   settings.OLLAMA_MODEL,
+                    "prompt":  p,
+                    "stream":  True,
+                    "think":   False,   # top-level: disabilita thinking Qwen3 (dentro options viene ignorato)
+                    "options": {
+                        "temperature": 0.1,
+                        "num_ctx":     NUM_CTX,
+                    },
+                },
+                stream=True,
+                timeout=timeout,
+            )
+            r.raise_for_status()
+            parts = []
+            for line in r.iter_lines():
+                if not line:
+                    continue
+                try:
+                    chunk = json.loads(line)
+                    parts.append(chunk.get("response", ""))
+                    if chunk.get("done", False):
+                        break
+                except json.JSONDecodeError:
+                    continue
+            raw = "".join(parts)
+            result = _strip_thinking(raw)
+            if not result:
+                # Log dei primi 300 char grezzi per capire cosa restituisce Ollama
+                preview = raw[:300].replace("\n", "↵") if raw else "<STRINGA VUOTA>"
+                logger.warning(f"Risposta vuota dopo strip. Raw preview: {preview}")
+            return result
+        except Exception as e:
+            logger.error(f"Errore chiamata Ollama: {e}")
+            return ""
+
+    # Chiamata unica: think:False nelle options è sufficiente per disabilitare il thinking Qwen3
+    return _do_call(prompt)
 
 
 def _call_ollama_long(prompt: str, timeout: int = 600) -> str:
-    """Come _call_ollama ma con contesto e output estesi per il Livello 0."""
+    """Come _call_ollama ma con contesto e output estesi per il Livello 0.
+    Usa OLLAMA_MODEL_GLOBAL se configurato, altrimenti cade su OLLAMA_MODEL."""
     host = settings.OLLAMA_HOST.rstrip("/")
     if not host.startswith(("http://", "https://")):
         host = f"http://{host}:{settings.OLLAMA_PORT}"
     url = f"{host}/api/generate"
+
+    # Modello per Livello 0: usa model_global se definito, altrimenti model standard
+    model_global = getattr(settings, "OLLAMA_MODEL_GLOBAL", "").strip()
+    model = model_global if model_global else settings.OLLAMA_MODEL
+
     try:
         r = requests.post(
             url,
             json={
-                "model":   settings.OLLAMA_MODEL,
+                "model":   model,
                 "prompt":  prompt,
                 "stream":  True,
+                "think":   False,
                 "options": {
                     "temperature": 0.2,
                     "num_ctx":     NUM_CTX_GLOBAL,
-                    "num_predict": 4096,   # max output token (il resto del contesto è per l'input)
+                    "num_predict": 8192,   # ~6000 parole max output
                 },
             },
             stream=True,
@@ -108,7 +135,7 @@ def _call_ollama_long(prompt: str, timeout: int = 600) -> str:
                     break
             except json.JSONDecodeError:
                 continue
-        return "".join(full_response).strip()
+        return _strip_thinking("".join(full_response))
     except Exception as e:
         logger.error(f"Errore chiamata Ollama (long): {e}")
         return ""
@@ -122,16 +149,17 @@ _call_llm_long = _call_ollama_long
 # ─── Prompt builder ───────────────────────────────────────────────────────────
 
 def _prompt_section_batch(text: str, entities_str: str) -> str:
+    """Costruisce il prompt per il riassunto di un batch di testo con entità."""
     return f"""Sei un assistente editoriale esperto in letteratura italiana storica.
 Scrivi un riassunto dettagliato e fedele di questo frammento di testo.
 
 Personaggi e luoghi presenti nel testo: {entities_str}
 
 REGOLE:
-- Descrivi TUTTI gli eventi principali nell'ordine in cui avvengono.
+- Descrivi gli eventi principali nell'ordine in cui avvengono.
 - Menziona i personaggi e luoghi solo se effettivamente presenti nel testo.
-- Non inventare eventi non presenti.
-- Scrivi almeno 4-5 paragrafi densi di contenuto.
+- Non inventare eventi non presenti nel testo.
+- Lunghezza proporzionale al testo: se il testo è breve, il riassunto può essere breve.
 - Rispondi SOLO con il testo del riassunto, senza preamboli o titoli.
 
 TESTO:
@@ -139,6 +167,7 @@ TESTO:
 """
 
 def _prompt_merge_summaries(summaries: list[str], title: str) -> str:
+    """Costruisce il prompt per unificare riassunti parziali di una sezione."""
     joined = "\n\n".join(f"Parte {i+1}:\n{s}" for i, s in enumerate(summaries))
     return f"""Sei un assistente editoriale esperto in letteratura italiana storica.
 Unifica i seguenti riassunti parziali della sezione "{title}" in un unico testo coeso e completo.
@@ -155,6 +184,7 @@ RIASSUNTI PARZIALI:
 """
 
 def _prompt_section_title(summary: str) -> str:
+    """Costruisce il prompt per generare un titolo breve per una sezione."""
     return f"""Sei un assistente editoriale esperto in letteratura italiana storica.
 Dai un titolo breve (massimo 6 parole) a questa sezione narrativa, come se fosse
 il titolo di un capitolo. Il titolo deve catturare il momento o l'evento principale.
@@ -166,17 +196,21 @@ RIASSUNTO DELLA SEZIONE:
 """
 
 def _prompt_global_summary(book_name: str, chapter_summaries: list[str]) -> str:
+    """Costruisce il prompt per il riassunto globale (Livello 0) dell'intera opera."""
+    # Pulisce il nome del libro: rimuove hash iniziale, estensione, underscores
+    clean_name = re.sub(r'^[0-9a-f]{6,}_', '', book_name)   # rimuove hash tipo "45e11373_"
+    clean_name = clean_name.replace('_', ' ').replace('.txt', '').replace('.json', '').strip().title()
     joined = "\n\n".join(f"--- Sezione {i+1} ---\n{s}" for i, s in enumerate(chapter_summaries))
     return f"""Sei un critico letterario esperto in letteratura italiana.
-Scrivi il RIASSUNTO COMPLETO E DETTAGLIATO (Livello 0) dell'opera "{book_name}".
+Scrivi il RIASSUNTO COMPLETO E DETTAGLIATO (Livello 0) dell'opera "{clean_name}".
 
 Questo è il riassunto di livello più alto: deve coprire l'INTERA opera dall'inizio alla fine,
 includendo tutti i personaggi principali, i luoghi, gli eventi e gli sviluppi narrativi.
 
 REGOLE:
-- Scrivi almeno 800-1000 parole.
+- Scrivi ALMENO 2000-2500 parole: questo è il riassunto dell'intera opera, deve essere esaustivo.
 - Segui l'ordine narrativo cronologico dell'opera.
-- Cita esplicitamente i personaggi principali (es. Renzo, Lucia, don Abbondio...) e i luoghi.
+- Cita esplicitamente i personaggi principali e i luoghi.
 - Non omettere nessuna sezione importante della trama.
 - Non usare elenchi puntati: scrivi in forma di prosa continua e fluida.
 - Rispondi SOLO con il testo del riassunto, senza preamboli, senza titoli.
@@ -188,8 +222,8 @@ RIASSUNTI DELLE SEZIONI:
 # ─── NER retention ────────────────────────────────────────────────────────────
 
 def _calculate_ner_retention(original_entities: list[dict], summary_text: str) -> dict:
-    """
-    Verifica quante entità PER/LOC del testo originale sono menzionate nel riassunto.
+    """Verifica quante entità PER/LOC del testo originale sono menzionate nel riassunto.
+
     Usa semplice text matching (lower case) — nessun overhead NLP aggiuntivo.
     """
     key_entities: set[str] = set()
@@ -222,8 +256,8 @@ def _calculate_ner_retention(original_entities: list[dict], summary_text: str) -
 # ─── Summarizer per una singola sezione ──────────────────────────────────────
 
 def _summarize_section(chunks: list[dict]) -> str:
-    """
-    Genera il riassunto di una sezione semantica.
+    """Genera il riassunto di una sezione semantica.
+
     Adatta automaticamente il numero di chiamate Ollama alla lunghezza del testo.
     """
     if not chunks:
@@ -243,6 +277,7 @@ def _summarize_section(chunks: list[dict]) -> str:
 
     # ── Caso semplice: testo breve → 1 sola chiamata ──
     if len(full_text) <= MAX_CHARS_PER_CALL:
+        logger.info(f"  → Invio sezione a Ollama: {len(full_text)} char")
         return _call_llm(_prompt_section_batch(full_text, entities_str))
 
     # ── Caso piramide: testo lungo → batch → merge ──
@@ -299,6 +334,7 @@ def run_hierarchical_summarization(
     semantic_dir: str,
     summaries_dir: str,
     progress_cb:  Callable | None = None,
+    cancel_event=None,   # threading.Event — se settato il loop si ferma
 ) -> dict:
     """
     Esegue il processo completo di Hierarchical Summarization (Livello 0).
@@ -344,56 +380,101 @@ def run_hierarchical_summarization(
     if progress_cb:
         progress_cb(0, total_sections, f"Trovate {total_sections} sezioni semantiche.")
 
-    # ── Genera riassunto per ogni sezione (sequenziale: Ollama gestisce 1 richiesta alla volta) ──
-    MAX_WORKERS = 1
-    section_results: list[dict] = [None] * total_sections
-    completed = [0]
-    import threading, concurrent.futures
-    lock = threading.Lock()
+    # ── Percorso di output (nome file include il modello, per confronto tra LLM) ──
+    # Es: summaries_qwen3.5_2b.json, summaries_llama3.2_3b.json
+    _safe_model = re.sub(r"[^\w\-]", "_", settings.OLLAMA_MODEL)   # qwen3.5:2b → qwen3_5_2b
+    out_dir   = os.path.join(summaries_dir, method_subdir, book_name)
+    os.makedirs(out_dir, exist_ok=True)
+    out_path  = os.path.join(out_dir, f"summaries_{_safe_model}.json")
 
-    def _process_section(idx_sec):
-        idx, sec = idx_sec
+    # ── Resume: carica riassunti già completati (solo quelli con summary non vuota) ──
+    section_results: list[dict] = [None] * total_sections
+    if os.path.exists(out_path):
+        try:
+            with open(out_path, encoding="utf-8") as f:
+                existing = json.load(f)
+            for r in existing.get("sections", []):
+                idx_r = r.get("section_idx", 0) - 1
+                # Carica solo se il riassunto è non vuoto — sezioni vuote vengono riprovate
+                if 0 <= idx_r < total_sections and r.get("summary", "").strip():
+                    section_results[idx_r] = r
+            already_done = sum(1 for r in section_results if r is not None)
+            if already_done > 0:
+                logger.info(f"Resume: trovate {already_done}/{total_sections} sezioni già completate — le salto.")
+                if progress_cb:
+                    progress_cb(already_done, total_sections, f"Resume: {already_done}/{total_sections} sezioni già completate.")
+        except Exception as e:
+            logger.warning(f"Impossibile caricare riassunti parziali esistenti: {e}")
+
+    def _save_partial():
+        """Salva il file summaries.json con i risultati parziali finora completati."""
+        valid_so_far = [r for r in section_results if r is not None]
+        retentions   = [r["ner_retention"]["retention_percent"] for r in valid_so_far]
+        partial_output = {
+            "book_name":         book_name,
+            "method":            method,
+            "model":             settings.OLLAMA_MODEL,
+            "created_at":        datetime.utcnow().isoformat(),
+            "total_sections":    total_sections,
+            "completed_sections": len(valid_so_far),
+            "avg_ner_retention": round(sum(retentions) / len(retentions), 1) if retentions else 0.0,
+            "global_summary":    "",   # verrà popolato solo alla fine
+            "sections":          valid_so_far,
+        }
+        try:
+            with open(out_path, "w", encoding="utf-8") as f:
+                json.dump(partial_output, f, ensure_ascii=False, indent=2)
+        except Exception as e:
+            logger.error(f"Errore salvataggio parziale: {e}")
+
+    # ── Esecuzione sequenziale garantita (no ThreadPool: Ollama è single-thread sulla GPU) ──
+    for idx, sec in enumerate(sections):
+        # Stop se l'utente ha richiesto la cancellazione
+        if cancel_event is not None and cancel_event.is_set():
+            logger.info(f"Cancellazione richiesta: fermo dopo la sezione {idx} ({idx}/{total_sections} completate).")
+            break
+
+        # Resume: salta le sezioni già completate
+        if section_results[idx] is not None:
+            if progress_cb:
+                progress_cb(idx + 1, total_sections, f"[già fatto] Sezione {idx+1}/{total_sections}: {sec['topic']}")
+            continue
+
         topic  = sec["topic"]
         chunks = sec["chunks"]
 
-        # Aggiorna UI subito (prima di iniziare, non dopo)
         if progress_cb:
             progress_cb(idx + 1, total_sections, f"Sezione {idx+1}/{total_sections}: {topic}")
 
-        summary = _summarize_section(chunks)
+        try:
+            summary = _summarize_section(chunks)
 
-        if summary:
-            raw_title = _call_llm(_prompt_section_title(summary))
-            title = raw_title.strip().strip('"\'-.').split("\n")[0].strip() if raw_title else topic
-        else:
-            title = topic
-            logger.warning(f"Sezione {idx+1} ({topic}) — riassunto vuoto, Ollama non ha risposto.")
+            if not summary:
+                logger.warning(f"Sezione {idx+1} ({topic}) — riassunto vuoto dopo retry.")
 
-        all_ents = [e for c in chunks for e in c.get("entities", [])]
-        ner      = _calculate_ner_retention(all_ents, summary)
+            all_ents = [e for c in chunks for e in c.get("entities", [])]
+            ner      = _calculate_ner_retention(all_ents, summary)
 
-        result = {
-            "section_idx":   idx + 1,
-            "topic_hint":    title,
-            "topic_generic": topic,
-            "num_chunks":    len(chunks),
-            "total_chars":   sum(len(c.get("text", "")) for c in chunks),
-            "summary":       summary,
-            "ner_retention": ner,
-        }
-        with lock:
+            result = {
+                "section_idx":   idx + 1,
+                "topic_hint":    topic,
+                "topic_generic": topic,
+                "num_chunks":    len(chunks),
+                "total_chars":   sum(len(c.get("text", "")) for c in chunks),
+                "summary":       summary,
+                "ner_retention": ner,
+            }
             section_results[idx] = result
-            completed[0] += 1
+            _save_partial()
 
-        logger.info(
-            f"Sezione {idx+1}/{total_sections} — "
-            f"NER retention: {ner['retention_percent']}% "
-            f"(lost: {ner['lost']})"
-        )
+            logger.info(
+                f"Sezione {idx+1}/{total_sections} salvata — "
+                f"NER retention: {ner['retention_percent']}% "
+                f"(lost: {ner['lost']})"
+            )
+        except Exception as e:
+            logger.error(f"Sezione {idx+1} — errore non gestito: {e}")
 
-    # Esecuzione parallela
-    with concurrent.futures.ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
-        executor.map(_process_section, enumerate(sections))
 
     # ── Livello 0: riassunto globale del libro ──
     if progress_cb:
@@ -426,23 +507,52 @@ def run_hierarchical_summarization(
 
     # ── Calcolo NER retention media (filtra sezioni fallite) ──
     valid_results = [r for r in section_results if r is not None]
-    retentions = [r["ner_retention"]["retention_percent"] for r in valid_results]
+    retentions = [r["ner_retention"]["retention_percent"] for r in valid_results
+                  if r.get("ner_retention")]
     avg_retention = round(sum(retentions) / len(retentions), 1) if retentions else 0.0
 
+    # ── Calcolo NER retention GLOBALE sul global_summary ──
+    # Raccoglie tutte le entità uniche PER/LOC dell'intero libro direttamente dai chunks originali
+    all_entity_words: set[str] = set()
+    for sec in sections:
+        for c in sec.get("chunks", []):
+            for e in c.get("entities", []):
+                label = e.get("label") or e.get("entity_group", "")
+                if label in ("PER", "LOC"):
+                    word = e.get("word", "").replace("##", "").strip().lower()
+                    if len(word) >= 3:
+                        all_entity_words.add(word)
+    global_summary_lower = (global_summary or "").lower()
+    found_global = {w for w in all_entity_words if w in global_summary_lower}
+    global_ner_retention = {
+        "total_unique_entities": len(all_entity_words),
+        "found_in_global":       len(found_global),
+        "retention_percent":     round(len(found_global) / len(all_entity_words) * 100, 1)
+                                 if all_entity_words else 0.0,
+    }
+    logger.info(
+        f"NER retention globale: {global_ner_retention['found_in_global']}/"
+        f"{global_ner_retention['total_unique_entities']} entità "
+        f"({global_ner_retention['retention_percent']}%)"
+    )
+
+    # Modello usato per Livello 0
+    model_global_used = getattr(settings, "OLLAMA_MODEL_GLOBAL", "").strip() or settings.OLLAMA_MODEL
+
     output = {
-        "book_name":        book_name,
-        "method":           method,
-        "model":            settings.OLLAMA_MODEL,
-        "created_at":       datetime.utcnow().isoformat(),
-        "total_sections":   total_sections,
-        "avg_ner_retention": avg_retention,
-        "global_summary":   global_summary,
-        "sections":         valid_results,   # solo sezioni completate correttamente
+        "book_name":            book_name,
+        "method":               method,
+        "model":                model_global_used,  # <-- mostra nel frontend il modello usato per L0
+        "model_l2":             settings.OLLAMA_MODEL,
+        "created_at":           datetime.utcnow().isoformat(),
+        "total_sections":       total_sections,
+        "avg_ner_retention":    avg_retention,
+        "global_ner_retention": global_ner_retention,
+        "global_summary":       global_summary,
+        "sections":             valid_results,
     }
 
-    out_dir  = os.path.join(summaries_dir, method_subdir, book_name)
-    os.makedirs(out_dir, exist_ok=True)
-    out_path = os.path.join(out_dir, "summaries.json")
+    # Salva il file finale con global_summary
     with open(out_path, "w", encoding="utf-8") as f:
         json.dump(output, f, ensure_ascii=False, indent=2)
 

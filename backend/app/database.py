@@ -10,6 +10,7 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
 class BookStatus(enum.Enum):
+    """Stati possibili di un libro nella pipeline di elaborazione."""
     UPLOADED = "UPLOADED"
     OCR_CLEANING = "OCR_CLEANING"
     NER_EXTRACTION = "NER_EXTRACTION"
@@ -20,6 +21,7 @@ class BookStatus(enum.Enum):
     ERROR = "ERROR"
 
 class Book(Base):
+    """Modello ORM per i libri caricati nel sistema."""
     __tablename__ = "books"
 
     id = Column(Integer, primary_key=True, index=True)
@@ -40,6 +42,7 @@ class Book(Base):
     chapters = relationship("Chapter", back_populates="book", cascade="all, delete-orphan")
 
 class Chapter(Base):
+    """Modello ORM per i capitoli rilevati di un libro."""
     __tablename__ = "chapters"
 
     id = Column(Integer, primary_key=True, index=True)
@@ -57,6 +60,7 @@ class Chapter(Base):
     )
 
 class Summary(Base):
+    """Modello ORM per i riassunti generati (per capitolo o globali)."""
     __tablename__ = "summaries"
 
     id = Column(Integer, primary_key=True, index=True)
@@ -68,5 +72,6 @@ class Summary(Base):
     chapter = relationship("Chapter", back_populates="summaries")
     book = relationship("Book")
 
-# Crea le tabelle nel file SQLite
-Base.metadata.create_all(bind=engine)
+def init_db() -> None:
+    """Crea le tabelle nel file SQLite se non esistono ancora."""
+    Base.metadata.create_all(bind=engine)

@@ -2,6 +2,7 @@ from fastapi import APIRouter
 from pydantic import BaseModel
 import logging
 import os
+import re
 
 from app.config import settings
 
@@ -9,63 +10,73 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter(tags=["settings"])
 
+
+def _upsert_env_var(content: str, key: str, value: str) -> str:
+    """Inserisce o aggiorna una variabile d'ambiente nel contenuto del file .env.
+
+    Args:
+        content: contenuto attuale del file .env.
+        key: nome della variabile.
+        value: nuovo valore.
+
+    Returns:
+        Contenuto aggiornato del file .env.
+    """
+    if re.search(rf"^{key}=", content, re.MULTILINE):
+        return re.sub(rf"^{key}=.*$", f"{key}={value}", content, flags=re.MULTILINE)
+    return content + f"\n{key}={value}"
+
 class OllamaConfig(BaseModel):
+    """Schema di validazione per la configurazione Ollama ricevuta dal frontend."""
     host: str
     port: str
     model: str = "qwen2.5:3b"
+    model_global: str = ""   # modello per il Livello 0 (vuoto = usa model)
     embed_model: str = "bge-m3"
 
 @router.post("/api/settings/ollama")
 def update_ollama_settings(config: OllamaConfig):
-    """
-    Aggiorna l'URL del server Ollama in memoria E persiste nel .env.
-    """
-    import os, re
+    """Aggiorna la configurazione Ollama in memoria e persiste le modifiche nel file .env."""
     host = config.host.strip().rstrip('/')
     model = config.model.strip() or "qwen2.5:3b"
+    model_global = config.model_global.strip()  # può essere vuoto
     embed_model = config.embed_model.strip() or "bge-m3"
 
-    settings.OLLAMA_HOST  = host
-    settings.OLLAMA_PORT  = config.port
-    settings.OLLAMA_MODEL = model
-    settings.EMBED_MODEL  = embed_model
+    settings.OLLAMA_HOST         = host
+    settings.OLLAMA_PORT         = config.port
+    settings.OLLAMA_MODEL        = model
+    settings.OLLAMA_MODEL_GLOBAL = model_global
+    settings.EMBED_MODEL         = embed_model
 
     # Persiste nel .env per sopravvivere ai restart
     env_path = os.path.join(os.path.dirname(__file__), "../../../.env")
     env_path = os.path.normpath(env_path)
     try:
         if os.path.exists(env_path):
-            content = open(env_path).read()
-            if re.search(r"^OLLAMA_HOST=", content, re.MULTILINE):
-                content = re.sub(r"^OLLAMA_HOST=.*$", f"OLLAMA_HOST={host}", content, flags=re.MULTILINE)
-            else:
-                content += f"\nOLLAMA_HOST={host}"
+            with open(env_path) as f:
+                content = f.read()
+            content = _upsert_env_var(content, "OLLAMA_HOST", host)
+            content = _upsert_env_var(content, "OLLAMA_MODEL", model)
+            content = _upsert_env_var(content, "OLLAMA_MODEL_GLOBAL", model_global)
+            content = _upsert_env_var(content, "SEMANTIC_EMBEDDING_MODEL", embed_model)
                 
-            if re.search(r"^OLLAMA_MODEL=", content, re.MULTILINE):
-                content = re.sub(r"^OLLAMA_MODEL=.*$", f"OLLAMA_MODEL={model}", content, flags=re.MULTILINE)
-            else:
-                content += f"\nOLLAMA_MODEL={model}"
-
-            if re.search(r"^SEMANTIC_EMBEDDING_MODEL=", content, re.MULTILINE):
-                content = re.sub(r"^SEMANTIC_EMBEDDING_MODEL=.*$", f"SEMANTIC_EMBEDDING_MODEL={embed_model}", content, flags=re.MULTILINE)
-            else:
-                content += f"\nSEMANTIC_EMBEDDING_MODEL={embed_model}"
-                
-            open(env_path, "w").write(content)
-            logger.info(f"Ollama host={host} model={model} persistito nel .env")
+            with open(env_path, "w") as f:
+                f.write(content)
+            logger.info(f"Ollama host={host} model={model} model_global={model_global} persistito nel .env")
     except Exception as e:
         logger.warning(f"Impossibile scrivere nel .env: {e}")
 
-    logger.info(f"Ollama host={host} model={model} embed={embed_model} persistito nel .env")
-    return {"status": "ok", "host": host, "port": config.port, "model": model, "embed_model": embed_model}
+    return {"status": "ok", "host": host, "port": config.port,
+            "model": model, "model_global": model_global, "embed_model": embed_model}
 
 @router.get("/api/settings/ollama")
 def get_ollama_settings():
-    """Ritorna le configurazioni attuali di Ollama."""
+    """Restituisce la configurazione corrente di Ollama."""
     return {
-        "host":        settings.OLLAMA_HOST,
-        "port":        settings.OLLAMA_PORT,
-        "model":       getattr(settings, "OLLAMA_MODEL", "qwen2.5:3b"),
-        "embed_model": getattr(settings, "EMBED_MODEL",  "bge-m3"),
-        "ner_model":   os.getenv("NER_MODEL_NAME", "aendriu/bert-ner-italian-historical"),
+        "host":         settings.OLLAMA_HOST,
+        "port":         settings.OLLAMA_PORT,
+        "model":        getattr(settings, "OLLAMA_MODEL",        "qwen2.5:3b"),
+        "model_global": getattr(settings, "OLLAMA_MODEL_GLOBAL", ""),
+        "embed_model":  getattr(settings, "EMBED_MODEL",         "bge-m3"),
+        "ner_model":    os.getenv("NER_MODEL_NAME", "aendriu/bert-ner-italian-historical"),
     }

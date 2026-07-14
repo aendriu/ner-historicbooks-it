@@ -1,19 +1,20 @@
-import os
 import json
 import logging
-import requests
+import os
+import shutil
 import textwrap
+import traceback
+
+import requests
+
+from app.config import settings, DATA_DIR
 
 logger = logging.getLogger(__name__)
 
-# Configurable via environment variable (default for local, ma modificabile a runtime)
-from app.config import settings, DATA_DIR
-import traceback
-
 def chunk_text(text: str, max_chunk_size: int = 1500) -> list:
-    """
-    Splits text into chunks of roughly max_chunk_size characters,
-    trying to split at paragraph or sentence boundaries.
+    """Divide il testo in blocchi di circa max_chunk_size caratteri.
+
+    Cerca di spezzare ai confini di paragrafo o frase.
     """
     paragraphs = text.split("\n")
     chunks = []
@@ -40,26 +41,28 @@ def chunk_text(text: str, max_chunk_size: int = 1500) -> list:
         
     return chunks
 
+# Prompt di sistema per la pulizia OCR via Ollama
+OCR_SYSTEM_PROMPT = (
+    "Sei un assistente specializzato in filologia e restauro di testi in italiano antico. "
+    "Il tuo compito è pulire gli errori di OCR (riconoscimento ottico dei caratteri). "
+    "Analizza il testo fornito, trova gli errori (es. capolettera staccati come 'L udovico', simboli estranei) e restituisci "
+    "ESCLUSIVAMENTE un array JSON con le correzioni necessarie.\n"
+    "Ogni oggetto nell'array deve avere due chiavi:\n"
+    "- 'errato': la frase originale contenente l'errore (includi ALMENO 3-4 parole di contesto prima e dopo l'errore per univocità).\n"
+    "- 'corretto': la stessa frase con l'errore corretto.\n"
+    "Esempio:\n"
+    '[{"errato": "disse il paladin o riandò verso", "corretto": "disse il paladino Orlando verso"}]\n'
+    "NON scrivere nient'altro fuori dal JSON. Se non ci sono errori, restituisci []."
+)
+
+
 def call_ollama(text_chunk: str) -> str:
-    """
-    Calls the local Ollama API to clean the text chunk.
-    """
+    """Chiama l'API Ollama per pulire un blocco di testo dagli errori OCR."""
     if settings.OLLAMA_HOST.startswith("http://") or settings.OLLAMA_HOST.startswith("https://"):
         url = f"{settings.OLLAMA_HOST.rstrip('/')}/api/generate"
     else:
         url = f"http://{settings.OLLAMA_HOST}:{settings.OLLAMA_PORT}/api/generate"
-    system_prompt = (
-        "Sei un assistente specializzato in filologia e restauro di testi in italiano antico. "
-        "Il tuo compito è pulire gli errori di OCR (riconoscimento ottico dei caratteri). "
-        "Analizza il testo fornito, trova gli errori (es. capolettera staccati come 'L udovico', simboli estranei) e restituisci "
-        "ESCLUSIVAMENTE un array JSON con le correzioni necessarie.\n"
-        "Ogni oggetto nell'array deve avere due chiavi:\n"
-        "- 'errato': la frase originale contenente l'errore (includi ALMENO 3-4 parole di contesto prima e dopo l'errore per univocità).\n"
-        "- 'corretto': la stessa frase con l'errore corretto.\n"
-        "Esempio:\n"
-        '[{"errato": "disse il paladin o riandò verso", "corretto": "disse il paladino Orlando verso"}]\n'
-        "NON scrivere nient'altro fuori dal JSON. Se non ci sono errori, restituisci []."
-    )
+    system_prompt = OCR_SYSTEM_PROMPT
     
     payload = {
         "model": settings.OLLAMA_MODEL,
@@ -84,9 +87,15 @@ def call_ollama(text_chunk: str) -> str:
         return "[]"
 
 def run_llm_cleaner(input_path: str, output_path: str, progress_cb=None) -> bool:
-    """
-    Legge il file JSON grezzo, usa Ollama per pulire il testo a pezzi, 
-    e salva il risultato.
+    """Legge il file JSON grezzo, usa Ollama per pulire il testo a blocchi e salva il risultato.
+
+    Args:
+        input_path: percorso del file JSON di input.
+        output_path: percorso di output per il testo pulito.
+        progress_cb: callback opzionale per il progresso.
+
+    Returns:
+        True se la pulizia ha avuto successo, False altrimenti.
     """
     logger.info(f"Avvio LLM Cleaner (Ollama {settings.OLLAMA_MODEL}) su: {input_path}")
     
@@ -183,5 +192,4 @@ def run_llm_cleaner(input_path: str, output_path: str, progress_cb=None) -> bool
         logger.error(f"Errore durante l'esecuzione dell'LLM cleaner: {e}\n{traceback.format_exc()}")
         return False
     finally:
-        import shutil
         shutil.rmtree(tmp_dir, ignore_errors=True)

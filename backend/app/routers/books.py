@@ -8,17 +8,11 @@ from datetime import datetime
 from fastapi import APIRouter, UploadFile, File, HTTPException, Depends
 from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
-from app.database import SessionLocal, Book, Chapter, Summary
+from app.database import Book, Chapter, Summary
+from app.dependencies import get_db
 from app.config import DATA_DIR
 
 router = APIRouter(prefix="/api/books", tags=["books"])
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 RAW_DIR = os.path.join(DATA_DIR, "raw")
 
@@ -30,7 +24,8 @@ def get_books(db: Session = Depends(get_db)):
     
     for b in books:
         if not b.raw_file_path or not os.path.exists(b.raw_file_path):
-            # Se il file fisico non esiste più (es. cancellato a mano), rimuovi la riga orfana dal DB
+            # INTENZIONALE: rimuove le righe orfane dal DB quando il file fisico
+            # non esiste più (es. cancellato manualmente dal filesystem).
             db.delete(b)
             continue
         valid_books.append({
@@ -50,6 +45,7 @@ def get_books(db: Session = Depends(get_db)):
 
 @router.get("/{book_id}")
 def get_book_details(book_id: int, db: Session = Depends(get_db)):
+    """Restituisce i dettagli completi di un singolo libro."""
     book = db.query(Book).filter(Book.id == book_id).first()
     if not book:
         raise HTTPException(404, "Libro non trovato")

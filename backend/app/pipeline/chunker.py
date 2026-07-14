@@ -6,14 +6,14 @@ from datetime import datetime
 from typing import Literal
 import numpy as np
 import requests
-from app.config import settings, SEMANTIC_EMBEDDING_MODEL
+from app.config import settings
 
 logger = logging.getLogger(__name__)
 
 # ─── Configurazione chunking ───────────────────────────────────────────────────
 MAX_CHUNK_CHARS = 2000
 OVERLAP_CHARS = 300
-SIMILARITY_THRESHOLD = 0.35       # Soglia cosine similarity embed-method (abbassata per evitare troppi micro-capitoli)
+SIMILARITY_THRESHOLD = 0.35       # Soglia cosine similarity embed-method 
 
 # Soglie NER-method
 NER_SAME_SECTION_THRESHOLD = 2    # entità comuni ≥ 2  → stessa sezione
@@ -24,9 +24,19 @@ EMBED_SUBDIR = "embed_method"
 NER_SUBDIR   = "ner_method"
 
 def _get_ollama_embeddings(texts: list[str]) -> np.ndarray:
-    """
-    Chiama l'API /api/embed di Ollama per ottenere gli embedding dei testi.
+    """Chiama l'API /api/embed di Ollama per ottenere gli embedding dei testi.
+
     Usa lo stesso host/port configurato per i riassunti.
+    Il modello viene letto a runtime da settings.EMBED_MODEL.
+
+    Args:
+        texts: lista di testi da vettorializzare.
+
+    Returns:
+        Array numpy con gli embedding.
+
+    Raises:
+        RuntimeError: se la chiamata all'API fallisce.
     """
     host = settings.OLLAMA_HOST.rstrip("/")
     if not host.startswith(("http://", "https://")):
@@ -39,22 +49,23 @@ def _get_ollama_embeddings(texts: list[str]) -> np.ndarray:
         embeddings = r.json()["embeddings"]
         return np.array(embeddings, dtype=np.float32)
     except Exception as e:
-        logger.error(f"Errore embedding Ollama ({model}): {e}")
-        dim = 1024
-        return np.random.randn(len(texts), dim).astype(np.float32)
+        raise RuntimeError(f"Ollama embedding fallito: {e}") from e
 
 
 
 
 # ─── Utilità testo ─────────────────────────────────────────────────────────────
 
+# Dimensione target per gli pseudo-paragrafi (in caratteri)
+TARGET_SIZE = 500
+
+
 def split_into_paragraphs(text):
-    """
-    Divide il testo in 'pseudo-paragrafi' di circa 500 caratteri.
+    """Divide il testo in pseudo-paragrafi di circa TARGET_SIZE caratteri.
+
     Cerca di non spezzare le frasi usando la punteggiatura finale (.!?).
-    Gestisce in modo sicuro i libri sprovvisti di ritorni a capo (\\n).
+    Gestisce in modo sicuro i libri sprovvisti di ritorni a capo.
     """
-    TARGET_SIZE = 500
     result = []
     
     # Suddividiamo il testo in frasi usando la punteggiatura
@@ -106,14 +117,16 @@ def split_into_paragraphs(text):
 
 
 def split_text_semantic(text: str, max_size: int, overlap: int, entities: list = None) -> list[tuple[str, int, int]]:
-    """
-    Divide il testo in chunk semanticamente coerenti usando un approccio a cascata:
-    1. Cerca un cambio significativo nella finestra di entità NER (se disponibili)
-    2. Fallback: cerca il doppio ritorno a capo (paragrafo) più vicino al limite
-    3. Fallback: cerca la punteggiatura finale (. ! ?) più vicina al limite
-    4. Ultima spiaggia: taglia allo spazio più vicino
+    """Divide il testo in chunk semanticamente coerenti usando un approccio a cascata.
 
-    Restituisce una lista di tuple (testo, char_start_assoluto, char_end_assoluto).
+    Strategie di divisione (in ordine di priorità):
+    1. Cambio significativo nella finestra di entità NER (se disponibili).
+    2. Doppio ritorno a capo (paragrafo) più vicino al limite.
+    3. Punteggiatura finale (. ! ?) più vicina al limite.
+    4. Ultima spiaggia: taglia allo spazio più vicino.
+
+    Returns:
+        Lista di tuple (testo, char_start_assoluto, char_end_assoluto).
     """
     if not text:
         return []
@@ -422,7 +435,71 @@ def run_ner_chunker(book_name: str, clean_file_path: str, ner_file_path: str,
         for c in final_chunks:
             c["total_chunks"] = len(final_chunks)
 
-        if progress_cb: progress_cb(3, 4, "Salvataggio risultati NER method...")
+        # ── Livello 2: aggrega le sezioni NER in capitoli ──────────────────────
+        # Le sezioni L1 sono granulari (tagliano ad ogni 0-entity gap).
+        # Qui le raggruppiamo in capitoli usando la stessa logica ma con
+        # finestra e soglia più permissive (opero su sezioni, non su chunk).
+        NER_L2_WINDOW    = 3   # guarda le ultime 3 sezioni
+        NER_L2_THRESHOLD = 2   # taglia solo se entità comuni < 2
+
+        import re as _re
+
+        # Raccogli entity keys per sezione (raggruppa chunk con stesso topic_hint)
+        section_entity_keys: dict[int, set] = {}
+        for c in final_chunks:
+            m = _re.search(r'(\d+)', c.get("topic_hint", ""))
+            sid = int(m.group(1)) if m else 0
+            if sid not in section_entity_keys:
+                section_entity_keys[sid] = set()
+            for e in c.get("entities", []):
+                section_entity_keys[sid].add(_entity_key(e))
+
+        sec_ids = sorted(section_entity_keys.keys())
+
+        # Calcola boundaries L2
+        l2_bounds = [0]
+        for i in range(len(sec_ids) - 1):
+            win_start = max(0, i - NER_L2_WINDOW + 1)
+            keys_win = set()
+            for w in range(win_start, i + 1):
+                keys_win |= section_entity_keys[sec_ids[w]]
+            keys_next = section_entity_keys[sec_ids[i + 1]]
+            if len(keys_win & keys_next) < NER_L2_THRESHOLD:
+                l2_bounds.append(i + 1)
+        l2_bounds.append(len(sec_ids))
+
+        # Mappa sezione → capitolo e costruisci metadata capitoli
+        sec_to_ch: dict[int, int] = {}
+        chapters_meta = []
+        for ch_idx in range(len(l2_bounds) - 1):
+            ch_num     = ch_idx + 1
+            sl         = slice(l2_bounds[ch_idx], l2_bounds[ch_idx + 1])
+            ch_sec_ids = sec_ids[sl]
+            for sid in ch_sec_ids:
+                sec_to_ch[sid] = ch_num
+            ch_chunks = [c for c in final_chunks
+                         if int((_re.search(r'(\d+)', c.get("topic_hint","0")) or type('',(),{'group':lambda s,i:"0"})()).group(1))
+                         in ch_sec_ids]
+            chapters_meta.append({
+                "chapter_id":   ch_num,
+                "chapter_hint": f"Capitolo NER {ch_num}",
+                "section_ids":  list(ch_sec_ids),
+                "num_sections": len(ch_sec_ids),
+                "char_start":   min((c["char_start"] for c in ch_chunks), default=0),
+                "char_end":     max((c["char_end"]   for c in ch_chunks), default=0),
+            })
+
+        # Aggiungi chapter_id e chapter_hint a ogni chunk
+        for c in final_chunks:
+            m = _re.search(r'(\d+)', c.get("topic_hint", "0"))
+            sid = int(m.group(1)) if m else 0
+            ch_num = sec_to_ch.get(sid, 1)
+            c["chapter_id"]   = ch_num
+            c["chapter_hint"] = f"Capitolo NER {ch_num}"
+
+        logger.info(f"NER L2: {len(sec_ids)} sezioni → {len(chapters_meta)} capitoli")
+
+        if progress_cb: progress_cb(3, 4, f"Salvataggio NER ({len(chapters_meta)} capitoli L2)...")
         book_out_dir = os.path.join(output_dir, NER_SUBDIR, book_name)
         os.makedirs(book_out_dir, exist_ok=True)
 
@@ -432,29 +509,35 @@ def run_ner_chunker(book_name: str, clean_file_path: str, ner_file_path: str,
             with open(c_file, "w", encoding="utf-8") as f:
                 json.dump(c, f, ensure_ascii=False, indent=2)
             manifest_chunks.append({
-                "chunk_id": c["chunk_id"],
-                "topic_hint": c["topic_hint"],
-                "char_start": c["char_start"],
-                "char_end": c["char_end"],
-                "num_entities": c["num_entities"],
+                "chunk_id":    c["chunk_id"],
+                "topic_hint":  c["topic_hint"],
+                "chapter_id":  c["chapter_id"],
+                "chapter_hint":c["chapter_hint"],
+                "char_start":  c["char_start"],
+                "char_end":    c["char_end"],
+                "num_entities":c["num_entities"],
                 "text_length": len(c["text"]),
             })
 
         manifest = {
-            "book_name": book_name,
-            "method": "ner",
-            "total_chunks": len(final_chunks),
-            "created_at": datetime.utcnow().isoformat(),
-            "ner_same_section_threshold": NER_SAME_SECTION_THRESHOLD,
+            "book_name":       book_name,
+            "method":          "ner",
+            "total_chunks":    len(final_chunks),
+            "total_chapters":  len(chapters_meta),
+            "created_at":      datetime.utcnow().isoformat(),
             "ner_boundary_threshold": NER_BOUNDARY_THRESHOLD,
-            "chunks": manifest_chunks,
+            "ner_l2_window":          NER_L2_WINDOW,
+            "ner_l2_threshold":       NER_L2_THRESHOLD,
+            "chapters": chapters_meta,
+            "chunks":   manifest_chunks,
         }
         manifest_path = os.path.join(book_out_dir, "manifest.json")
         with open(manifest_path, "w", encoding="utf-8") as f:
             json.dump(manifest, f, ensure_ascii=False, indent=2)
 
-        if progress_cb: progress_cb(4, 4, f"Chunking NER completato: {len(final_chunks)} chunk.")
+        if progress_cb: progress_cb(4, 4, f"NER completato: {len(final_chunks)} sezioni → {len(chapters_meta)} capitoli.")
         return manifest_path
+
 
     except Exception as e:
         logger.error(f"Errore in run_ner_chunker: {e}")

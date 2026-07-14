@@ -2,7 +2,8 @@ import { Component, OnInit, signal, effect, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { ApiService, Book } from '../../services/api.service';
+import { ApiService } from '../../services/api.service';
+import { Book } from '../../models/models';
 import { BookStateService } from '../../services/book-state.service';
 import { Subscription, timer } from 'rxjs';
 
@@ -10,159 +11,7 @@ import { Subscription, timer } from 'rxjs';
   selector: 'app-dashboard',
   standalone: true,
   imports: [CommonModule, FormsModule],
-  styles: [`
-    :host { display: block; height: 100vh; background: var(--bg-base); }
-
-    .layout-wrapper {
-      display: flex;
-      flex-direction: row;
-      width: 100vw;
-      height: 100vh;
-      overflow: hidden;
-    }
-
-    .wireframe-sidebar {
-      width: 300px;
-      flex-shrink: 0;
-      background: var(--bg-surface);
-      border-right: 1px solid var(--border);
-      display: flex;
-      flex-direction: column;
-      padding: 1.5rem;
-      gap: 1.5rem;
-      height: 100vh;
-      overflow-y: auto;
-    }
-
-    .wireframe-main {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      background: var(--bg-surface);
-      height: 100vh;
-      overflow: hidden;
-    }
-
-    .wireframe-header {
-      background: var(--bg-surface);
-      border-bottom: 1px solid var(--border);
-      padding: 1.5rem 2rem;
-      flex-shrink: 0;
-    }
-
-    .wireframe-content {
-      flex: 1;
-      padding: 2rem;
-      overflow-y: auto;
-      background: var(--bg-base);
-    }
-
-    .w-btn {
-      width: 100%;
-      padding: 0.8rem 1rem;
-      border-radius: 12px;
-      font-weight: 600;
-      font-size: 0.9rem;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.4rem;
-      border: 1px solid transparent;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      box-sizing: border-box;
-    }
-
-    .w-btn-primary {
-      background: rgba(99,102,241,0.1);
-      color: var(--accent);
-      border-color: rgba(99,102,241,0.3);
-      box-shadow: 0 4px 12px rgba(99,102,241,0.05);
-    }
-    .w-btn-primary:hover {
-      background: rgba(99,102,241,0.15);
-      transform: translateY(-1px);
-    }
-
-    .w-btn-accent {
-      background: var(--accent);
-      color: #fff;
-      border-color: var(--accent);
-      box-shadow: 0 4px 12px rgba(99,102,241,0.2);
-    }
-    .w-btn-accent:hover {
-      background: #4f46e5;
-      transform: translateY(-1px);
-    }
-
-    .pipeline-group {
-      background: var(--bg-base);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 1rem;
-      display: flex;
-      flex-direction: column;
-      gap: 0.75rem;
-    }
-
-    .custom-select {
-      width: 100%;
-      padding: 0.8rem 1rem;
-      border-radius: 12px;
-      background: var(--bg-base);
-      color: var(--text-primary);
-      border: 1px solid var(--border);
-      outline: none;
-      cursor: pointer;
-      appearance: none;
-    }
-    .custom-select:focus {
-      border-color: var(--accent);
-    }
-    .select-wrapper { position: relative; }
-    .select-wrapper::after {
-      content: '▼';
-      font-size: 0.6rem;
-      position: absolute;
-      right: 1rem;
-      top: 50%;
-      transform: translateY(-50%);
-      pointer-events: none;
-      color: var(--text-muted);
-    }
-    .custom-select option {
-      background: var(--bg-surface);
-      color: var(--text-primary);
-    }
-
-    .modal-overlay {
-      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.4); backdrop-filter: blur(4px);
-      display: flex; align-items: center; justify-content: center;
-      z-index: 1000;
-    }
-    .modal-content {
-      background: var(--bg-surface);
-      border: 1px solid var(--border);
-      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-      border-radius: 16px;
-      width: 600px; max-width: 90vw;
-      padding: 2rem;
-      display: flex; flex-direction: column; gap: 1.5rem;
-    }
-    .modal-logs {
-      background: var(--bg-base);
-      border: 1px solid var(--border);
-      border-radius: 8px; padding: 1rem;
-      height: 300px; overflow-y: auto;
-      font-family: monospace; font-size: 0.85rem; color: var(--text-muted);
-      display: flex; flex-direction: column; gap: 0.5rem;
-    }
-    .modal-logs span:last-child { color: var(--accent); font-weight: bold; }
-  `],
+  styleUrl: './dashboard.component.scss',
   template: `
   <div class="layout-wrapper">
 
@@ -216,6 +65,10 @@ import { Subscription, timer } from 'rxjs';
         </button>
       </div>
 
+      <div *ngIf="errorMsg()" class="error-banner">
+        ⚠️ {{ errorMsg() }}
+      </div>
+
       <div *ngIf="toast()" class="text-xs text-center mt-2 p-2 rounded" style="background: rgba(99,102,241,0.1); color: var(--accent);">
         {{toast()}}
       </div>
@@ -256,9 +109,16 @@ import { Subscription, timer } from 'rxjs';
           <span *ngIf="progressStatus() === 'running'" class="animate-pulse">_</span>
         </div>
         <div class="flex justify-end gap-3 mt-2">
-          <button *ngIf="progressStatus() === 'running'" class="w-btn w-btn-primary" style="width: auto" disabled>
-            Attendere...
-          </button>
+          <ng-container *ngIf="progressStatus() === 'running'">
+            <button *ngIf="progressPhase() === 'summaries'"
+                    class="w-btn" style="width:auto; background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.4); color:#ef4444;"
+                    (click)="cancelSummarize()">
+              ⛔ Stop
+            </button>
+            <button class="w-btn w-btn-primary" style="width: auto" disabled>
+              Attendere...
+            </button>
+          </ng-container>
           <button *ngIf="progressStatus() !== 'running'" class="w-btn w-btn-accent" style="width: auto" (click)="closeProgressModal()">
             Chiudi
           </button>
@@ -334,6 +194,7 @@ import { Subscription, timer } from 'rxjs';
 export class DashboardComponent implements OnInit, OnDestroy {
   books = signal<Book[]>([]);
   toast = signal<string | null>(null);
+  errorMsg = signal<string | null>(null);
   running = signal(false);
   exporting = signal(false);
 
@@ -484,17 +345,17 @@ export class DashboardComponent implements OnInit, OnDestroy {
     const book = this.state.selectedBook();
     if (!book) return;
 
-    // Prerequisite checks for better UX
+    // Prerequisite checks — show inline error instead of alert()
     if (phase === 'ner' && !book.has_clean) {
-      alert('⚠️ Errore: Esegui prima la Pulizia OCR!');
+      this.showError('Esegui prima la Pulizia OCR!');
       return;
     }
     if (phase === 'chunking' && !book.has_ner) {
-      alert('⚠️ Errore: Esegui prima l\'estrazione NER!');
+      this.showError('Esegui prima l\'estrazione NER!');
       return;
     }
     if (phase === 'summaries' && !book.has_chunks) {
-      alert('⚠️ Errore: Esegui prima il Chunking Semantico!');
+      this.showError('Esegui prima il Chunking Semantico!');
       return;
     }
 
@@ -537,7 +398,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     const book = this.state.selectedBook();
     if (!book) return;
     if (!book.has_ner) {
-      alert('⚠️ Errore: Esegui prima l\'estrazione NER!');
+      this.showError('Esegui prima l\'estrazione NER!');
       return;
     }
     this.showChunkingModal.set(true);
@@ -570,6 +431,17 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.showProgressModal.set(false);
   }
 
+  cancelSummarize() {
+    this.api.cancelSummarize().subscribe({
+      next: () => {
+        this.progressLogs.update(logs => [...logs, '⛔ Stop richiesto — il processo si fermerà dopo la sezione corrente...']);
+      },
+      error: () => {
+        this.progressLogs.update(logs => [...logs, '⚠️ Impossibile inviare il segnale di stop.']);
+      }
+    });
+  }
+
   downloadExport() {
     const book = this.state.selectedBook();
     if (!book) return;
@@ -586,7 +458,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       },
       error: () => {
         this.exporting.set(false);
-        alert('Errore durante la generazione dello ZIP.');
+        this.showError('Errore durante la generazione dello ZIP.');
       }
     });
   }
@@ -601,5 +473,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
   showToast(msg: string) {
     this.toast.set(msg);
     setTimeout(() => this.toast.set(null), 3000);
+  }
+
+  /** Show a temporary error message in the template instead of alert() */
+  showError(msg: string) {
+    this.errorMsg.set(msg);
+    setTimeout(() => this.errorMsg.set(null), 4000);
   }
 }

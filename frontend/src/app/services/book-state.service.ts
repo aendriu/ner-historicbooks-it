@@ -1,5 +1,5 @@
 import { Injectable, signal, computed } from '@angular/core';
-import { Book } from './api.service';
+import { Book } from '../models/models';
 
 @Injectable({ providedIn: 'root' })
 export class BookStateService {

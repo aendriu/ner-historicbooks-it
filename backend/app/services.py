@@ -41,6 +41,40 @@ def _run_c_cleaner(input_path: str, output_path: str, book_id: int) -> bool:
         shutil.rmtree(tmp_out, ignore_errors=True)
 
 
+def _run_ocr_phase(book: 'Book', db: Session, progress_cb=None, cancel_event=None) -> str:
+    """Esegue la fase di pulizia OCR (LLM + C-Cleaner) su un libro.
+
+    Args:
+        book: istanza del libro da elaborare.
+        db: sessione database attiva.
+        progress_cb: callback opzionale per il progresso.
+        cancel_event: evento opzionale per la cancellazione.
+
+    Returns:
+        Percorso del file pulito.
+
+    Raises:
+        Exception: se il C-Cleaner fallisce.
+    """
+    filename_no_ext = os.path.splitext(book.filename)[0]
+    cleaned_path = os.path.join(DATA_DIR, "cleaned", f"{filename_no_ext}.json")
+    llm_path = os.path.join(DATA_DIR, "cleaned", f"{filename_no_ext}_llm.json")
+    os.makedirs(os.path.dirname(cleaned_path), exist_ok=True)
+
+    logger.info(f"[Book {book.id}] Pulizia OCR con LLM Ollama...")
+    if not run_llm_cleaner(book.raw_file_path, llm_path, progress_cb=progress_cb):
+        logger.warning(f"[Book {book.id}] LLM fallito, uso il file originale.")
+        llm_path = book.raw_file_path
+
+    logger.info(f"[Book {book.id}] Pulizia C post-LLM...")
+    if not _run_c_cleaner(llm_path, cleaned_path, book.id):
+        raise Exception("C-Cleaner fallito.")
+
+    book.clean_file_path = cleaned_path
+    db.commit()
+    return cleaned_path
+
+
 def process_book_pipeline(book_id: int, db: Session, progress_cb=None):
     """Pipeline completa eseguita in background da FastAPI."""
     book = db.query(Book).filter(Book.id == book_id).first()
@@ -53,22 +87,7 @@ def process_book_pipeline(book_id: int, db: Session, progress_cb=None):
         # ── FASE 1: OCR CLEANING (LLM Ollama + C-Cleaner) ──
         book.status = BookStatus.OCR_CLEANING
         db.commit()
-
-        cleaned_path = os.path.join(DATA_DIR, "cleaned", f"{filename_no_ext}.json")
-        llm_path = os.path.join(DATA_DIR, "cleaned", f"{filename_no_ext}_llm.json")
-        os.makedirs(os.path.dirname(cleaned_path), exist_ok=True)
-
-        logger.info(f"[Book {book_id}] Fase 1: Pulizia OCR con LLM Ollama...")
-        if not run_llm_cleaner(book.raw_file_path, llm_path, progress_cb=progress_cb):
-            logger.warning(f"[Book {book_id}] LLM fallito, uso il file originale.")
-            llm_path = book.raw_file_path
-
-        logger.info(f"[Book {book_id}] Fase 1: Pulizia C post-LLM...")
-        if not _run_c_cleaner(llm_path, cleaned_path, book_id):
-            raise Exception("C-Cleaner fallito.")
-
-        book.clean_file_path = cleaned_path
-        db.commit()
+        _run_ocr_phase(book, db, progress_cb=progress_cb)
 
         # ── FASE 2: NER EXTRACTION ──
         book.status = BookStatus.NER_EXTRACTION
@@ -108,6 +127,9 @@ def process_book_pipeline(book_id: int, db: Session, progress_cb=None):
             )
         except Exception as sum_err:
             logger.error(f"[Book {book_id}] Errore summarization: {sum_err}")
+            book.status = BookStatus.ERROR
+            db.commit()
+            return
 
         # ── COMPLETATO ──
         book.status = BookStatus.COMPLETED
@@ -122,31 +144,18 @@ def process_book_pipeline(book_id: int, db: Session, progress_cb=None):
 
 
 def process_book_cleaning(book_id: int, db: Session, progress_cb=None):
+    """Esegue solo la fase di pulizia OCR per un libro."""
     book = db.query(Book).filter(Book.id == book_id).first()
     if not book:
         return
     try:
-        filename_no_ext = os.path.splitext(book.filename)[0]
         book.status = BookStatus.OCR_CLEANING
         db.commit()
-
-        cleaned_path = os.path.join(DATA_DIR, "cleaned", f"{filename_no_ext}.json")
-        llm_path = os.path.join(DATA_DIR, "cleaned", f"{filename_no_ext}_llm.json")
-        os.makedirs(os.path.dirname(cleaned_path), exist_ok=True)
-
-        logger.info(f"[Book {book_id}] Pulizia OCR con LLM Ollama...")
-        if not run_llm_cleaner(book.raw_file_path, llm_path, progress_cb=progress_cb):
-            logger.warning(f"[Book {book_id}] LLM fallito, uso il file originale.")
-            llm_path = book.raw_file_path
-
-        logger.info(f"[Book {book_id}] Pulizia C post-LLM...")
-        if not _run_c_cleaner(llm_path, cleaned_path, book_id):
-            raise Exception("C-Cleaner fallito.")
-
-        book.clean_file_path = cleaned_path
+        _run_ocr_phase(book, db, progress_cb=progress_cb)
         book.status = BookStatus.COMPLETED
         db.commit()
     except Exception as e:
         logger.error(f"[Book {book_id}] Errore pulizia: {e}")
         book.status = BookStatus.ERROR
         db.commit()
+

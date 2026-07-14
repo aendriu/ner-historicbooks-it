@@ -60,7 +60,7 @@ Il dataset incluso contiene **95 testi** della letteratura italiana — dall'Orl
 │                                                                         │
 │  ┌──────────────────┐   ┌──────────────────┐   ┌────────────────────┐  │
 │  │    Frontend       │   │     Backend      │   │      Ollama        │  │
-│  │   (Angular 21)    │   │    (FastAPI)      │   │   (qwen3.5:2b)    │  │
+│  │   (Angular 21)    │   │    (FastAPI)      │   │  (qwen3.5:4b)     │  │
 │  │                   │   │                   │   │                    │  │
 │  │  Dashboard        │   │  REST API         │   │  SLM locale per:  │  │
 │  │  Analisi NER      │──►│  Pipeline Engine  │──►│  • pulizia OCR    │  │
@@ -76,7 +76,7 @@ Il dataset incluso contiene **95 testi** della letteratura italiana — dall'Orl
 |---|---|
 | **Frontend** | SPA Angular con dashboard di gestione, viewer con evidenziazione entità, grafici NER e lettore di riassunti |
 | **Backend** | API FastAPI che orchestra la pipeline, gestisce il database SQLite e serve i dati al frontend |
-| **Ollama** | Server SLM locale che esegue il modello `qwen3.5:2b` per la pulizia OCR e la generazione dei riassunti |
+| **Ollama** | Server SLM locale che esegue il modello `qwen3.5:4b` per la pulizia OCR, gli embedding (`bge-m3`) e la generazione dei riassunti |
 
 ---
 
@@ -88,7 +88,7 @@ La pulizia avviene in **due passaggi** complementari: un LLM per le correzioni c
 
 #### 1a. LLM Cleaner (Ollama)
 
-Il testo viene diviso in chunk da ~1500 caratteri e inviato a `qwen3.5:2b` con un prompt specializzato in filologia italiana. Il modello restituisce un array JSON di correzioni:
+Il testo viene diviso in chunk da ~1500 caratteri e inviato a `qwen3.5:4b` con un prompt specializzato in filologia italiana. Il modello restituisce un array JSON di correzioni:
 
 ```json
 [
@@ -145,16 +145,24 @@ Utilizza un modello **BERT fine-tuned** su testi storici italiani (`aendriu/bert
 
 ### Fase 3 — Chunking Semantico e Capitoli
 
-#### 3a. Chunking Semantico
+#### 3a. Chunking Semantico (Metodo Embed)
 
-Utilizza **SentenceTransformer** (`paraphrase-multilingual-MiniLM-L12-v2`) per segmentare il testo in base al contenuto semantico, non alla lunghezza arbitraria.
+Utilizza il modello di embedding `bge-m3` eseguito localmente tramite **Ollama** per segmentare il testo in base al contenuto semantico, non alla lunghezza arbitraria.
 
 1. Il testo viene diviso in paragrafi
-2. Ogni paragrafo viene convertito in un embedding vettoriale
+2. Ogni paragrafo viene convertito in un embedding vettoriale tramite Ollama (`/api/embed`)
 3. Si calcola la similarità coseno tra paragrafi consecutivi
 4. Dove la similarità scende sotto la soglia (0.5), si inserisce un confine di chunk
 5. Vengono anche rilevati i confini espliciti nel testo (`CAPITOLO`, `CANTO`, `LIBRO`, `PARTE` + numerali romani/arabi)
 6. Ogni chunk risultante contiene: testo, offset nel documento, suggerimento di argomento (`topic_hint`) e le entità NER presenti
+
+#### 3a-bis. Chunking Semantico (Metodo NER)
+
+Metodo alternativo basato sull'overlap di entità NER tra blocchi consecutivi:
+1. Il testo viene diviso in blocchi da 2000 caratteri
+2. Per ogni coppia di blocchi adiacenti, si calcola l'indice di Jaccard sulle entità condivise
+3. Dove l'overlap scende sotto soglia, si inserisce un confine
+4. L'interfaccia web permette di confrontare i risultati dei due metodi con un report TF-IDF
 
 #### 3b. Raggruppamento Capitoli Semantici
 
@@ -181,7 +189,8 @@ Sinossi globale dell'opera  ← Livello 0
 
 #### Dettagli tecnici
 
-- **Modello**: `qwen3.5:2b` via Ollama (esecuzione locale, zero costi API)
+- **Modello per capitoli (L2)**: `qwen3.5:4b` via Ollama (esecuzione locale, zero costi API)
+- **Modello per sinossi globale (L0)**: configurabile separatamente con `OLLAMA_MODEL_GLOBAL` (es. `qwen3.5:8b` per risultati migliori)
 - **Contesto per capitolo**: 8.192 token
 - **Contesto per Livello 0**: 32.768 token (tutti i riassunti di capitolo in una singola chiamata)
 - **Esecuzione**: sequenziale per evitare saturazione VRAM
@@ -193,6 +202,8 @@ Per ogni capitolo viene calcolata la **NER Retention**: la percentuale di entit�
 ```
 NER Retention = (entità sopravvissute nel riassunto) / (entità totali nel testo) × 100
 ```
+
+Oltre alla retention per singolo capitolo, viene calcolata anche la **NER Retention Globale**: quante delle entità uniche dell'intero libro compaiono nella sinossi di Livello 0. Nell'interfaccia web è visualizzata con un badge colorato (🟢 ≥60%, 🟡 ≥35%, 🔴 <35%).
 
 ---
 
@@ -232,7 +243,7 @@ python3 -m pytest -v -s evaluations/test_phase2_ner.py
 
 ### Valutazione Chunking Semantico (Fase 3)
 
-La fase 3 viene valutata confrontando i confini dei capitoli semantici individuati localmente (tramite `SentenceTransformers` + Regex) con i confini individuati da Claude su un campione di paragrafi (es. "I Promessi Sposi"). Viene applicata una **tolleranza di $\pm 2$ paragrafi**.
+La fase 3 viene valutata confrontando i confini dei capitoli semantici individuati localmente (tramite embedding `bge-m3` via Ollama + Regex) con i confini individuati da Claude su un campione di paragrafi (es. "I Promessi Sposi"). Viene applicata una **tolleranza di $\pm 2$ paragrafi**.
 
 ```
 scripts/generate_chunking_gold.py     ← eseguito MANUALMENTE (chiama Claude)
@@ -301,7 +312,7 @@ La pagina principale permette di:
 
 ### Pagina di Analisi
 
-Accessibile cliccando "Analizza libro", offre 4 sezioni navigabili:
+Accessibile cliccando "Analizza libro", offre 5 sezioni navigabili:
 
 #### 🔍 Pulizia OCR
 Confronto visuale prima/dopo la pulizia con statistiche:
@@ -328,9 +339,18 @@ Colori entità: `PER` rosa, `LOC` blu, `ORG` giallo, `DATE` verde, `WORK` viola,
 
 #### 📝 Riassunti
 Navigazione e lettura dei riassunti generati:
+- **Sinossi Globale (Livello 0)** con statistiche: caratteri, parole, tempo di lettura, modello usato, NER retention %
 - Lista capitoli con indicatore ✅/○ (riassunto presente/assente)
-- Testo del riassunto narrativo generato da `qwen3.5:2b` via Ollama
+- Testo del riassunto narrativo generato da Ollama
 - Navigazione Precedente/Successivo
+- Switcher tra modelli diversi (se disponibili)
+
+#### 📊 Confronto Chunking
+Report scientifico comparativo tra i metodi di chunking (Embed vs NER):
+- Statistiche per metodo: numero chunk, lunghezza media, entità medie
+- Profilo di similarità TF-IDF (intra-sezione, al confine, cross-sezione)
+- Delta di nitidezza del taglio
+- Distribuzione visuale dei chunk
 
 ---
 
@@ -345,39 +365,43 @@ ner-historicbooks-it/
 │   │   ├── database.py               # Modelli ORM: Book, Chapter, Summary
 │   │   ├── main.py                   # Entrypoint FastAPI
 │   │   ├── services.py               # Orchestrazione pipeline (4 fasi)
+│   │   ├── dependencies.py           # Dipendenze condivise (get_db, get_book_or_404)
+│   │   ├── utils.py                  # Utilità condivise (extract_text_content, utcnow_iso)
 │   │   ├── routers/
 │   │   │   ├── books.py              # CRUD libri, upload, export ZIP
-│   │   │   ├── pipeline.py           # Avvio fasi pipeline + progress
-│   │   │   └── data.py               # Endpoint di lettura dati (testo, NER, chunk)
-│   │   ├── ocr/
-│   │   │   ├── llm_cleaner.py        # Pulizia OCR tramite Ollama (qwen3.5:2b)
-│   │   │   └── c_cleaner/
-│   │   │       ├── src/ocr_cleaner.c # Pulizia OCR rule-based in C (671 righe)
-│   │   │       ├── src/cJSON.c       # Libreria JSON parser
-│   │   │       └── Makefile
-│   │   ├── ner/
-│   │   │   ├── ner_extractor.py      # Pipeline NER con BERT fine-tuned
-│   │   │   └── chunking.py           # Utilità di segmentazione testo
+│   │   │   ├── pipeline.py           # Avvio fasi pipeline + progress + report chunking
+│   │   │   ├── data.py               # Endpoint di lettura dati (testo, NER, chunk)
+│   │   │   └── settings.py           # Configurazione runtime Ollama
 │   │   └── pipeline/
-│   │       ├── chunker.py            # Chunking semantico basato su embeddings
-│   │       ├── chapter_grouper.py    # Raggruppamento chunk in capitoli semantici
+│   │       ├── ollama_client.py       # Client centralizzato Ollama (generate, embed)
+│   │       ├── ocr.py                # Pulizia OCR tramite Ollama
+│   │       ├── ner.py                # Pipeline NER con BERT fine-tuned
+│   │       ├── ner_chunking.py       # Utilità di segmentazione testo per NER
+│   │       ├── chunker.py            # Chunking semantico (embed + NER)
 │   │       └── summarizer.py         # Hierarchical Summarization (Livello 0)
 │   ├── data/
 │   │   └── raw/                      # Testi italiani digitalizzati
-│   ├── Dockerfile                    # Multi-stage: compilazione C + runtime Python
-│   ├── requirements.txt
-│   └── .env.example
+│   ├── Dockerfile
+│   └── requirements.txt
 │
 ├── frontend/                         # SPA Angular 21
 │   ├── src/app/
+│   │   ├── models/
+│   │   │   └── models.ts             # Interfacce TypeScript condivise
 │   │   ├── components/
 │   │   │   ├── dashboard/            # Dashboard: upload, pipeline, anteprima
-│   │   │   └── analysis/             # Analisi: OCR, NER, Lettore, Riassunti
+│   │   │   ├── analysis/             # Shell di analisi con tab navigation
+│   │   │   │   ├── ocr-view/         # Vista pulizia OCR
+│   │   │   │   ├── ner-view/         # Vista entità NER con Chart.js
+│   │   │   │   ├── reader-view/      # Lettore capitoli con evidenziazione
+│   │   │   │   ├── summaries-view/   # Navigatore riassunti + sinossi globale
+│   │   │   │   └── compare-view/     # Report comparativo chunking
+│   │   │   └── api-config/           # Modale configurazione Ollama
 │   │   └── services/
-│   │       ├── api.service.ts        # Client HTTP per tutte le API
+│   │       ├── api.service.ts        # Client HTTP tipizzato per tutte le API
 │   │       └── book-state.service.ts # Stato globale con Angular Signals
-│   ├── Dockerfile                    # Multi-stage: build Angular + Nginx
-│   └── nginx.conf                    # Routing SPA + reverse proxy /api/
+│   ├── Dockerfile
+│   └── nginx.conf
 │
 ├── scripts/                          # Script di utilità (eseguiti manualmente)
 │   ├── generate_ner_gold.py          # Genera il gold standard NER (Claude + BERT)
@@ -386,17 +410,13 @@ ner-historicbooks-it/
 │
 ├── tests/                            # Suite di test (pytest)
 │   ├── evaluations/
-│   │   ├── results/
-│   │   │   ├── ner_evaluation_results.json
-│   │   │   ├── chunking_evaluation_results.json
-│   │   │   └── ner_chunking_evaluation_results.json
-│   │   ├── test_phase2_ner.py               # Verifica metriche NER (zero API)
-│   │   ├── test_phase3_chunking.py          # Verifica metriche Chunking (zero API)
-│   │   ├── test_phase3_ner_chunking.py      # Verifica metriche Chunking NER (zero API)
+│   │   ├── results/                  # Gold standard versionati (zero API per i test)
+│   │   ├── test_phase2_ner.py
+│   │   ├── test_phase3_chunking.py
+│   │   ├── test_phase3_ner_chunking.py
 │   │   └── test_phase4_summaries.py
-│   ├── utils/
-│   │   └── anthropic_client.py       # Client Anthropic per la generazione gold
-│   └── requirements-test.txt
+│   └── utils/
+│       └── anthropic_client.py       # Client Anthropic per la generazione gold
 │
 ├── docker-compose.yml                # 3 servizi: backend + frontend + ollama
 └── start.sh                          # Script avvio locale (sviluppo)
@@ -454,7 +474,11 @@ cp .env.example .env
 curl -fsSL https://ollama.com/install.sh | sh
 
 # Scarica il modello SLM
-ollama pull qwen3.5:2b
+ollama pull qwen3.5:4b
+# Opzionale: modello più grande per riassunti globali migliori
+ollama pull qwen3.5:8b
+# Modello di embedding
+ollama pull bge-m3
 ```
 
 #### 5. Installa le dipendenze
@@ -499,7 +523,7 @@ L'applicazione sarà disponibile su:
 docker compose up --build
 ```
 
-Al primo avvio, Ollama scaricherà automaticamente il modello `qwen3.5:2b` (~2 GB). Il backend attenderà che Ollama sia pronto (healthcheck) prima di partire.
+Al primo avvio, Ollama scaricherà automaticamente il modello `qwen3.5:4b` (~3 GB) e `bge-m3` (~700 MB). Il backend attenderà che Ollama sia pronto (healthcheck) prima di partire.
 
 | Servizio | URL |
 |---|---|
@@ -526,15 +550,17 @@ Tutte le impostazioni sono gestite tramite variabili d'ambiente nel file `.env`:
 # ── Ollama (SLM per pulizia OCR e riassunti) ─────────────
 OLLAMA_HOST=localhost              # IP/hostname del server Ollama
 OLLAMA_PORT=11434
-OLLAMA_MODEL=qwen3.5:2b           # Modello SLM da utilizzare
+OLLAMA_MODEL=qwen3.5:4b           # Modello SLM per capitoli (L2) e OCR
+OLLAMA_MODEL_GLOBAL=              # Modello per sinossi globale (L0), se vuoto usa OLLAMA_MODEL
+                                   # Consigliato: qwen3.5:8b o superiore per L0
 
 # ── NER ───────────────────────────────────────────────────
 NER_MODEL_NAME=aendriu/bert-ner-italian-historical
 NER_SCORE_THRESHOLD=0.65          # Soglia confidenza (0.0–1.0)
 NER_MIN_ENTITY_CHARS=3            # Lunghezza minima entità
 
-# ── Chunking Semantico ───────────────────────────────────
-EMBED_MODEL=paraphrase-multilingual-MiniLM-L12-v2
+# ── Chunking Semantico (embedding via Ollama) ────────────
+SEMANTIC_EMBEDDING_MODEL=bge-m3   # Modello di embedding eseguito su Ollama
 SEMANTIC_SIMILARITY_THRESHOLD=0.5 # Soglia per confini di chunk
 
 # ── Database ──────────────────────────────────────────────

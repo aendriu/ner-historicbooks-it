@@ -4,14 +4,15 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.routers import books, pipeline, data, settings
-from app.database import SessionLocal, Book, BookStatus
+from app.database import SessionLocal, Book, BookStatus, init_db
 from app.config import DATA_DIR
 
 logger = logging.getLogger("uvicorn.error")
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Eseguito all'avvio del server: scansiona i file raw e li indicizza nel database"""
+    """Evento di avvio del server: inizializza il database e indicizza i file raw."""
+    init_db()
     db = SessionLocal()
     try:
         raw_dir = os.path.join(DATA_DIR, "raw")

@@ -1,19 +1,25 @@
-import os
 import json
-import time
+import logging
+import os
 import re
+import time
+import traceback
 from pathlib import Path
 
 from transformers import AutoModelForTokenClassification, AutoTokenizer, pipeline
+
+from app.config import settings
+
+logger = logging.getLogger(__name__)
 from .ner_chunking import make_chunks
 
 # ====== CONFIG ======
-MODEL_NAME = "aendriu/bert-ner-italian-historical"
-MAX_INPUT_CHARS = 2000
-OVERLAP_CHARS = 300
-ALLOWED_LABELS = {"PER", "LOC", "ORG", "WORK", "DATE", "EVENT", "TIT", "REL", "FANT"}
-SCORE_THRESHOLD = float(os.getenv("NER_SCORE_THRESHOLD", "0.65"))
-MIN_ENTITY_CHARS = int(os.getenv("NER_MIN_ENTITY_CHARS", "3"))
+MODEL_NAME: str = getattr(settings, "NER_MODEL_NAME", "aendriu/bert-ner-italian-historical")
+MAX_INPUT_CHARS: int = 2000
+OVERLAP_CHARS: int = 300
+ALLOWED_LABELS: set[str] = {"PER", "LOC", "ORG", "WORK", "DATE", "EVENT", "TIT", "REL", "FANT"}
+SCORE_THRESHOLD: float = float(os.getenv("NER_SCORE_THRESHOLD", "0.65"))
+MIN_ENTITY_CHARS: int = int(os.getenv("NER_MIN_ENTITY_CHARS", "3"))
 
 DATE_RE = re.compile(r"^(\d{3,4}|\d{1,2}\s+[a-zà-ù]+\s+\d{3,4}|[ivxlcdm]{1,7})$", re.IGNORECASE)
 STOPWORD_RE = re.compile(
@@ -24,6 +30,7 @@ STOPWORD_RE = re.compile(
 # Blacklist rimossa per favorire un approccio "post-process" futuro
 
 def _normalize_label(label: str) -> str | None:
+    """Normalizza l'etichetta NER rimuovendo i prefissi BIO e filtrando MISC."""
     label = label.replace("B-", "").replace("I-", "").upper()
     if label == "MISC":
         return None
@@ -33,9 +40,10 @@ def _normalize_label(label: str) -> str | None:
 _ner_pipeline = None
 
 def get_ner_pipeline():
+    """Restituisce la pipeline NER HuggingFace, inizializzandola pigramente alla prima chiamata."""
     global _ner_pipeline
     if _ner_pipeline is None:
-        print(f"Loading HuggingFace model: {MODEL_NAME}")
+        logger.info(f"Caricamento modello HuggingFace: {MODEL_NAME}")
         tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
         model = AutoModelForTokenClassification.from_pretrained(MODEL_NAME)
         _ner_pipeline = pipeline(
@@ -49,6 +57,7 @@ def get_ner_pipeline():
 
 
 def _clean_span(span: str) -> str:
+    """Ripulisce uno span di testo rimuovendo spazi e punteggiatura ai bordi."""
     span = span.strip()
     span = span.strip("'’\"“”‘’()[]{}.,;:!?-")
     span = re.sub(r"\s+", " ", span)
@@ -57,6 +66,7 @@ def _clean_span(span: str) -> str:
 _BOUNDARY_RE = re.compile(r"[\s\'\'\"\"\"\'\'\(\)\[\]\{\}\.\,\;\:\!\?\-\–\—\/\\]")
 
 def _snap_offsets(text: str, start: int, end: int, max_expand: int = 2) -> tuple[int, int]:
+    """Espande gli offset di un'entità fino al confine di parola più vicino."""
     n = len(text)
     orig_start, orig_end = start, end
     while start > 0 and (orig_start - start) < max_expand and not _BOUNDARY_RE.match(text[start - 1]):
@@ -70,6 +80,7 @@ def _snap_offsets(text: str, start: int, end: int, max_expand: int = 2) -> tuple
     return start, end
 
 def _trim_offsets_to_token(text: str, start: int, end: int) -> tuple[int, int]:
+    """Restringe gli offset eliminando separatori ai bordi dello span."""
     while start < end and _BOUNDARY_RE.match(text[start]):
         start += 1
     while end > start and _BOUNDARY_RE.match(text[end - 1]):
@@ -77,6 +88,7 @@ def _trim_offsets_to_token(text: str, start: int, end: int) -> tuple[int, int]:
     return start, end
 
 def _valid_entity(label: str, text: str, score: float) -> bool:
+    """Verifica se un'entità è valida in base a soglia, lunghezza e contenuto."""
     if score < SCORE_THRESHOLD:
         return False
     text = _clean_span(text)
@@ -104,7 +116,7 @@ def _valid_entity(label: str, text: str, score: float) -> bool:
     return True
 
 def process_chunk(ner, chunk_text: str, chunk_start_offset: int) -> list:
-    """Estrae le entità dal chunk limitato, ricalcolando gli indici globali."""
+    """Estrae le entità NER dal chunk, ricalcolando gli offset rispetto al testo globale."""
     text = chunk_text[:MAX_INPUT_CHARS]
     preds = ner(text)
 
@@ -174,7 +186,16 @@ def process_chunk(ner, chunk_text: str, chunk_start_offset: int) -> list:
     return entities
 
 def extract_ner_from_file(clean_file_path: str, output_json_path: str, progress_cb=None) -> bool:
-    """Legge il JSON pulito, esegue il NER a chunk, salva il file entities_found.json"""
+    """Legge il JSON pulito, esegue il NER a chunk e salva le entità trovate.
+
+    Args:
+        clean_file_path: percorso del file JSON pulito.
+        output_json_path: percorso di output per le entità.
+        progress_cb: callback opzionale per il progresso.
+
+    Returns:
+        True se l'estrazione ha avuto successo, False altrimenti.
+    """
     try:
         with open(clean_file_path, "r", encoding="utf-8") as f:
             data = json.load(f)
@@ -183,7 +204,7 @@ def extract_ner_from_file(clean_file_path: str, output_json_path: str, progress_
         book_name = Path(clean_file_path).stem
         
         if not text.strip():
-            print(f"Testo vuoto per {clean_file_path}")
+            logger.warning(f"Testo vuoto per {clean_file_path}")
             return False
 
         # Creiamo i chunk fittizi solo per permettere al modello di ingerirli
@@ -218,6 +239,5 @@ def extract_ner_from_file(clean_file_path: str, output_json_path: str, progress_
         return True
 
     except Exception as e:
-        import traceback
-        traceback.print_exc()
+        logger.error(f"Errore durante l'estrazione NER: {e}\n{traceback.format_exc()}")
         return False

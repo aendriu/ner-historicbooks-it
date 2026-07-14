@@ -5,6 +5,11 @@ Contains only pipeline-triggering POST endpoints and the progress GET.
 Read-only data retrieval endpoints live in routers/data.py.
 """
 
+import glob
+import math
+import re
+import threading as _threading
+
 from fastapi import APIRouter, BackgroundTasks, HTTPException, Depends
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
@@ -15,10 +20,10 @@ from typing import Literal
 
 from app.database import SessionLocal, Book, BookStatus, Chapter, Summary
 from app.config import DATA_DIR, settings
+from app.dependencies import get_db, get_book_or_404
 from app.services import process_book_pipeline, process_book_cleaning
 from app.pipeline.ner import extract_ner_from_file
 from app.pipeline.chunker import run_semantic_chunker, EMBED_SUBDIR, NER_SUBDIR
-
 from app.pipeline.summarizer import run_hierarchical_summarization
 
 
@@ -31,23 +36,21 @@ NER_DIR      = os.path.join(DATA_DIR, "ner")
 SEMANTIC_DIR  = os.path.join(DATA_DIR, "semantic")
 SUMMARIES_DIR = os.path.join(DATA_DIR, "summaries")
 
+# Stopwords italiane per il calcolo TF-IDF nel report di chunking
+STOPWORDS = {
+    "il","lo","la","i","gli","le","un","uno","una","di","a","da","in",
+    "con","su","per","tra","fra","e","o","ma","se","che","non","si","è",
+    "era","ai","del","dei","delle","della","degli","al","allo","alla","agli",
+    "nel","nello","nella","nei","negli","nelle","col","coi","sui","come",
+    "anche","già","più","suo","sua","suoi","sue","mio","mia","questo","quella",
+    "essere","fare","avere","anche","così","poi","però","quando","dove","quello",
+}
+
 
 router = APIRouter(tags=["pipeline"])
 
 
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
-
-def _get_book_or_404(book_id: int, db: Session) -> Book:
-    book = db.query(Book).filter(Book.id == book_id).first()
-    if not book:
-        raise HTTPException(404, "Libro non trovato")
-    return book
+# get_db e get_book_or_404 importati da app.dependencies
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -78,7 +81,7 @@ def get_progress(book_id: int, phase: str):
 @router.post("/api/books/{book_id}/run/all")
 def run_all(book_id: int, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
     """Avvia la pipeline completa per un libro."""
-    book = _get_book_or_404(book_id, db)
+    book = get_book_or_404(book_id, db)
     book.status = BookStatus.UPLOADED
 
     def _do_all():
@@ -114,7 +117,7 @@ def run_all(book_id: int, background_tasks: BackgroundTasks, db: Session = Depen
 @router.post("/api/books/{book_id}/run/clean")
 def run_clean(book_id: int, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
     """Avvia solo la pulizia OCR per un libro."""
-    book = _get_book_or_404(book_id, db)
+    book = get_book_or_404(book_id, db)
     book.status = BookStatus.OCR_CLEANING
     db.commit()
 
@@ -151,7 +154,7 @@ def run_clean(book_id: int, background_tasks: BackgroundTasks, db: Session = Dep
 @router.post("/api/books/{book_id}/run/ner")
 def run_ner(book_id: int, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
     """Esegue solo l'estrazione NER."""
-    book = _get_book_or_404(book_id, db)
+    book = get_book_or_404(book_id, db)
     if not book.clean_file_path or not os.path.exists(book.clean_file_path):
         raise HTTPException(400, "Testo pulito non disponibile. Esegui prima la pulizia OCR.")
 
@@ -200,7 +203,7 @@ def run_ner(book_id: int, background_tasks: BackgroundTasks, db: Session = Depen
 @router.post("/api/books/{book_id}/run/chunking")
 def run_chunking(book_id: int, body: ChunkingRequest, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
     """Esegue il chunking semantico con il metodo scelto (embed | ner)."""
-    book = _get_book_or_404(book_id, db)
+    book = get_book_or_404(book_id, db)
     if not book.clean_file_path or not os.path.exists(book.clean_file_path):
         raise HTTPException(400, "Testo pulito non disponibile.")
     if not book.ner_file_path or not os.path.exists(book.ner_file_path):
@@ -246,10 +249,7 @@ def run_chunking(book_id: int, body: ChunkingRequest, background_tasks: Backgrou
 @router.get("/api/books/{book_id}/chunking-report")
 def get_chunking_report(book_id: int, db: Session = Depends(get_db)):
     """Confronto scientifico tra i risultati dei due metodi di chunking (embed vs ner)."""
-    import re
-    import math
-
-    book = _get_book_or_404(book_id, db)
+    book = get_book_or_404(book_id, db)
     filename_no_ext = os.path.splitext(book.filename)[0]
 
     embed_manifest_path = os.path.join(SEMANTIC_DIR, EMBED_SUBDIR, filename_no_ext, "manifest.json")
@@ -258,20 +258,19 @@ def get_chunking_report(book_id: int, db: Session = Depends(get_db)):
     embed_available = os.path.exists(embed_manifest_path)
     ner_available   = os.path.exists(ner_manifest_path)
 
-    embed_manifest = json.load(open(embed_manifest_path, encoding="utf-8")) if embed_available else None
-    ner_manifest   = json.load(open(ner_manifest_path,   encoding="utf-8")) if ner_available   else None
+    embed_manifest = None
+    if embed_available:
+        with open(embed_manifest_path, encoding="utf-8") as f:
+            embed_manifest = json.load(f)
+    ner_manifest = None
+    if ner_available:
+        with open(ner_manifest_path, encoding="utf-8") as f:
+            ner_manifest = json.load(f)
 
     if not embed_available and not ner_available:
         raise HTTPException(404, "Nessun risultato di chunking disponibile per questo libro.")
 
-    STOPWORDS = {
-        "il","lo","la","i","gli","le","un","uno","una","di","a","da","in",
-        "con","su","per","tra","fra","e","o","ma","se","che","non","si","è",
-        "era","ai","del","dei","delle","della","degli","al","allo","alla","agli",
-        "nel","nello","nella","nei","negli","nelle","col","coi","sui","come",
-        "anche","già","più","suo","sua","suoi","sue","mio","mia","questo","quella",
-        "essere","fare","avere","anche","così","poi","però","quando","dove","quello",
-    }
+    # STOPWORDS definite a livello di modulo
 
     def _tf(text: str) -> dict:
         """Frequenza termini normalizzata per lunghezza."""
@@ -309,16 +308,18 @@ def get_chunking_report(book_id: int, db: Session = Depends(get_db)):
 
     def _load_chunks_text(manifest_path: str) -> list[dict]:
         base = os.path.dirname(manifest_path)
-        manifest = json.load(open(manifest_path, encoding="utf-8"))
+        with open(manifest_path, encoding="utf-8") as f:
+            manifest = json.load(f)
         chunks = []
         for c in manifest.get("chunks", []):
             chunk_file = os.path.join(base, f"chunk_{c['chunk_id']:03d}.json")
             text = ""
             if os.path.exists(chunk_file):
                 try:
-                    text = json.load(open(chunk_file, encoding="utf-8")).get("text", "")
-                except Exception:
-                    pass
+                    with open(chunk_file, encoding="utf-8") as f:
+                        text = json.load(f).get("text", "")
+                except Exception as e:
+                    logger.warning(f"Errore lettura chunk: {e}")
             chunks.append({**c, "text": text})
         return chunks
 
@@ -374,11 +375,11 @@ def get_chunking_report(book_id: int, db: Session = Depends(get_db)):
                 if s_j - s_i >= min_gap:
                     ci, cj = section_rep[s_i], section_rep[s_j]
                     cross.append({
-                        "chunk_a": chunks[ci]["chunk_id"],
-                        "chunk_b": chunks[cj]["chunk_id"],
-                        "topic_a": chunks[ci].get("topic_hint", ""),
-                        "topic_b": chunks[cj].get("topic_hint", ""),
-                        "similarity": _cosine(vecs[ci], vecs[cj]),
+                        "chunk_a":      chunks[ci]["chunk_id"],
+                        "chunk_b":      chunks[cj]["chunk_id"],
+                        "topic_a":      chunks[ci].get("topic_hint", ""),
+                        "topic_b":      chunks[cj].get("topic_hint", ""),
+                        "similarity":   _cosine(vecs[ci], vecs[cj]),
                         "same_section": False,
                     })
                     break   # una coppia per sezione sorgente
@@ -402,6 +403,7 @@ def get_chunking_report(book_id: int, db: Session = Depends(get_db)):
 
     # ── Boundary Agreement ──
     def extract_boundaries(chunks):
+        """Estrae i confini di sezione Embed (da topic_hint)."""
         boundaries, last_section = [], None
         for c in chunks:
             m = re.search(r'(\d+)', c.get("topic_hint", ""))
@@ -416,9 +418,21 @@ def get_chunking_report(book_id: int, db: Session = Depends(get_db)):
                     last_section = sec_num
         return boundaries
 
-    comparison     = []
-    avg_jaccard    = None
+    def extract_ner_chapter_boundaries(ner_manifest):
+        """Estrae i confini dei CAPITOLI NER L2 (da manifest['chapters'])."""
+        chapters = ner_manifest.get("chapters", [])
+        if chapters:
+            # usa i capitoli L2 se disponibili
+            return [{"char": ch["char_start"],
+                     "topic_hint": ch["chapter_hint"],
+                     "chunk_id": ch["chapter_id"]} for ch in chapters]
+        # fallback: usa le sezioni L1
+        return extract_boundaries(ner_manifest.get("chunks", []))
+
+    comparison      = []
+    avg_jaccard     = None
     embed_sec_count = 0
+    ner_ch_count    = 0
     ner_sec_count   = 0
     tolerance       = 1500
 
@@ -439,13 +453,15 @@ def get_chunking_report(book_id: int, db: Session = Depends(get_db)):
             ner_chunks_full = _load_chunks_text(ner_manifest_path)
             ner_profile     = _compute_similarity_profile(ner_chunks_full)
             ner_sec_count   = len(extract_boundaries(ner_manifest.get("chunks", [])))
+            ner_ch_count    = len(ner_manifest.get("chapters", [])) or ner_sec_count
         except Exception as e:
             logger.warning(f"Similarity NER fallita: {e}")
             ner_sec_count = len(extract_boundaries(ner_manifest.get("chunks", [])))
+            ner_ch_count  = len(ner_manifest.get("chapters", [])) or ner_sec_count
 
     if embed_available and ner_available:
         embed_b = extract_boundaries(embed_manifest.get("chunks", []))
-        ner_b   = extract_boundaries(ner_manifest.get("chunks", []))
+        ner_b   = extract_ner_chapter_boundaries(ner_manifest)   # usa capitoli L2
 
         for eb in embed_b:
             if not ner_b:
@@ -465,7 +481,6 @@ def get_chunking_report(book_id: int, db: Session = Depends(get_db)):
             })
 
         matches = sum(1 for r in comparison if r["is_match"])
-        # Denominatore = embed_sec_count: "quanti confini Embed sono confermati da NER?"
         avg_jaccard = round(matches / embed_sec_count, 2) if embed_sec_count > 0 else 0.0
 
     return {
@@ -487,6 +502,17 @@ def get_chunking_report(book_id: int, db: Session = Depends(get_db)):
 
 
 
+# Lock globale: impedisce di avviare due summarizzazioni simultanee
+_summarize_lock  = _threading.Lock()
+_cancel_event    = _threading.Event()   # settato → il loop si ferma alla prossima sezione
+
+
+@router.post("/api/run/summarize/cancel")
+def cancel_summarize():
+    """Ferma la summarizzazione in corso dopo la sezione corrente."""
+    _cancel_event.set()
+    return {"message": "Cancellazione richiesta — il processo si fermerà dopo la sezione corrente."}
+
 
 @router.post("/api/books/{book_id}/run/summarize")
 def run_summarize(
@@ -499,7 +525,7 @@ def run_summarize(
     Avvia la Hierarchical Summarization (Livello 0) sui chunk semantici.
     method: embed | ner
     """
-    book = _get_book_or_404(book_id, db)
+    book = get_book_or_404(book_id, db)
     method = body.method
 
     # Verifica che il chunking sia disponibile per il metodo scelto
@@ -512,66 +538,117 @@ def run_summarize(
             f"Chunking '{method}' non disponibile. Esegui prima il chunking semantico.",
         )
 
+    if not _summarize_lock.acquire(blocking=False):
+        raise HTTPException(
+            409,
+            "Una summarizzazione è già in corso. Attendi che finisca prima di rilanciare."
+        )
+
+    _cancel_event.clear()   # reset del flag prima di ogni nuova esecuzione
+
     def _do_summarize():
-        progress_key = f"{book_id}_summarize_{method}"
-        progress_store[progress_key] = {
-            "status": "running",
-            "logs": [
-                f"🤖 LLM: {settings.OLLAMA_HOST} | modello: {settings.OLLAMA_MODEL}",
-                f"Avvio Hierarchical Summarization ({method.upper()})...",
-            ],
-        }
-
-        def _cb(current, total, detail=""):
-            progress_store[progress_key]["logs"].append(f"[{current}/{total}] {detail}")
-
-        local_db = SessionLocal()
         try:
-            local_book = local_db.query(Book).filter(Book.id == book_id).first()
-            if not local_book:
-                return
-            local_book.status = BookStatus.SUMMARIZING
-            local_db.commit()
+            progress_key = f"{book_id}_summarize_{method}"
+            progress_store[progress_key] = {
+                "status": "running",
+                "logs": [
+                    f"🤖 LLM: {settings.OLLAMA_HOST} | modello: {settings.OLLAMA_MODEL}",
+                    f"Avvio Hierarchical Summarization ({method.upper()})...",
+                ],
+            }
 
-            fn = os.path.splitext(local_book.filename)[0]
-            run_hierarchical_summarization(
-                book_name=fn,
-                method=method,
-                semantic_dir=SEMANTIC_DIR,
-                summaries_dir=SUMMARIES_DIR,
-                progress_cb=_cb,
-            )
+            def _cb(current, total, detail=""):
+                progress_store[progress_key]["logs"].append(f"[{current}/{total}] {detail}")
 
-            local_book.status = BookStatus.COMPLETED
-            progress_store[progress_key]["status"] = "completed"
-            local_db.commit()
-        except Exception as e:
-            logger.error(f"Summarization error: {e}")
-            progress_store[progress_key]["status"] = "error"
-            progress_store[progress_key]["logs"].append(f"Errore: {e}")
+            local_db = SessionLocal()
+            try:
+                local_book = local_db.query(Book).filter(Book.id == book_id).first()
+                if not local_book:
+                    return
+                local_book.status = BookStatus.SUMMARIZING
+                local_db.commit()
+
+                fn = os.path.splitext(local_book.filename)[0]
+                run_hierarchical_summarization(
+                    book_name=fn,
+                    method=method,
+                    semantic_dir=SEMANTIC_DIR,
+                    summaries_dir=SUMMARIES_DIR,
+                    progress_cb=_cb,
+                    cancel_event=_cancel_event,
+                )
+
+                if _cancel_event.is_set():
+                    local_book.status = BookStatus.COMPLETED
+                    progress_store[progress_key]["status"] = "cancelled"
+                    progress_store[progress_key]["logs"].append("⛔ Summarizzazione interrotta dall'utente. I riassunti parziali sono stati salvati.")
+                else:
+                    local_book.status = BookStatus.COMPLETED
+                    progress_store[progress_key]["status"] = "completed"
+                local_db.commit()
+            except Exception as e:
+                logger.error(f"Summarization error: {e}")
+                progress_store[progress_key]["status"] = "error"
+                progress_store[progress_key]["logs"].append(f"Errore: {e}")
+            finally:
+                local_db.close()
         finally:
-            local_db.close()
+            _summarize_lock.release()
 
     background_tasks.add_task(_do_summarize)
     return {"message": f"Hierarchical Summarization ({method}) avviata in background"}
 
 
 @router.get("/api/books/{book_id}/summaries")
-def get_summaries(book_id: int, method: str = "embed", db: Session = Depends(get_db)):
+def get_summaries(book_id: int, method: str = "embed", model: str = None, db: Session = Depends(get_db)):
     """
     Restituisce i risultati della Hierarchical Summarization salvati su disco.
     method: embed | ner
+    model:  nome modello (es. 'qwen3.5:2b'). Se omesso, restituisce il più recente.
     """
-    book = _get_book_or_404(book_id, db)
-    method_subdir = EMBED_SUBDIR if method == "embed" else NER_SUBDIR
-    filename_no_ext = os.path.splitext(book.filename)[0]
-    summaries_path = os.path.join(SUMMARIES_DIR, method_subdir, filename_no_ext, "summaries.json")
+    _re = re  # alias locale per compatibilità
 
-    if not os.path.exists(summaries_path):
+    book = get_book_or_404(book_id, db)
+    method_subdir   = EMBED_SUBDIR if method == "embed" else NER_SUBDIR
+    filename_no_ext = os.path.splitext(book.filename)[0]
+    book_dir        = os.path.join(SUMMARIES_DIR, method_subdir, filename_no_ext)
+
+    # ── Trova tutti i file summaries_*.json disponibili ──
+    pattern = os.path.join(book_dir, "summaries_*.json")
+    all_files = sorted(glob.glob(pattern), key=os.path.getmtime, reverse=True)
+
+    # Retrocompatibilità: considera anche il vecchio summaries.json senza modello
+    legacy = os.path.join(book_dir, "summaries.json")
+    if os.path.exists(legacy) and legacy not in all_files:
+        all_files.append(legacy)
+
+    if not all_files:
         raise HTTPException(
             404,
             "Riassunti non ancora generati. Usa POST /run/summarize prima.",
         )
 
+    # Estrai i nomi dei modelli dai nomi file per il selettore nel frontend
+    def _model_from_path(p: str) -> str:
+        basename = os.path.basename(p)
+        m = _re.match(r"summaries_(.+)\.json$", basename)
+        return m.group(1).replace("_", ".") if m else "legacy"
+
+    available_models = [_model_from_path(p) for p in all_files]
+
+    # Seleziona il file richiesto (o il più recente)
+    if model:
+        safe = _re.sub(r"[^\w\-]", "_", model)
+        target = os.path.join(book_dir, f"summaries_{safe}.json")
+        if not os.path.exists(target):
+            raise HTTPException(404, f"Nessun riassunto trovato per il modello '{model}'.")
+        summaries_path = target
+    else:
+        summaries_path = all_files[0]   # il più recente
+
     with open(summaries_path, encoding="utf-8") as f:
-        return json.load(f)
+        data = json.load(f)
+
+    data["available_models"] = available_models
+    data["current_model_file"] = os.path.basename(summaries_path)
+    return data

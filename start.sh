@@ -101,7 +101,8 @@ cd ..
 echo ""
 echo "[4/4] Avvio Applicazione..."
 cd backend
-./.venv/bin/python3 -m uvicorn app.main:app --env-file ../.env --host 0.0.0.0 --port 8000 &
+# systemd-inhibit impedisce al laptop di andare in sospensione durante l'elaborazione dei riassunti
+systemd-inhibit --what=sleep ./.venv/bin/python3 -m uvicorn app.main:app --env-file ../.env --host 0.0.0.0 --port 8000 &
 BACKEND_PID=$!
 
 # Trappola per killare il backend quando premi Ctrl+C (uccisione forzata immediata)

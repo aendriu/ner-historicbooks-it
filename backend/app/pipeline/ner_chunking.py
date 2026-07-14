@@ -50,6 +50,7 @@ class Chunk:
 
 
 def find_sections(text: str) -> List[Section]:
+    """Individua le sezioni del testo in base a pattern di intestazione (capitolo, canto, ecc.)."""
     rx = compile_heading_regex()
     matches = list(rx.finditer(text))
     if not matches:
@@ -82,8 +83,8 @@ def find_sections(text: str) -> List[Section]:
 
 
 def split_paragraphs(text: str, base_offset: int = 0) -> List[Paragraph]:
+    """Suddivide il testo in paragrafi separati da righe vuote."""
     paras: List[Paragraph] = []
-    pos = 0
     # Normalize line endings but keep indices stable relative to given text
     parts = re.split(r"\n{2,}", text)
     cursor = 0
@@ -105,6 +106,7 @@ def split_paragraphs(text: str, base_offset: int = 0) -> List[Paragraph]:
 
 
 def sentence_split_ranges(text: str, base_offset: int, min_chars: int, max_chars: int) -> List[Tuple[int, int]]:
+    """Divide il testo in intervalli basati sui confini di frase."""
     # Find sentence boundaries on punctuation followed by space/newline
     # Keep simple but robust for OCR: . ! ? followed by whitespace or end
     # Match sentence end punctuation possibly followed by quotes/brackets/space
@@ -131,6 +133,7 @@ def sentence_split_ranges(text: str, base_offset: int, min_chars: int, max_chars
 
 
 def sliding_windows_on_text(start: int, end: int, max_chars: int, overlap_chars: int) -> List[Tuple[int, int]]:
+    """Genera finestre scorrevoli con overlap su un intervallo di caratteri."""
     windows: List[Tuple[int, int]] = []
     if start >= end:
         return windows
@@ -186,6 +189,7 @@ def group_paragraphs(
     max_chars: int = DEFAULT_MAX_CHARS,
     overlap_chars: int = DEFAULT_OVERLAP_CHARS,
 ) -> List[Tuple[int, int]]:
+    """Raggruppa i paragrafi in finestre rispettando le dimensioni min/max con overlap."""
     groups: List[Tuple[int, int]] = []
     i = 0
     n = len(paras)
@@ -272,12 +276,14 @@ def make_chunks(
 
 
 def iter_input_files(input_dir: Path) -> Iterable[Path]:
+    """Itera sui file JSON in una directory in ordine alfabetico."""
     for p in sorted(input_dir.glob('*.json')):
         if p.is_file():
             yield p
 
 
 def load_text_from_json(p: Path) -> Tuple[str, Dict]:
+    """Carica il testo e i metadati da un file JSON."""
     data = json.loads(p.read_text(encoding='utf-8'))
     text = data.get('contenuto') or ''
     return text, data
@@ -314,6 +320,7 @@ def process_all(
     max_chars: int = DEFAULT_MAX_CHARS,
     overlap_chars: int = DEFAULT_OVERLAP_CHARS,
 ) -> int:
+    """Elabora tutti i file JSON nella directory di input e salva i chunk."""
     count = 0
     for p in iter_input_files(input_dir):
         try:

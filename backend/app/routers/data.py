@@ -1,9 +1,9 @@
-"""
-Data retrieval endpoints for books.
+"""Endpoint di recupero dati per i libri.
 
-All endpoints here are read-only GET routes that return processed artefacts
-(text, NER, chunks, chapter chunks, summaries). They were extracted from
-pipeline.py to keep that module focused on pipeline-running POST endpoints.
+Tutti gli endpoint sono route GET di sola lettura che restituiscono
+artefatti elaborati (testo, NER, chunk, capitoli, riassunti).
+Sono stati estratti da pipeline.py per mantenerlo focalizzato
+sugli endpoint POST di esecuzione della pipeline.
 """
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -13,8 +13,10 @@ import json
 import glob
 import logging
 
-from app.database import SessionLocal, Book, Chapter, Summary
+from app.database import Book, Chapter, Summary
 from app.config import DATA_DIR
+from app.dependencies import get_db, get_book_or_404
+from app.utils import extract_text_content
 
 logger = logging.getLogger("uvicorn.error")
 
@@ -23,19 +25,7 @@ CHAPTERS_DIR = os.path.join(DATA_DIR, "chapters")
 router = APIRouter(tags=["data"])
 
 
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
-
-def _get_book_or_404(book_id: int, db: Session) -> Book:
-    book = db.query(Book).filter(Book.id == book_id).first()
-    if not book:
-        raise HTTPException(404, "Libro non trovato")
-    return book
+# get_db e get_book_or_404 importati da app.dependencies
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -46,13 +36,13 @@ def _get_book_or_404(book_id: int, db: Session) -> Book:
 @router.get("/api/books/{book_id}/text")
 def get_book_text(book_id: int, db: Session = Depends(get_db)):
     """Restituisce il testo pulito e grezzo del libro."""
-    book = _get_book_or_404(book_id, db)
+    book = get_book_or_404(book_id, db)
 
     text = ""
     if book.clean_file_path and os.path.exists(book.clean_file_path):
         with open(book.clean_file_path, "r", encoding="utf-8") as f:
             data = json.load(f)
-        text = data.get("contenuto", data.get("text", data.get("content", "")))
+        text = extract_text_content(data)
 
     raw_text = ""
     if book.raw_file_path and os.path.exists(book.raw_file_path):
@@ -60,7 +50,7 @@ def get_book_text(book_id: int, db: Session = Depends(get_db)):
             if book.raw_file_path.endswith(".json"):
                 try:
                     raw_data = json.load(f)
-                    raw_text = raw_data.get("contenuto", raw_data.get("text", raw_data.get("content", "")))
+                    raw_text = extract_text_content(raw_data)
                 except Exception:
                     f.seek(0)
                     raw_text = f.read()
@@ -86,7 +76,7 @@ def get_book_text(book_id: int, db: Session = Depends(get_db)):
 @router.get("/api/books/{book_id}/ner")
 def get_book_ner(book_id: int, db: Session = Depends(get_db)):
     """Restituisce i risultati NER del libro."""
-    book = _get_book_or_404(book_id, db)
+    book = get_book_or_404(book_id, db)
     if not book.ner_file_path or not os.path.exists(book.ner_file_path):
         raise HTTPException(404, "NER non ancora eseguito.")
     with open(book.ner_file_path, "r", encoding="utf-8") as f:
@@ -101,7 +91,7 @@ def get_book_ner(book_id: int, db: Session = Depends(get_db)):
 @router.get("/api/books/{book_id}/chunks")
 def get_book_chunks(book_id: int, db: Session = Depends(get_db)):
     """Tutti i chunk semantici del libro."""
-    book = _get_book_or_404(book_id, db)
+    book = get_book_or_404(book_id, db)
     if not book.chunk_manifest_path or not os.path.exists(book.chunk_manifest_path):
         raise HTTPException(404, "Chunk manifest non disponibile.")
     chunk_dir = os.path.dirname(book.chunk_manifest_path)
@@ -115,7 +105,7 @@ def get_book_chunks(book_id: int, db: Session = Depends(get_db)):
 @router.get("/api/books/{book_id}/semantic-chunks")
 def get_semantic_chunks(book_id: int, method: str = "embed", db: Session = Depends(get_db)):
     """Restituisce i chunk semantici per il metodo specificato (embed/ner)."""
-    book = _get_book_or_404(book_id, db)
+    book = get_book_or_404(book_id, db)
     filename_no_ext = os.path.splitext(book.filename)[0]
     
     subdir = "embed_method" if method == "embed" else "ner_method"
@@ -134,7 +124,7 @@ def get_semantic_chunks(book_id: int, method: str = "embed", db: Session = Depen
 @router.get("/api/books/{book_id}/chapters/{chapter_id}/chunks")
 def get_chapter_chunks(book_id: int, chapter_id: int, db: Session = Depends(get_db)):
     """Tutti i chunk semantici di un singolo capitolo."""
-    book = _get_book_or_404(book_id, db)
+    book = get_book_or_404(book_id, db)
     filename_no_ext = os.path.splitext(book.filename)[0]
     chapter_dir = os.path.join(CHAPTERS_DIR, filename_no_ext, str(chapter_id))
     if not os.path.exists(chapter_dir):
