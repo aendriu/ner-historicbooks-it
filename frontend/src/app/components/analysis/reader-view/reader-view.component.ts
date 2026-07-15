@@ -1,4 +1,4 @@
-import { Component, input, output, signal, computed } from '@angular/core';
+import { Component, input, output, signal, computed, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
@@ -12,6 +12,7 @@ import { ApiService } from '../../../services/api.service';
   selector: 'app-reader-view',
   standalone: true,
   imports: [CommonModule, FormsModule],
+  encapsulation: ViewEncapsulation.None,
   template: `
     <div class="page-header" style="display:flex; align-items:center; justify-content:space-between;">
       <div>
@@ -39,15 +40,27 @@ import { ApiService } from '../../../services/api.service';
 
         <!-- EMBED: capitoli reali -->
         <ng-container *ngIf="readerMethod === 'embed'">
-          <div *ngFor="let ch of filteredChaptersForReader()"
-               class="chapter-item"
-               [class.active]="selectedReaderChapter()?.id === ch.id"
-               (click)="selectReaderChapter(ch)">
-            {{ ch.title || 'Capitolo ' + ch.chapter_id_num }}
-          </div>
-          <div *ngIf="!loading() && !chaptersData()?.length" class="empty-state" style="padding:1rem;">
-            Nessun capitolo trovato. Esegui prima il chapter grouping.
-          </div>
+          <!-- DB chapters -->
+          <ng-container *ngIf="chaptersData()?.length">
+            <div *ngFor="let ch of filteredChaptersForReader()"
+                 class="chapter-item"
+                 [class.active]="selectedReaderChapter()?.id === ch.id"
+                 (click)="selectReaderChapter(ch)">
+              {{ ch.title || 'Capitolo ' + ch.chapter_id_num }}
+            </div>
+          </ng-container>
+          <!-- Fallback: sezioni da chunk semantici -->
+          <ng-container *ngIf="!chaptersData()?.length">
+            <div *ngFor="let sec of filteredEmbedSections()"
+                 class="chapter-item"
+                 [class.active]="selectedNerSection() === sec.sectionNum"
+                 (click)="selectNerSection(sec)">
+              {{ sec.label }}
+            </div>
+            <div *ngIf="!loading() && !embedSections().length" class="empty-state" style="padding:1rem;">
+              Nessun capitolo trovato. Esegui prima il chunking semantico.
+            </div>
+          </ng-container>
         </ng-container>
 
         <!-- NER: sezioni grezze -->
@@ -67,10 +80,12 @@ import { ApiService } from '../../../services/api.service';
       <!-- Text content -->
       <div class="reader-content">
         <ng-container *ngIf="readerMethod === 'embed'">
-          <div *ngIf="!selectedReaderChapter()" class="empty-state" style="padding:3rem;">
+          <div *ngIf="!selectedReaderChapter() && selectedNerSection() === null" class="empty-state" style="padding:3rem;">
             ← Seleziona un capitolo dalla lista per leggere il testo
           </div>
-          <ng-container *ngIf="selectedReaderChapter()">
+          
+          <!-- DB Chapter Content -->
+          <ng-container *ngIf="chaptersData()?.length && selectedReaderChapter()">
             <h3>{{ selectedReaderChapter()!.title || 'Capitolo ' + selectedReaderChapter()!.chapter_id_num }}</h3>
             <div class="legend">
               <span *ngFor="let lbl of entityLabels" class="badge" [ngClass]="getEntClass(lbl)" style="pointer-events:none; font-size:0.72rem;">{{ labelName(lbl) }}</span>
@@ -87,6 +102,28 @@ import { ApiService } from '../../../services/api.service';
               </div>
             </div>
             <div *ngIf="readerLoading()" class="loading-state">⏳ Caricamento del capitolo...</div>
+            <div *ngIf="!readerLoading()" [innerHTML]="renderedChapterHtml()" class="text-block"></div>
+            <div *ngIf="!readerLoading() && chunkTexts().length === 0" class="empty-state">Nessun testo trovato per questo capitolo.</div>
+          </ng-container>
+
+          <!-- Fallback Semantic Chunks Content -->
+          <ng-container *ngIf="!chaptersData()?.length && selectedNerSection() !== null">
+            <h3>{{ embedSections()[selectedNerSection()! - 1]?.label || 'Capitolo ' + selectedNerSection() }}</h3>
+            <div class="legend">
+              <span *ngFor="let lbl of entityLabels" class="badge" [ngClass]="getEntClass(lbl)" style="pointer-events:none; font-size:0.72rem;">{{ labelName(lbl) }}</span>
+            </div>
+            <div class="entity-accordion" *ngIf="!readerLoading() && chapterEntities().length">
+              <div class="accordion-header" (click)="entitiesOpen = !entitiesOpen">
+                <span>🏷️ Entità di questo capitolo ({{ chapterEntities().length }} distinte)</span>
+                <span>{{ entitiesOpen ? '▲' : '▼' }}</span>
+              </div>
+              <div class="accordion-body" *ngIf="entitiesOpen">
+                <span *ngFor="let e of chapterEntities()" class="accordion-tag" [ngClass]="getEntClass(e.label)" [title]="e.label">
+                  <span style="opacity:0.6;font-size:0.68rem;">{{ e.label }}</span> {{ e.word }}
+                </span>
+              </div>
+            </div>
+            <div *ngIf="readerLoading()" class="loading-state">⏳ Caricamento...</div>
             <div *ngIf="!readerLoading()" [innerHTML]="renderedChapterHtml()" class="text-block"></div>
             <div *ngIf="!readerLoading() && chunkTexts().length === 0" class="empty-state">Nessun testo trovato per questo capitolo.</div>
           </ng-container>
@@ -132,6 +169,7 @@ export class ReaderViewComponent {
   selectedReaderChapter = signal<Chapter | null>(null);
   selectedNerSection = signal<number | null>(null);
   nerSections = signal<NerSection[]>([]);
+  embedSections = signal<NerSection[]>([]);
   chunkTexts = signal<ReaderChunk[]>([]);
   chapterSearch = '';
   entitiesOpen = false;
@@ -148,6 +186,13 @@ export class ReaderViewComponent {
     const q = this.chapterSearch.toLowerCase().trim();
     if (!q) return chapters;
     return chapters.filter(c => (c.title || '').toLowerCase().includes(q) || String(c.chapter_id_num).includes(q));
+  });
+
+  filteredEmbedSections = computed(() => {
+    const secs = this.embedSections();
+    const q = this.chapterSearch.toLowerCase().trim();
+    if (!q) return secs;
+    return secs.filter(s => s.label.toLowerCase().includes(q));
   });
 
   filteredNerSections = computed(() => {
@@ -225,14 +270,24 @@ export class ReaderViewComponent {
     this.selectedNerSection.set(null);
     this.chunkTexts.set([]);
     this.entitiesOpen = false;
+    if (this.readerMethod === 'embed' && !this.chaptersData()?.length && !this.embedSections().length) {
+      this.loadSections('embed');
+    }
     if (this.readerMethod === 'ner' && !this.nerSections().length) {
-      this.loadNerSections();
+      this.loadSections('ner');
     }
   }
 
-  loadNerSections() {
+  ngOnInit() {
+    // Auto-load embed sections if no DB chapters
+    if (!this.chaptersData()?.length) {
+      this.loadSections('embed');
+    }
+  }
+
+  loadSections(method: 'embed' | 'ner') {
     this.readerLoading.set(true);
-    this.api.getSemanticChunks(this.bookId(), 'ner').subscribe({
+    this.api.getSemanticChunks(this.bookId(), method).subscribe({
       next: (chunks: SemanticChunk[]) => {
         const groups = new Map<number, NerSection>();
         for (const c of chunks) {
@@ -245,11 +300,19 @@ export class ReaderViewComponent {
         }
         const sorted = Array.from(groups.values()).sort((a, b) => a.sectionNum - b.sectionNum);
         sorted.forEach((s, i) => { s.label = `Capitolo ${i + 1}`; });
-        this.nerSections.set(sorted);
+        if (method === 'embed') {
+          this.embedSections.set(sorted);
+        } else {
+          this.nerSections.set(sorted);
+        }
         this.readerLoading.set(false);
       },
       error: () => {
-        this.nerSections.set([]);
+        if (method === 'embed') {
+          this.embedSections.set([]);
+        } else {
+          this.nerSections.set([]);
+        }
         this.readerLoading.set(false);
       }
     });

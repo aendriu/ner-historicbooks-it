@@ -35,7 +35,7 @@ const API_BASE = 'http://localhost:8000/api';
         </div>
 
         <div class="input-group" style="margin-top: 1.25rem;">
-          <label for="ollama-model-input">✍️ Modello per i Riassunti (Livello 2)</label>
+          <label for="ollama-model-input">✍️ Modello per i Riassunti dei Capitoli</label>
           <input type="text"
           id="ollama-model-input"
           class="config-input"
@@ -45,16 +45,6 @@ const API_BASE = 'http://localhost:8000/api';
           <span class="field-hint">Modello usato per riassumere ogni singolo capitolo semantico (deve essere già scaricato con <code>ollama pull</code>).</span>
         </div>
 
-        <div class="input-group" style="margin-top: 1.25rem;">
-          <label for="ollama-model-global-input">🌐 Modello per la Sinossi Globale (Livello 0)</label>
-          <input type="text"
-          id="ollama-model-global-input"
-          class="config-input"
-          [(ngModel)]="ollamaModelGlobal"
-          (keyup.enter)="testAndSave()"
-          placeholder="Lascia vuoto per usare lo stesso modello dei riassunti">
-          <span class="field-hint">Modello usato per sintetizzare tutti i riassunti in un'unica sinossi dell'opera. Usa un modello più grande per risultati migliori.</span>
-        </div>
 
         <div class="input-group" style="margin-top: 1.25rem;">
           <label for="ollama-embed-input">🧩 Modello Embedding (Chunking Semantico)</label>
@@ -106,7 +96,7 @@ export class ApiConfigComponent implements OnInit {
   isVisible = false;
   ollamaUrl         = '';
   ollamaModel       = 'qwen2.5:3b';
-  ollamaModelGlobal = '';
+
   ollamaEmbedModel  = 'bge-m3';
   nerModel = 'aendriu/bert-ner-italian-historical';
   testing    = false;
@@ -131,7 +121,7 @@ export class ApiConfigComponent implements OnInit {
   openModal() {
     this.ollamaUrl         = localStorage.getItem('OLLAMA_BASE_URL')       || '';
     this.ollamaModel       = localStorage.getItem('OLLAMA_MODEL')           || 'qwen2.5:3b';
-    this.ollamaModelGlobal = localStorage.getItem('OLLAMA_MODEL_GLOBAL')   || '';
+
     this.ollamaEmbedModel  = localStorage.getItem('OLLAMA_EMBED_MODEL')    || 'bge-m3';
     this.isVisible = true;
     // Carica i valori aggiornati dal backend
@@ -139,7 +129,7 @@ export class ApiConfigComponent implements OnInit {
       next: (res) => {
         if (res.host)         this.ollamaUrl         = res.host;
         if (res.model)        this.ollamaModel       = res.model;
-        if (res.model_global !== undefined) this.ollamaModelGlobal = res.model_global;
+
         if (res.embed_model)  this.ollamaEmbedModel  = res.embed_model;
         if (res.ner_model)    this.nerModel           = res.ner_model;
       },
@@ -165,7 +155,7 @@ export class ApiConfigComponent implements OnInit {
       host: url,
       port: '443',
       model: this.ollamaModel.trim(),
-      model_global: this.ollamaModelGlobal.trim(),
+
       embed_model: this.ollamaEmbedModel.trim()
     };
     this.http.post(`${API_BASE}/settings/ollama`, payload)
@@ -180,7 +170,7 @@ export class ApiConfigComponent implements OnInit {
         next: () => {
           localStorage.setItem('OLLAMA_BASE_URL',    url);
           localStorage.setItem('OLLAMA_MODEL',       this.ollamaModel);
-          localStorage.setItem('OLLAMA_MODEL_GLOBAL',this.ollamaModelGlobal);
+
           localStorage.setItem('OLLAMA_EMBED_MODEL', this.ollamaEmbedModel);
           this.saveSuccess = true;
           setTimeout(() => { this.isVisible = false; this.saveSuccess = false; }, 1500);

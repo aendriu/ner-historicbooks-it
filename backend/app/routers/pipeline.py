@@ -552,7 +552,7 @@ def run_summarize(
             progress_store[progress_key] = {
                 "status": "running",
                 "logs": [
-                    f"🤖 LLM: {settings.OLLAMA_HOST} | modello: {settings.OLLAMA_MODEL}",
+                    f"🤖 LLM Pipeline: {settings.OLLAMA_HOST} | modello: {settings.OLLAMA_MODEL}",
                     f"Avvio Hierarchical Summarization ({method.upper()})...",
                 ],
             }

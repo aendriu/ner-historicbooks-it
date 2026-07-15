@@ -1,5 +1,18 @@
 :host { display: block; height: 100vh; background: var(--bg-base); }
 
+/* Sub-component hosts must fill the flex parent */
+app-ocr-view,
+app-ner-view,
+app-reader-view,
+app-summaries-view,
+app-compare-view {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
 /* ── Layout ── */
 .layout-wrapper {
   display: flex; flex-direction: row;
@@ -109,7 +122,11 @@
 .bar-item .count { font-size: 0.78rem; color: var(--text-muted); min-width: 28px; text-align: right; }
 
 /* entity chip list */
-.chip-list { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.chip-list {
+  display: flex; flex-wrap: wrap; gap: 0.4rem;
+  max-height: 45vh; overflow-y: auto;
+  padding-right: 0.25rem;
+}
 .ent-chip {
   display: inline-flex; flex-direction: column; gap: 0.15rem;
   padding: 0.4rem 0.65rem; border-radius: 8px; border: 1px solid currentColor;

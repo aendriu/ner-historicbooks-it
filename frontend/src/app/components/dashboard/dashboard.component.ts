@@ -46,7 +46,7 @@ import { Subscription, timer } from 'rxjs';
         <button class="w-btn w-btn-primary" [disabled]="running() || !state.hasBook()" (click)="openChunkingModal()">
           Chunking semantico
         </button>
-        <button class="w-btn w-btn-primary" [disabled]="running() || !state.hasBook()" (click)="runPhase('summaries')">
+        <button class="w-btn w-btn-primary" [disabled]="running() || !state.hasBook()" (click)="openSummaryModal()">
           Riassunti
         </button>
       </div>
@@ -188,6 +188,40 @@ import { Subscription, timer } from 'rxjs';
         </div>
       </div>
     </div>
+
+    <!-- Summary Method Modal -->
+    <div *ngIf="showSummaryModal()" class="modal-overlay">
+      <div class="modal-content" style="width: 480px;">
+        <h2 class="text-xl font-bold" style="color: var(--text-primary);">📝 Metodo di Riassunto</h2>
+        <p class="text-sm mt-2" style="color: var(--text-muted); line-height: 1.6;">
+          Scegli su quali capitoli semantici generare i riassunti. I riassunti verranno salvati separatamente per ogni metodo e potranno essere confrontati nella sezione Analisi.
+        </p>
+
+        <div class="mt-5" style="display: flex; flex-direction: column; gap: 0.75rem;">
+          <div (click)="selectedSummaryMethod.set('embed')" style="padding:1rem; border-radius:10px; cursor:pointer; border: 2px solid; transition: all 0.15s;"
+               [style.border-color]="selectedSummaryMethod() === 'embed' ? 'var(--accent)' : 'var(--border)'"
+               [style.background]="selectedSummaryMethod() === 'embed' ? 'rgba(99,102,241,0.07)' : 'var(--bg-base)'">
+            <div style="font-weight:700; color: var(--text-primary);">🔢 Capitoli da Embedding</div>
+            <div style="font-size:0.78rem; color:var(--text-muted); margin-top:0.25rem;">Usa i capitoli semantici generati dal chunking basato su embedding vettoriale.</div>
+          </div>
+          <div (click)="selectedSummaryMethod.set('ner')" style="padding:1rem; border-radius:10px; cursor:pointer; border: 2px solid; transition: all 0.15s;"
+               [style.border-color]="selectedSummaryMethod() === 'ner' ? 'var(--accent)' : 'var(--border)'"
+               [style.background]="selectedSummaryMethod() === 'ner' ? 'rgba(99,102,241,0.07)' : 'var(--bg-base)'">
+            <div style="font-weight:700; color: var(--text-primary);">🏷️ Capitoli da NER</div>
+            <div style="font-size:0.78rem; color:var(--text-muted); margin-top:0.25rem;">Usa i capitoli semantici generati dal chunking basato sulle entità nominate (NER).</div>
+          </div>
+        </div>
+
+        <div class="flex justify-end gap-3 mt-6">
+          <button class="w-btn" style="width:auto; background:transparent; border:1px solid var(--border); color:var(--text-primary);" (click)="showSummaryModal.set(false)">
+            Annulla
+          </button>
+          <button class="w-btn w-btn-accent" style="width:auto" (click)="confirmSummary()">
+            Avvia riassunti
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
   `
 })
@@ -217,6 +251,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
   // Chunking method modal
   showChunkingModal = signal(false);
   selectedChunkMethod = signal<'embed' | 'ner'>('embed');
+
+  // Summary method modal
+  showSummaryModal = signal(false);
+  selectedSummaryMethod = signal<'embed' | 'ner'>('embed');
 
   constructor(
     public state: BookStateService,
@@ -375,15 +413,15 @@ export class DashboardComponent implements OnInit, OnDestroy {
         case 'clean': return this.api.runClean(book.id);
         case 'ner': return this.api.runNer(book.id);
         case 'chunking': return this.api.runChunking(book.id, this.selectedChunkMethod());
-        case 'summaries': return this.api.runSummarize(book.id, 'embed');
+        case 'summaries': return this.api.runSummarize(book.id, this.selectedSummaryMethod());
         default: return this.api.runAll(book.id);
       }
     };
 
     callApi().subscribe({
       next: () => {
-        // Il backend usa chiave diversa per i riassunti: '{id}_summarize_embed'
-        const progressKey = phase === 'summaries' ? 'summarize_embed' : phase;
+        // Il backend usa chiave diversa per i riassunti: '{id}_summarize_{method}'
+        const progressKey = phase === 'summaries' ? `summarize_${this.selectedSummaryMethod()}` : phase;
         this.startProgressPolling(book.id, progressKey, finish);
       },
       error: (e) => {
@@ -407,6 +445,21 @@ export class DashboardComponent implements OnInit, OnDestroy {
   confirmChunking() {
     this.showChunkingModal.set(false);
     this.runPhase('chunking');
+  }
+
+  openSummaryModal() {
+    const book = this.state.selectedBook();
+    if (!book) return;
+    if (!book.has_chunks) {
+      this.showError('Esegui prima il Chunking Semantico!');
+      return;
+    }
+    this.showSummaryModal.set(true);
+  }
+
+  confirmSummary() {
+    this.showSummaryModal.set(false);
+    this.runPhase('summaries');
   }
 
   startProgressPolling(bookId: number, phase: string, onComplete: () => void) {

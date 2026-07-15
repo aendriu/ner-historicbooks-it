@@ -43,11 +43,16 @@ def _get_ollama_embeddings(texts: list[str]) -> np.ndarray:
         host = f"http://{host}:{settings.OLLAMA_PORT}"
     url = f"{host}/api/embed"
     model = settings.EMBED_MODEL   # letto a runtime → aggiornabile senza restart
+
+    BATCH_SIZE = 50
+    all_embeddings = []
     try:
-        r = requests.post(url, json={"model": model, "input": texts}, timeout=120)
-        r.raise_for_status()
-        embeddings = r.json()["embeddings"]
-        return np.array(embeddings, dtype=np.float32)
+        for i in range(0, len(texts), BATCH_SIZE):
+            batch = texts[i:i + BATCH_SIZE]
+            r = requests.post(url, json={"model": model, "input": batch}, timeout=120)
+            r.raise_for_status()
+            all_embeddings.extend(r.json()["embeddings"])
+        return np.array(all_embeddings, dtype=np.float32)
     except Exception as e:
         raise RuntimeError(f"Ollama embedding fallito: {e}") from e
 
@@ -224,7 +229,7 @@ def find_semantic_boundaries(paragraphs):
     if len(paragraphs) < 3:
         return []
     texts = [p["text"] for p in paragraphs]
-    logger.info(f"Calcolo embedding per {len(texts)} paragrafi con {SEMANTIC_EMBEDDING_MODEL} via Ollama...")
+    logger.info(f"Calcolo embedding per {len(texts)} paragrafi con {settings.EMBED_MODEL} via Ollama...")
     embeddings = _get_ollama_embeddings(texts)
     boundaries = []
     for i in range(len(embeddings) - 1):

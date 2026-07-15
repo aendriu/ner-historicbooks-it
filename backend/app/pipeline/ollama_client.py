@@ -127,19 +127,14 @@ class OllamaClient:
     ) -> str:
         """Genera testo con contesto e output estesi per il riassunto globale (Livello 0).
 
-        Usa OLLAMA_MODEL_GLOBAL se configurato, altrimenti cade su OLLAMA_MODEL.
-
-        Args:
-            prompt: il prompt da inviare al modello.
-            model: nome del modello (default: OLLAMA_MODEL_GLOBAL o OLLAMA_MODEL).
+            model: nome del modello (default: OLLAMA_MODEL).
             timeout: timeout della richiesta HTTP in secondi.
 
         Returns:
             Testo generato, ripulito dai blocchi di thinking.
         """
         if model is None:
-            model_global = getattr(settings, "OLLAMA_MODEL_GLOBAL", "").strip()
-            model = model_global if model_global else settings.OLLAMA_MODEL
+            model = settings.OLLAMA_MODEL
 
         return self.generate(
             prompt,

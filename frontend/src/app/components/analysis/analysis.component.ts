@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, ViewChild } from '@angular/core';
+import { Component, OnInit, signal, ViewChild, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -24,6 +24,7 @@ import { CompareViewComponent } from './compare-view/compare-view.component';
     SummariesViewComponent, CompareViewComponent
   ],
   styleUrl: './analysis.component.scss',
+  encapsulation: ViewEncapsulation.None,
   template: `
   <div class="layout-wrapper">
 
@@ -75,7 +76,11 @@ import { CompareViewComponent } from './compare-view/compare-view.component';
         [summariesData]="summariesData()"
         [bookGlobalSummary]="bookGlobalSummary()"
         [selectedSummaryModel]="selectedSummaryModel()"
-        (onModelSwitch)="switchSummaryModel($event)">
+        [selectedChunkMethod]="selectedSummaryChunkMethod()"
+        [embedAvailable]="embedSummariesData() !== null"
+        [nerAvailable]="nerSummariesData() !== null"
+        (onModelSwitch)="switchSummaryModel($event)"
+        (onChunkMethodSwitch)="switchSummaryChunkMethod($event)">
       </app-summaries-view>
 
       <app-compare-view *ngIf="view() === 'compare'"
@@ -97,6 +102,12 @@ export class AnalysisComponent implements OnInit {
 
   summariesData = signal<SummariesResponse | null>(null);
   selectedSummaryModel = signal<string | null>(null);
+
+  // Riassunti per entrambi i metodi di chunking, caricati in parallelo
+  embedSummariesData = signal<SummariesResponse | null>(null);
+  nerSummariesData   = signal<SummariesResponse | null>(null);
+  // Metodo di chunking attualmente visualizzato nella tab riassunti
+  selectedSummaryChunkMethod = signal<'embed' | 'ner'>('embed');
 
   bookId = signal<number>(0);
 
@@ -124,32 +135,91 @@ export class AnalysisComponent implements OnInit {
   loadData(bookId: number) {
     this.loading.set(true);
     let loaded = 0;
-    const done = () => { if (++loaded === 4) this.loading.set(false); };
+    const done = () => { if (++loaded === 5) this.loading.set(false); };
 
     this.api.getBookText(bookId).subscribe({ next: d => { this.textData.set(d); done(); }, error: done });
     this.api.getNer(bookId).subscribe({ next: d => { this.nerData.set(d); done(); }, error: () => { this.nerData.set(null); done(); } });
     this.api.getChapters(bookId).subscribe({ next: d => { this.chaptersData.set(d); done(); }, error: () => { this.chaptersData.set(null); done(); } });
+
+    // Carica riassunti embed
     this.api.getSummaries(bookId, 'embed').subscribe({
       next: d => {
-        this.summariesData.set(d);
-        this.bookGlobalSummary.set(d.global_summary || null);
-        this.selectedSummaryModel.set(d.current_model_file?.replace('summaries_', '').replace('.json', '').replace(/_/g, '.') ?? null);
+        this.embedSummariesData.set(d);
+        // embed è il metodo di default: attiva subito se è il selezionato
+        if (this.selectedSummaryChunkMethod() === 'embed') {
+          this._applySummaryData(d);
+        }
         done();
       },
-      error: () => { this.summariesData.set(null); this.bookGlobalSummary.set(null); done(); }
+      error: () => {
+        this.embedSummariesData.set(null);
+        // se embed non c'è, prova NER come fallback
+        if (this.selectedSummaryChunkMethod() === 'embed' && this.nerSummariesData()) {
+          this._applySummaryData(this.nerSummariesData()!);
+          this.selectedSummaryChunkMethod.set('ner');
+        }
+        done();
+      }
     });
+
+    // Carica riassunti NER in parallelo
+    this.api.getSummaries(bookId, 'ner').subscribe({
+      next: d => {
+        this.nerSummariesData.set(d);
+        // Attiva NER se embed non era disponibile e si era in embed
+        if (this.embedSummariesData() === null) {
+          this._applySummaryData(d);
+          this.selectedSummaryChunkMethod.set('ner');
+        }
+        done();
+      },
+      error: () => { this.nerSummariesData.set(null); done(); }
+    });
+  }
+
+  /** Promuove un SummariesResponse come dato correntemente visualizzato. */
+  private _applySummaryData(d: SummariesResponse) {
+    this.summariesData.set(d);
+    this.bookGlobalSummary.set(d.global_summary || null);
+    this.selectedSummaryModel.set(
+      d.current_model_file?.replace('summaries_', '').replace('.json', '').replace(/_/g, '.') ?? null
+    );
   }
 
   switchSummaryModel(model: string) {
     const bookId = this.bookId();
+    const method = this.selectedSummaryChunkMethod();
     if (!bookId || this.selectedSummaryModel() === model) return;
-    this.api.getSummaries(bookId, 'embed', model).subscribe({
+    this.api.getSummaries(bookId, method, model).subscribe({
       next: d => {
-        this.summariesData.set(d);
-        this.bookGlobalSummary.set(d.global_summary || null);
+        this._applySummaryData(d);
         this.selectedSummaryModel.set(model);
+        // aggiorna la cache del metodo corrente
+        if (method === 'embed') this.embedSummariesData.set(d);
+        else this.nerSummariesData.set(d);
       }
     });
+  }
+
+  /** Cambia il metodo di chunking su cui visualizzare i riassunti (embed ↔ ner). */
+  switchSummaryChunkMethod(method: 'embed' | 'ner') {
+    if (this.selectedSummaryChunkMethod() === method) return;
+    this.selectedSummaryChunkMethod.set(method);
+    const cached = method === 'embed' ? this.embedSummariesData() : this.nerSummariesData();
+    if (cached) {
+      // già in cache: switch immediato, nessuna chiamata API
+      this._applySummaryData(cached);
+    } else {
+      // non ancora caricato: fetch on demand
+      this.api.getSummaries(this.bookId(), method).subscribe({
+        next: d => {
+          if (method === 'embed') this.embedSummariesData.set(d);
+          else this.nerSummariesData.set(d);
+          this._applySummaryData(d);
+        },
+        error: () => { this.summariesData.set(null); this.bookGlobalSummary.set(null); }
+      });
+    }
   }
 
   goBack() { this.router.navigate(['/']); }

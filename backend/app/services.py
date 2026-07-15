@@ -19,7 +19,7 @@ def _run_c_cleaner(input_path: str, output_path: str, book_id: int) -> bool:
     """Esegue il binario C di pulizia su un singolo file, usando directory temporanee."""
     filename = os.path.basename(input_path)
     filename_no_ext = os.path.splitext(filename)[0]
-    bin_path = os.path.abspath(os.path.join(BASE_DIR, "app", "ocr", "c_cleaner", "bin", "ocr_cleaner"))
+    bin_path = os.path.abspath(os.path.join(BASE_DIR, "app", "pipeline", "c_cleaner", "bin", "ocr_cleaner"))
 
     tmp_in = os.path.join(DATA_DIR, "cleaned", f"tmp_in_{book_id}")
     tmp_out = os.path.join(DATA_DIR, "cleaned", f"tmp_out_{book_id}")
@@ -87,7 +87,7 @@ def process_book_pipeline(book_id: int, db: Session, progress_cb=None):
         # ── FASE 1: OCR CLEANING (LLM Ollama + C-Cleaner) ──
         book.status = BookStatus.OCR_CLEANING
         db.commit()
-        _run_ocr_phase(book, db, progress_cb=progress_cb)
+        cleaned_path = _run_ocr_phase(book, db, progress_cb=progress_cb)
 
         # ── FASE 2: NER EXTRACTION ──
         book.status = BookStatus.NER_EXTRACTION

@@ -2,17 +2,16 @@ services:
   backend:
     build:
       context: ./backend
-    container_name: tirocinio-backend-demo
+    container_name: tirocinio-backend
     ports:
       - "8000:8000"
     environment:
-      - OLLAMA_HOST=ollama
       - OLLAMA_PORT=11434
-      - OLLAMA_MODEL=qwen2.5:3b
+      - OLLAMA_MODEL=qwen3.5:9b
       - NER_SCORE_THRESHOLD=0.65
       - SEMANTIC_SIMILARITY_THRESHOLD=0.5
     env_file:
-      - ./.env.example
+      - ./.env
     volumes:
       - ./backend/data:/app/data
     restart: unless-stopped
@@ -20,7 +19,7 @@ services:
   frontend:
     build:
       context: ./frontend
-    container_name: tirocinio-frontend-demo
+    container_name: tirocinio-frontend
     ports:
       - "80:80"
     depends_on:

@@ -1,4 +1,4 @@
-import { Component, input } from '@angular/core';
+import { Component, input, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { BookTextData } from '../../../models/models';
 
@@ -6,6 +6,7 @@ import { BookTextData } from '../../../models/models';
   selector: 'app-ocr-view',
   standalone: true,
   imports: [CommonModule],
+  encapsulation: ViewEncapsulation.None,
   template: `
     <div class="page-header">
       <h2>🔍 Analisi Pulizia OCR</h2>

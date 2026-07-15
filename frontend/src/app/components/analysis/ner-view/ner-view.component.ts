@@ -1,4 +1,4 @@
-import { Component, input, signal, computed, effect, ViewChild, ElementRef } from '@angular/core';
+import { Component, input, signal, computed, effect, ViewChild, ElementRef, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NerResult, ENTITY_COLORS, ENTITY_CSS_CLASSES } from '../../../models/models';
@@ -10,6 +10,7 @@ Chart.register(...registerables);
   selector: 'app-ner-view',
   standalone: true,
   imports: [CommonModule, FormsModule],
+  encapsulation: ViewEncapsulation.None,
   template: `
     <div class="page-header">
       <h2>🏷️ Entità Storiche (NER)</h2>

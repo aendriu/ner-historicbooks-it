@@ -18,7 +18,6 @@ class Settings:
             self.OLLAMA_HOST = "localhost"
         self.OLLAMA_PORT: str = os.getenv("OLLAMA_PORT", "11434")
         self.OLLAMA_MODEL: str = os.getenv("OLLAMA_MODEL", "qwen2.5:3b")
-        self.OLLAMA_MODEL_GLOBAL: str = os.getenv("OLLAMA_MODEL_GLOBAL", "")  # se vuoto usa OLLAMA_MODEL
         self.EMBED_MODEL: str = os.getenv("SEMANTIC_EMBEDDING_MODEL", "bge-m3")
 
     def get_base_url(self) -> str:

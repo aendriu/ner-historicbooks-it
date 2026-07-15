@@ -15,7 +15,7 @@ Il sistema pulisce gli errori di digitalizzazione, estrae entità storiche (pers
   - [Fase 1 — Pulizia OCR](#fase-1--pulizia-ocr)
   - [Fase 2 — Estrazione Entità (NER)](#fase-2--estrazione-entità-ner)
   - [Fase 3 — Chunking Semantico e Capitoli](#fase-3--chunking-semantico-e-capitoli)
-  - [Fase 4 — Riassunti AI (Livello 0)](#fase-4--riassunti-ai-livello-0)
+  - [Fase 4 — Riassunti AI (Sinossi Globale)](#fase-4--riassunti-ai-sinossi-globale)
 - [Valutazione della Pipeline](#valutazione-della-pipeline)
   - [Valutazione NER (Fase 2)](#valutazione-ner-fase-2)
   - [Valutazione Chunking (Fase 3)](#valutazione-chunking-fase-3)
@@ -168,11 +168,13 @@ Metodo alternativo basato sull'overlap di entità NER tra blocchi consecutivi:
 
 I chunk semantici vengono raggruppati in **capitoli semantici** in base al loro `topic_hint`: chunk consecutivi con lo stesso argomento di base (es. tutti i sotto-chunk di `"Capitolo Semantico 5"`) vengono uniti in un unico capitolo. Se il testo contiene capitoli espliciti (es. `CAPITOLO I`), questi vengono rispettati come confini naturali. Il risultato è un insieme di capitoli semantici con numero variabile di chunk (mediamente 5–15 chunk per capitolo).
 
-### Fase 4 — Riassunti AI (Livello 0)
+### Fase 4 — Riassunti AI (Sinossi Globale)
 
-La fase 4 implementa una **Hierarchical Summarization** per produrre il riassunto di Livello 0 dell'opera — il riassunto più alto e completo che copre l'intera narrativa.
+La fase 4 implementa una **Hierarchical Summarization** con architettura **Map-Reduce gerarchica** per produrre la Sinossi Globale dell'opera — il riassunto più alto e completo che copre l'intera narrativa.
 
 #### Architettura della pipeline di riassunto
+
+Per libri brevi (≤ 10 capitoli), la sinossi viene generata direttamente dai riassunti dei capitoli. Per libri lunghi (> 10 capitoli), viene attivata una **fase intermedia a macro-capitoli** che evita di sovraccaricare l'LLM con decine di riassunti in una singola chiamata.
 
 ```
 996 chunk semantici
@@ -180,19 +182,24 @@ La fase 4 implementa una **Hierarchical Summarization** per produrre il riassunt
         ▼ (raggruppamento per topic_hint)
 115 capitoli semantici
         │
-        ▼ (1 chiamata Ollama per capitolo)
-115 riassunti di capitolo  ← Livello 2
+        ▼ (Fase 1: 1 chiamata Ollama per capitolo)
+115 riassunti di capitolo
         │
-        ▼ (1 chiamata Ollama con tutti i riassunti)
-Sinossi globale dell'opera  ← Livello 0
+        ▼ (Fase 2: raggruppamento in blocchi da 6)
+ 19 macro-capitoli                      ← solo per libri lunghi (>10 capitoli)
+        │
+        ▼ (Fase 3: 1 chiamata Ollama con i macro-riassunti)
+Sinossi globale dell'opera
 ```
 
 #### Dettagli tecnici
 
-- **Modello per capitoli (L2)**: `qwen3.5:4b` via Ollama (esecuzione locale, zero costi API)
-- **Modello per sinossi globale (L0)**: configurabile separatamente con `OLLAMA_MODEL_GLOBAL` (es. `qwen3.5:8b` per risultati migliori)
+- **Modello per capitoli**: `qwen3.5:4b` via Ollama (esecuzione locale, zero costi API)
+- **Modello per sinossi globale**: configurabile separatamente con `OLLAMA_MODEL_GLOBAL` (es. `qwen3.5:8b` per risultati migliori)
 - **Contesto per capitolo**: 8.192 token
-- **Contesto per Livello 0**: 32.768 token (tutti i riassunti di capitolo in una singola chiamata)
+- **Contesto per Sinossi Globale**: 32.768 token con output fino a 16.384 token
+- **Soglia macro-capitoli**: `MACRO_THRESHOLD = 10` (libri con più di 10 capitoli attivano la fase intermedia)
+- **Dimensione macro-capitolo**: `MACRO_BATCH_SIZE = 6` (ogni macro-capitolo raggruppa 6 riassunti consecutivi)
 - **Esecuzione**: sequenziale per evitare saturazione VRAM
 
 #### Metrica di valutazione: NER Retention
@@ -203,7 +210,7 @@ Per ogni capitolo viene calcolata la **NER Retention**: la percentuale di entit�
 NER Retention = (entità sopravvissute nel riassunto) / (entità totali nel testo) × 100
 ```
 
-Oltre alla retention per singolo capitolo, viene calcolata anche la **NER Retention Globale**: quante delle entità uniche dell'intero libro compaiono nella sinossi di Livello 0. Nell'interfaccia web è visualizzata con un badge colorato (🟢 ≥60%, 🟡 ≥35%, 🔴 <35%).
+Oltre alla retention per singolo capitolo, viene calcolata anche la **NER Retention Globale**: quante delle entità uniche dell'intero libro compaiono nella sinossi globale. Nell'interfaccia web è visualizzata con un badge colorato (🟢 ≥60%, 🟡 ≥35%, 🔴 <35%).
 
 ---
 
@@ -339,7 +346,7 @@ Colori entità: `PER` rosa, `LOC` blu, `ORG` giallo, `DATE` verde, `WORK` viola,
 
 #### 📝 Riassunti
 Navigazione e lettura dei riassunti generati:
-- **Sinossi Globale (Livello 0)** con statistiche: caratteri, parole, tempo di lettura, modello usato, NER retention %
+- **Sinossi Globale** con statistiche: caratteri, parole, tempo di lettura, modello usato, NER retention %
 - Lista capitoli con indicatore ✅/○ (riassunto presente/assente)
 - Testo del riassunto narrativo generato da Ollama
 - Navigazione Precedente/Successivo
@@ -378,7 +385,7 @@ ner-historicbooks-it/
 │   │       ├── ner.py                # Pipeline NER con BERT fine-tuned
 │   │       ├── ner_chunking.py       # Utilità di segmentazione testo per NER
 │   │       ├── chunker.py            # Chunking semantico (embed + NER)
-│   │       └── summarizer.py         # Hierarchical Summarization (Livello 0)
+│   │       └── summarizer.py         # Hierarchical Summarization
 │   ├── data/
 │   │   └── raw/                      # Testi italiani digitalizzati
 │   ├── Dockerfile
@@ -663,7 +670,7 @@ I Promessi Sposi/
 ├── 04_capitoli/
 │   └── capitoli.json                       # Manifest dei capitoli semantici
 └── 05_riassunti/
-    ├── summaries.json                      # Riassunti + sinossi Livello 0 + NER retention
+    ├── summaries.json                      # Riassunti + sinossi globale + NER retention
     └── _tutti_i_riassunti.txt              # Tutti i riassunti concatenati
 ```
 
@@ -742,7 +749,7 @@ I Promessi Sposi/
 | **Pulizia OCR (regole)** | C nativo (gcc) | Euristiche deterministiche ad alte prestazioni |
 | **NER** | BERT fine-tuned (`aendriu/bert-ner-italian-historical`) | Estrazione entità storiche italiane |
 | **Embeddings** | SentenceTransformer (MiniLM-L12-v2) | Segmentazione semantica del testo |
-| **Riassunti** | Ollama + Qwen 3.5 2B | Hierarchical Summarization (Livello 0) locale |
+| **Riassunti** | Ollama + Qwen 3.5 2B | Hierarchical Summarization locale |
 | **Frontend** | Angular 21 (standalone, signals) | Interfaccia web SPA |
 | **Grafici** | Chart.js 4.5 | Visualizzazione distribuzione entità |
 | **Web Server** | Nginx | Serving SPA + reverse proxy API |

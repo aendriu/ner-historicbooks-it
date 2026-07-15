@@ -1,4 +1,4 @@
-import { Component, input, output, signal, computed } from '@angular/core';
+import { Component, input, output, signal, computed, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SummariesResponse, SummarySection } from '../../../models/models';
@@ -7,10 +7,38 @@ import { SummariesResponse, SummarySection } from '../../../models/models';
   selector: 'app-summaries-view',
   standalone: true,
   imports: [CommonModule, FormsModule],
+  encapsulation: ViewEncapsulation.None,
   template: `
     <div class="page-header">
       <h2>📝 Riassunti Semantici</h2>
       <p>Riassunti narrativi generati da AI per ogni sezione semantica. La NER retention misura quante entità chiave sopravvivono nel riassunto.</p>
+    </div>
+
+    <!-- Selettore metodo di chunking (embed / NER) -->
+    <div style="display:flex; align-items:center; gap:0.5rem; padding:0 1rem 0.5rem; flex-wrap:wrap; flex-shrink:0;">
+      <span style="font-size:0.75rem; color:var(--text-muted); font-weight:600; text-transform:uppercase; letter-spacing:.05em;">
+        🧩 Capitoli da:
+      </span>
+      <button
+        (click)="embedAvailable() && onChunkMethodSwitch.emit('embed')"
+        [style.background]="selectedChunkMethod() === 'embed' ? 'rgba(99,102,241,0.2)' : 'var(--bg-base)'"
+        [style.border]="selectedChunkMethod() === 'embed' ? '1.5px solid #6366f1' : '1.5px solid var(--border)'"
+        [style.color]="selectedChunkMethod() === 'embed' ? '#6366f1' : (embedAvailable() ? 'var(--text-muted)' : 'var(--text-muted)')"
+        [style.opacity]="embedAvailable() ? '1' : '0.4'"
+        [style.cursor]="embedAvailable() ? 'pointer' : 'not-allowed'"
+        style="padding:0.3rem 0.75rem; border-radius:20px; font-size:0.78rem; font-weight:600; transition:all 0.15s;">
+        🔢 Embedding {{ !embedAvailable() ? '(non disponibile)' : '' }}
+      </button>
+      <button
+        (click)="nerAvailable() && onChunkMethodSwitch.emit('ner')"
+        [style.background]="selectedChunkMethod() === 'ner' ? 'rgba(99,102,241,0.2)' : 'var(--bg-base)'"
+        [style.border]="selectedChunkMethod() === 'ner' ? '1.5px solid #6366f1' : '1.5px solid var(--border)'"
+        [style.color]="selectedChunkMethod() === 'ner' ? '#6366f1' : (nerAvailable() ? 'var(--text-muted)' : 'var(--text-muted)')"
+        [style.opacity]="nerAvailable() ? '1' : '0.4'"
+        [style.cursor]="nerAvailable() ? 'pointer' : 'not-allowed'"
+        style="padding:0.3rem 0.75rem; border-radius:20px; font-size:0.78rem; font-weight:600; transition:all 0.15s;">
+        🏷️ NER {{ !nerAvailable() ? '(non disponibile)' : '' }}
+      </button>
     </div>
 
     <!-- Selettore LLM: mostra i chip solo se ci sono più modelli disponibili -->
@@ -34,7 +62,7 @@ import { SummariesResponse, SummarySection } from '../../../models/models';
     <div *ngIf="bookGlobalSummary()" style="margin: 0 1rem 0.75rem 1rem; flex-shrink: 0;">
       <!-- Barra compatta cliccabile -->
       <div (click)="globalSummaryExpanded.set(true)" class="synopsis-bar">
-        <span style="color:#6366f1; font-weight:700; font-size:0.9rem;">📖 Sinossi Globale — Livello 0</span>
+        <span style="color:#6366f1; font-weight:700; font-size:0.9rem;">📖 Sinossi Globale</span>
         <div style="display:flex; align-items:center; gap:0.75rem;">
           <span style="font-size:0.72rem; background:rgba(99,102,241,0.15); color:#818cf8;
                        padding:0.15rem 0.55rem; border-radius:20px; font-weight:600;">
@@ -64,7 +92,7 @@ import { SummariesResponse, SummarySection } from '../../../models/models';
         <div style="display:flex; align-items:center; justify-content:space-between;
                     padding:1.25rem 1.5rem; border-bottom:1px solid var(--border); flex-shrink:0;">
           <div>
-            <h3 style="color:#6366f1; margin:0 0 0.4rem; font-size:1.1rem;">📖 Sinossi Globale — Livello 0</h3>
+            <h3 style="color:#6366f1; margin:0 0 0.4rem; font-size:1.1rem;">📖 Sinossi Globale</h3>
             <div style="display:flex; gap:0.6rem; flex-wrap:wrap;">
               <span style="font-size:0.7rem; background:rgba(99,102,241,0.12); color:#818cf8;
                            padding:0.15rem 0.55rem; border-radius:20px;">
@@ -74,20 +102,7 @@ import { SummariesResponse, SummarySection } from '../../../models/models';
                            padding:0.15rem 0.55rem; border-radius:20px;">
                 ~{{ bookGlobalSummary()!.split(' ').length | number }} parole
               </span>
-              <span style="font-size:0.7rem; background:rgba(16,185,129,0.12); color:#6ee7b7;
-                           padding:0.15rem 0.55rem; border-radius:20px;">
-                ⏱ ~{{ (bookGlobalSummary()!.split(' ').length / 200) | number:'1.0-0' }} min lettura
-              </span>
-              <span *ngIf="summariesData()?.global_ner_retention"
-                    [style.background]="summariesData()?.global_ner_retention?.retention_percent! >= 60 ? 'rgba(16,185,129,0.15)' : summariesData()?.global_ner_retention?.retention_percent! >= 35 ? 'rgba(245,158,11,0.15)' : 'rgba(239,68,68,0.15)'"
-                    [style.color]="summariesData()?.global_ner_retention?.retention_percent! >= 60 ? '#6ee7b7' : summariesData()?.global_ner_retention?.retention_percent! >= 35 ? '#fcd34d' : '#fca5a5'"
-                    style="font-size:0.7rem; padding:0.15rem 0.55rem; border-radius:20px; font-weight:700;">
-                🎯 NER {{ summariesData()?.global_ner_retention?.retention_percent }}%
-              </span>
-              <span *ngIf="summariesData()?.model" style="font-size:0.7rem; background:rgba(245,158,11,0.12); color:#fcd34d;
-                           padding:0.15rem 0.55rem; border-radius:20px;">
-                🤖 {{ summariesData()?.model }}
-              </span>
+
             </div>
           </div>
           <button (click)="globalSummaryExpanded.set(false)" class="modal-close-btn">✕</button>
@@ -102,13 +117,7 @@ import { SummariesResponse, SummarySection } from '../../../models/models';
                     display:flex; gap:1.5rem; flex-wrap:wrap; font-size:0.75rem; color:var(--text-muted);">
           <span>📊 Sezioni sintetizzate: <strong style="color:var(--text-primary)">{{ summariesData()?.sections?.length ?? '—' }}</strong></span>
           <span>📝 Caratteri totali libro: <strong style="color:var(--text-primary)">{{ totalBookChars() | number }}</strong></span>
-          <span *ngIf="summariesData()?.global_ner_retention">
-            🎯 Entità libro coperte nella sinossi:
-            <strong [style.color]="summariesData()?.global_ner_retention?.retention_percent! >= 60 ? '#6ee7b7' : summariesData()?.global_ner_retention?.retention_percent! >= 35 ? '#fcd34d' : '#fca5a5'">
-              {{ summariesData()?.global_ner_retention?.found_in_global }}/{{ summariesData()?.global_ner_retention?.total_unique_entities }}
-              ({{ summariesData()?.global_ner_retention?.retention_percent }}%)
-            </strong>
-          </span>
+
         </div>
       </div>
     </div>
@@ -178,11 +187,15 @@ import { SummariesResponse, SummarySection } from '../../../models/models';
   `
 })
 export class SummariesViewComponent {
-  summariesData = input<SummariesResponse | null>(null);
-  bookGlobalSummary = input<string | null>(null);
+  summariesData        = input<SummariesResponse | null>(null);
+  bookGlobalSummary    = input<string | null>(null);
   selectedSummaryModel = input<string | null>(null);
+  selectedChunkMethod  = input<'embed' | 'ner'>('embed');
+  embedAvailable       = input<boolean>(false);
+  nerAvailable         = input<boolean>(false);
 
-  onModelSwitch = output<string>();
+  onModelSwitch       = output<string>();
+  onChunkMethodSwitch = output<'embed' | 'ner'>();
 
   globalSummaryExpanded = signal(false);
   selectedSummarySection = signal<SummarySection | null>(null);
