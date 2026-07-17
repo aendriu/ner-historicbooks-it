@@ -2,8 +2,8 @@
 FROM python:3.10-slim AS builder
 RUN apt-get update && apt-get install -y gcc make && rm -rf /var/lib/apt/lists/*
 WORKDIR /build
-COPY app/ocr/c_cleaner/ ./app/ocr/c_cleaner/
-RUN cd app/ocr/c_cleaner && make clean && make
+COPY app/pipeline/c_cleaner/ ./app/pipeline/c_cleaner/
+RUN cd app/pipeline/c_cleaner && make clean && make
 
 # ── Stage 2: Runtime ──
 FROM python:3.10-slim
@@ -17,10 +17,10 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY app/ ./app/
 
 # Copy compiled C binary (overwriting source bin if any)
-COPY --from=builder /build/app/ocr/c_cleaner/bin/ ./app/ocr/c_cleaner/bin/
+COPY --from=builder /build/app/pipeline/c_cleaner/bin/ ./app/pipeline/c_cleaner/bin/
 
 # Create data directories
-RUN mkdir -p data/raw data/cleaned data/ner data/semantic data/chapters
+RUN mkdir -p data/raw data/cleaned data/ner data/semantic data/chapters data/summaries data/tmp_ollama
 
 EXPOSE 8000
 

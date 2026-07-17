@@ -1,6 +1,7 @@
 import os
 import io
 import json
+import textwrap
 import zipfile
 import shutil
 import uuid
@@ -189,39 +190,162 @@ def export_book(book_id: int, db: Session = Depends(get_db)):
                         json.dumps(ch_manifest, ensure_ascii=False, indent=2))
 
         # ── 05_riassunti ────────────────────────────────────────────────────────
-        chapters = db.query(Chapter).filter(Chapter.book_id == book_id).order_by(Chapter.chapter_id_num).all()
-        if chapters:
-            all_summaries_txt = []
-            for ch in chapters:
-                summaries = db.query(Summary).filter(Summary.chapter_id == ch.id).all()
-                if summaries:
-                    ch_title = ch.title or f"Capitolo {ch.chapter_id_num}"
-                    ch_block = f"=== {ch_title} ===\n\n"
-                    ch_block += "\n\n".join(s.content for s in summaries)
-                    all_summaries_txt.append(ch_block)
-                    zf.writestr(
-                        f"{root}/05_riassunti/capitolo_{ch.chapter_id_num:03d}_{ch_title[:40]}.txt",
-                        ch_block
-                    )
-            if all_summaries_txt:
+        # Legge i file summaries_*.json direttamente dal disco (fonte primaria),
+        # con fallback sui dati del database se i file non esistono.
+        summaries_base = os.path.join(DATA_DIR, "summaries")
+        summaries_found = False
+        book_folder_name = os.path.splitext(book.filename)[0]  # es. '45e11373_promessi_sposi.txt'
+
+        for method_dir in ("embed_method", "ner_method"):
+            book_sum_dir = os.path.join(summaries_base, method_dir, book_folder_name)
+            if not os.path.isdir(book_sum_dir):
+                continue
+            for fname in sorted(os.listdir(book_sum_dir)):
+                if not fname.startswith("summaries_") or not fname.endswith(".json"):
+                    continue
+                fpath = os.path.join(book_sum_dir, fname)
+                try:
+                    with open(fpath, "r", encoding="utf-8") as f:
+                        sum_data = json.load(f)
+                except Exception:
+                    continue
+
+                model_name = fname.replace("summaries_", "").replace(".json", "")
+                method_label = method_dir.replace("_method", "")
+                subfolder = f"{root}/05_riassunti/{method_label}_{model_name}"
+
+                # JSON completo
                 zf.writestr(
-                    f"{root}/05_riassunti/_tutti_i_riassunti.txt",
-                    "\n\n" + ("="*60) + "\n\n".join(all_summaries_txt)
+                    f"{subfolder}/summaries.json",
+                    json.dumps(sum_data, ensure_ascii=False, indent=2)
                 )
 
-        # ── README ──────────────────────────────────────────────────────────────
-        readme = f"""Esportazione: {book.title}
-Autore: {book.author or 'N/D'}
-Data export: {datetime.utcnow().strftime('%Y-%m-%d %H:%M')} UTC
+                # Sinossi globale come JSON strutturato
+                global_summary = sum_data.get("global_summary", "").strip()
+                if global_summary:
+                    ner_ret = sum_data.get("global_ner_retention", {})
+                    riassunto_0 = {
+                        "titolo":              book.title,
+                        "autore":              book.author or "N/D",
+                        "modello":             sum_data.get("model", "N/D"),
+                        "metodo_chunking":     sum_data.get("method", "N/D"),
+                        "data_generazione":    sum_data.get("created_at", "")[:10],
+                        "num_caratteri":       len(global_summary),
+                        "num_parole":          len(global_summary.split()),
+                        "ner_retention_globale": {
+                            "entita_uniche_totali": ner_ret.get("total_unique_entities", 0),
+                            "entita_trovate":       ner_ret.get("found_in_global", 0),
+                            "percentuale":          ner_ret.get("retention_percent", 0),
+                        },
+                        "testo": global_summary,
+                    }
+                    zf.writestr(
+                        f"{subfolder}/lv0.json",
+                        json.dumps(riassunto_0, ensure_ascii=False, indent=2)
+                    )
+                    # lv0.txt: solo il testo, ben formattato
+                    paragraphs = global_summary.split("\n\n")
+                    wrapped = "\n\n".join(
+                        textwrap.fill(p.strip(), width=100)
+                        for p in paragraphs if p.strip()
+                    )
+                    zf.writestr(f"{subfolder}/lv0.txt", wrapped)
+                    summaries_found = True
 
-Struttura cartelle:
-  00_originale/        → Testo grezzo OCR (JSON + TXT)
-  01_testo_pulito/     → Testo dopo pulizia LLM (JSON + TXT)
-  02_entita_ner/       → Entità storiche estratte (JSON + CSV)
-  03_chunks_semantici/ → Blocchi semantici del testo (un file per chunk)
-  04_capitoli/         → Struttura dei capitoli rilevati
-  05_riassunti/        → Riassunti per capitolo (TXT leggibili)
-"""
+                # Riassunti per capitolo semantico come file TXT concatenato
+                sections = sum_data.get("sections", [])
+                if sections:
+                    all_parts = []
+                    for sec in sections:
+                        idx = sec.get("section_idx", "?")
+                        topic = sec.get("topic_hint", f"Sezione {idx}")
+                        text = sec.get("summary", "").strip()
+                        if text:
+                            all_parts.append(f"=== {topic} ===\n\n{text}")
+                    if all_parts:
+                        joined_txt = ("\n\n" + "="*60 + "\n\n").join(all_parts)
+                        zf.writestr(
+                            f"{subfolder}/chapter_summaries.txt",
+                            joined_txt
+                        )
+                        # Anche come JSON con lista strutturata
+                        chapters_json = [
+                            {
+                                "section_idx": sec.get("section_idx"),
+                                "topic_hint":  sec.get("topic_hint"),
+                                "summary":     sec.get("summary", "").strip(),
+                            }
+                            for sec in sections if sec.get("summary", "").strip()
+                        ]
+                        zf.writestr(
+                            f"{subfolder}/chapter_summaries.json",
+                            json.dumps(chapters_json, ensure_ascii=False, indent=2)
+                        )
+                        summaries_found = True
+
+        # Fallback: se non ci sono file JSON su disco, usa il database
+        if not summaries_found:
+            chapters = db.query(Chapter).filter(Chapter.book_id == book_id).order_by(Chapter.chapter_id_num).all()
+            if chapters:
+                all_summaries_txt = []
+                for ch in chapters:
+                    summaries = db.query(Summary).filter(Summary.chapter_id == ch.id).all()
+                    if summaries:
+                        ch_title = ch.title or f"Capitolo {ch.chapter_id_num}"
+                        ch_block = f"=== {ch_title} ===\n\n"
+                        ch_block += "\n\n".join(s.content for s in summaries)
+                        all_summaries_txt.append(ch_block)
+                if all_summaries_txt:
+                    zf.writestr(
+                        f"{root}/05_riassunti/_tutti_i_riassunti.txt",
+                        "\n\n" + ("="*60 + "\n\n").join(all_summaries_txt)
+                    )
+
+        # ── README ──────────────────────────────────────────────────────────────
+        # Titolo pulito: rimuove prefisso UUID e estensioni
+        import re as _re
+        clean_title = book.title
+        clean_title = _re.sub(r'^[0-9a-f]{8}_', '', clean_title)          # rimuove UUID
+        clean_title = _re.sub(r'\.(txt|json)$', '', clean_title, flags=_re.I)  # rimuove ext
+        clean_title = clean_title.replace('_', ' ').replace('-', ' ').strip().title()
+
+        # Raccoglie le sottocartelle reali generate in 05_riassunti
+        subfolders_lines = []
+        for method_dir in ("embed_method", "ner_method"):
+            bdir = os.path.join(summaries_base, method_dir, book_folder_name)
+            if not os.path.isdir(bdir):
+                continue
+            for fname in sorted(os.listdir(bdir)):
+                if fname.startswith("summaries_") and fname.endswith(".json"):
+                    model_label = fname.replace("summaries_", "").replace(".json", "")
+                    method_label = method_dir.replace("_method", "")
+                    subfolders_lines.append(f"    {method_label}_{model_label}/")
+
+        subfolders_str = "\n".join(subfolders_lines) if subfolders_lines else "    (nessun riassunto generato)"
+
+        author_line = f"Autore:       {book.author}\n" if book.author and book.author.lower() != "sconosciuto" else ""
+        readme = (
+            f"Opera:        {clean_title}\n"
+            f"{author_line}"
+            f"Data export:  {datetime.utcnow().strftime('%Y-%m-%d %H:%M')} UTC\n"
+            f"\n"
+            f"Struttura cartelle\n"
+            f"==================\n"
+            f"  00_originale/        Testo grezzo OCR originale (JSON + TXT)\n"
+            f"  01_testo_pulito/     Testo dopo pulizia OCR (JSON + TXT)\n"
+            f"  02_entita_ner/       Entita storiche estratte con BERT (JSON + CSV)\n"
+            f"  03_chunks_semantici/ Blocchi semantici del testo (un file per chunk)\n"
+            f"  04_capitoli/         Capitoli semantici rilevati\n"
+            f"  05_riassunti/        Riassunti AI, organizzati per metodo e modello:\n"
+            f"{subfolders_str}\n"
+            f"\n"
+            f"  Ogni sottocartella contiene:\n"
+            f"    summaries.json         Dati grezzi completi\n"
+            f"    lv0.json               Sinossi globale + metadati\n"
+            f"    lv0.txt                Sinossi globale in prosa\n"
+            f"    chapter_summaries.json Riassunti dei capitoli semantici (JSON)\n"
+            f"    chapter_summaries.txt  Riassunti dei capitoli semantici (TXT)\n"
+        )
         zf.writestr(f"{root}/README.txt", readme)
 
     buf.seek(0)

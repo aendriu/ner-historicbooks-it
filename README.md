@@ -34,9 +34,12 @@ Il sistema pulisce gli errori di digitalizzazione, estrae entità storiche (pers
 
 ## Panoramica
 
-Il progetto mira a trasformare l'enorme patrimonio letterario storico italiano — spesso confinato a testi digitalizzati grezzi (OCR) pieni di errori e privi di struttura — in una base di conoscenza interrogabile ed esplorabile semanticamente.
+Pipeline automatica in 4 fasi per testi storici italiani digitalizzati tramite OCR:
 
-Non si tratta solo di correggere gli errori di scansione, ma di arricchire il testo: la pipeline estrae automaticamente le entità storiche (personaggi, luoghi, eventi), ne comprende la struttura logica raggruppandolo in capitoli semantici e, infine, genera riassunti narrativi gerarchici tramite AI locale. Il tutto avviene in 4 fasi completamente automatizzate:
+1. **Pulizia OCR** — correzione errori di digitalizzazione (LLM + regole C)
+2. **NER** — estrazione di entità (personaggi, luoghi, date, ecc.) con BERT fine-tuned
+3. **Chunking semantico** — segmentazione del testo in capitoli tramite embedding vettoriali
+4. **Riassunti AI** — generazione di riassunti gerarchici (per capitolo + sinossi globale)
 
 ```
                   ┌─────────────────────────────────────────────────────────────┐
@@ -48,35 +51,35 @@ Non si tratta solo di correggere gli errori di scansione, ma di arricchire il te
   (grezzo)           (LLM + C Rules)        (BERT fine-tuned)        Capitoli            (Ollama SLM)
 ```
 
-Il dataset incluso contiene **95 testi** della letteratura italiana — dall'Orlando Furioso alla Divina Commedia, dai Promessi Sposi al Decameron, passando per Leopardi, Machiavelli, Goldoni, Tasso, Vasari e molti altri.
+Il dataset incluso contiene **95 testi** della letteratura italiana (Orlando Furioso, Divina Commedia, Promessi Sposi, Decameron, Leopardi, Machiavelli, Goldoni, Tasso, Vasari e altri).
 
 ---
 
 ## Architettura
 
 ```
-┌─────────────────────────────────────────────────────────────────────────┐
-│                          Docker Compose                                 │
-│                                                                         │
-│  ┌──────────────────┐   ┌──────────────────┐   ┌────────────────────┐  │
-│  │    Frontend       │   │     Backend      │   │      Ollama        │  │
-│  │   (Angular 21)    │   │    (FastAPI)      │   │  (qwen3.5:4b)     │  │
-│  │                   │   │                   │   │                    │  │
-│  │  Dashboard        │   │  REST API         │   │  SLM locale per:  │  │
-│  │  Analisi NER      │──►│  Pipeline Engine  │──►│  • pulizia OCR    │  │
-│  │  Lettore Capitoli │   │  SQLite DB        │   │  • riassunti      │  │
-│  │  Riassunti        │   │  File I/O         │   │                    │  │
-│  │                   │   │                   │   │                    │  │
-│  │  :80 (nginx)      │   │  :8000 (uvicorn)  │   │  :11434            │  │
-│  └──────────────────┘   └──────────────────┘   └────────────────────┘  │
-└─────────────────────────────────────────────────────────────────────────┘
+┌────────────────────────────────────────────────────┐
+│                  Docker Compose                    │
+│                                                    │
+│  ┌──────────────────┐        ┌──────────────────┐  │       ┌────────────────────┐
+│  │    Frontend      │        │     Backend      │  │       │      Ollama        │
+│  │   (Angular 21)   │        │    (FastAPI)     │  │       │  (qwen3.5:9b)      │
+│  │                  │        │                  │  │       │                    │
+│  │  Dashboard       │        │  REST API        │  │       │  SLM esterno per:  │
+│  │  Analisi NER     │───────►│  Pipeline Engine │──┼──────►│  • pulizia OCR     │
+│  │  Lettore Capitoli│        │  SQLite DB       │  │       │  • embeddings      │
+│  │  Riassunti       │        │  File I/O        │  │       │  • riassunti       │
+│  │                  │        │                  │  │       │                    │
+│  │  :80 (nginx)     │        │  :8000 (uvicorn) │  │       │  (Host/LAN/Cloud)  │
+│  └──────────────────┘        └──────────────────┘  │       └────────────────────┘
+└────────────────────────────────────────────────────┘
 ```
 
 | Componente | Ruolo |
 |---|---|
-| **Frontend** | SPA Angular con dashboard di gestione, viewer con evidenziazione entità, grafici NER e lettore di riassunti |
+| **Frontend** | SPA Angular con dashboard, viewer con evidenziazione entità, grafici NER e lettore di riassunti |
 | **Backend** | API FastAPI che orchestra la pipeline, gestisce il database SQLite e serve i dati al frontend |
-| **Ollama** | Server SLM locale che esegue il modello `qwen3.5:4b` per la pulizia OCR, gli embedding (`bge-m3`) e la generazione dei riassunti |
+| **Ollama** | Server SLM esterno che esegue `qwen3.5:9b` per pulizia OCR e riassunti, e `bge-m3` per gli embedding semantici |
 
 ---
 
@@ -88,7 +91,7 @@ La pulizia avviene in **due passaggi** complementari: un LLM per le correzioni c
 
 #### 1a. LLM Cleaner (Ollama)
 
-Il testo viene diviso in chunk da ~1500 caratteri e inviato a `qwen3.5:4b` con un prompt specializzato in filologia italiana. Il modello restituisce un array JSON di correzioni:
+Il testo viene diviso in chunk da ~1500 caratteri e inviato a `qwen3.5:9b` con un prompt specializzato in filologia italiana. Il modello restituisce un array JSON di correzioni:
 
 ```json
 [
@@ -170,36 +173,39 @@ I chunk semantici vengono raggruppati in **capitoli semantici** in base al loro 
 
 ### Fase 4 — Riassunti AI (Sinossi Globale)
 
-La fase 4 implementa una **Hierarchical Summarization** con architettura **Map-Reduce gerarchica** per produrre la Sinossi Globale dell'opera — il riassunto più alto e completo che copre l'intera narrativa.
+La fase 4 implementa una **Hierarchical Summarization** con architettura **Map-Reduce a 4 livelli** per produrre la Sinossi Globale dell'opera.
 
 #### Architettura della pipeline di riassunto
 
-Per libri brevi (≤ 10 capitoli), la sinossi viene generata direttamente dai riassunti dei capitoli. Per libri lunghi (> 10 capitoli), viene attivata una **fase intermedia a macro-capitoli** che evita di sovraccaricare l'LLM con decine di riassunti in una singola chiamata.
+Per libri brevi (≤ 10 capitoli), la sinossi viene generata direttamente dai riassunti dei capitoli. Per libri lunghi (> 10 capitoli), viene attivata una pipeline Map-Reduce a più livelli per evitare il "recency bias" del modello (la tendenza a dimenticare le parti iniziali del testo quando il contesto è troppo lungo).
 
 ```
-996 chunk semantici
-        │
-        ▼ (raggruppamento per topic_hint)
-115 capitoli semantici
-        │
-        ▼ (Fase 1: 1 chiamata Ollama per capitolo)
-115 riassunti di capitolo
-        │
-        ▼ (Fase 2: raggruppamento in blocchi da 6)
- 19 macro-capitoli                      ← solo per libri lunghi (>10 capitoli)
-        │
-        ▼ (Fase 3: 1 chiamata Ollama con i macro-riassunti)
-Sinossi globale dell'opera
+ ~1000 chunk semantici
+         │
+         ▼ (raggruppamento per topic_hint)
+ ~200 capitoli semantici
+         │
+         ▼ (Livello 1: 1 chiamata Ollama per capitolo, compressione ~50%)
+ ~200 riassunti di capitolo
+         │
+         ▼ (Livello 2: raggruppamento in blocchi da 10)
+  ~20 macro-capitoli                     ← solo per libri lunghi (>10 capitoli)
+         │
+         ▼ (Livello 3: raggruppamento in blocchi da 4)
+  ~5 riassunti parziali                  ← ogni blocco genera una porzione narrativa
+         │
+         ▼ (concatenazione)
+ Sinossi globale dell'opera
 ```
 
 #### Dettagli tecnici
 
-- **Modello per capitoli**: `qwen3.5:4b` via Ollama (esecuzione locale, zero costi API)
-- **Modello per sinossi globale**: configurabile separatamente con `OLLAMA_MODEL_GLOBAL` (es. `qwen3.5:8b` per risultati migliori)
-- **Contesto per capitolo**: 8.192 token
-- **Contesto per Sinossi Globale**: 32.768 token con output fino a 16.384 token
+- **Modello unificato**: `qwen3.5:9b` via Ollama (esecuzione esterna/locale, zero costi API)
+- **Contesto per capitolo**: 16.384 token con output illimitato
+- **Contesto per sinossi globale**: 65.536 token con output illimitato
 - **Soglia macro-capitoli**: `MACRO_THRESHOLD = 10` (libri con più di 10 capitoli attivano la fase intermedia)
-- **Dimensione macro-capitolo**: `MACRO_BATCH_SIZE = 6` (ogni macro-capitolo raggruppa 6 riassunti consecutivi)
+- **Dimensione macro-capitolo**: `MACRO_BATCH_SIZE = 10` (ogni macro-capitolo raggruppa 10 riassunti consecutivi)
+- **Dimensione batch globale**: `GLOBAL_BATCH_SIZE = 4` (ogni riassunto parziale copre 4 macro-capitoli)
 - **Esecuzione**: sequenziale per evitare saturazione VRAM
 
 #### Metrica di valutazione: NER Retention
@@ -425,7 +431,7 @@ ner-historicbooks-it/
 │   └── utils/
 │       └── anthropic_client.py       # Client Anthropic per la generazione gold
 │
-├── docker-compose.yml                # 3 servizi: backend + frontend + ollama
+├── docker-compose.yml                # 2 servizi: backend + frontend
 └── start.sh                          # Script avvio locale (sviluppo)
 ```
 
@@ -439,9 +445,9 @@ ner-historicbooks-it/
 | **Python** | 3.10+ | Solo per sviluppo locale senza Docker |
 | **Node.js** | 18+ | Solo per sviluppo locale senza Docker |
 | **GCC + Make** | — | Solo per sviluppo locale senza Docker |
-| **Ollama** | — | Solo per sviluppo locale (in Docker è incluso) |
+| **Ollama** | — | Necessario (locale, LAN o remoto). Non incluso in Docker |
 
-> **🚀 Consiglio**: Usa **Docker Compose** (`docker compose up --build`) per evitare di installare manualmente Python, Node.js, GCC e Ollama. Un solo comando avvia tutto automaticamente.
+> **🚀 Consiglio**: Usa **Docker Compose** (`docker compose up --build`) per avviare frontend e backend con un solo comando. Ollama deve essere avviato separatamente.
 
 
 ---
@@ -460,12 +466,12 @@ cd ner-historicbooks-it
 #### 2. Compila il C Cleaner
 
 ```bash
-cd backend/app/ocr/c_cleaner
+cd backend/app/pipeline/c_cleaner
 make
 cd ../../../..
 ```
 
-Produce il binario `backend/app/ocr/c_cleaner/bin/ocr_cleaner`.
+Produce il binario `backend/app/pipeline/c_cleaner/bin/ocr_cleaner`.
 
 #### 3. Configura le variabili d'ambiente
 
@@ -480,11 +486,9 @@ cp .env.example .env
 # Installa Ollama
 curl -fsSL https://ollama.com/install.sh | sh
 
-# Scarica il modello SLM
-ollama pull qwen3.5:4b
-# Opzionale: modello più grande per riassunti globali migliori
-ollama pull qwen3.5:8b
-# Modello di embedding
+# Scarica il modello unificato SLM
+ollama pull qwen3.5:9b
+# Modello di embedding semantico
 ollama pull bge-m3
 ```
 
@@ -530,22 +534,14 @@ L'applicazione sarà disponibile su:
 docker compose up --build
 ```
 
-Al primo avvio, Ollama scaricherà automaticamente il modello `qwen3.5:4b` (~3 GB) e `bge-m3` (~700 MB). Il backend attenderà che Ollama sia pronto (healthcheck) prima di partire.
+L'architettura in Docker Compose non include più il container gigante di Ollama per mantenere snello il deploy. Ollama deve essere in esecuzione separatamente (sulla stessa macchina host, in LAN o tramite Cloudflare Tunnel). Assicurati che l'indirizzo in `.env` sia corretto.
 
 | Servizio | URL |
 |---|---|
 | Frontend | http://localhost |
 | API Backend | http://localhost:8000 |
 
-### Avvio Veloce (Demo senza Ollama)
-
-L'immagine Docker base di Ollama combinata al modello `qwen3.5:2b` richiede il download di circa 5.2 GB. Se hai bisogno di avviare il progetto al volo per una presentazione o una dimostrazione, puoi usare il file Compose alleggerito che esclude completamente Ollama:
-
-```bash
-docker compose -f docker-compose.demo.yml up --build
-```
-
-> **💡 Note sui download AI**: Il progetto usa una logica "fault-tolerant": se Ollama è assente, la pulizia salterà il passaggio LLM e passerà direttamente alle regole in C, senza mai bloccarsi. Le altre due Intelligenze Artificiali necessarie per le fasi successive (il modello BERT per il NER da ~450MB e il SentenceTransformer da ~470MB) verranno scaricate automaticamente dal backend Python **solo quando avvierai la primissima analisi di un libro**, rendendo il download iniziale estremamente snello (~1GB totale differito).
+> **💡 Note sui download AI**: Il progetto usa una logica "fault-tolerant": se Ollama non è raggiungibile, le fasi che lo richiedono riporteranno un avviso o si appoggeranno ad alternative deterministiche (es. la pulizia salterà il passaggio LLM e passerà direttamente alle regole in C). L'Intelligenza Artificiale necessaria per il NER (modello BERT da ~450MB) verrà scaricata automaticamente dal backend Python **solo quando avvierai la primissima analisi di un libro**.
 
 ---
 
@@ -555,11 +551,9 @@ Tutte le impostazioni sono gestite tramite variabili d'ambiente nel file `.env`:
 
 ```env
 # ── Ollama (SLM per pulizia OCR e riassunti) ─────────────
-OLLAMA_HOST=localhost              # IP/hostname del server Ollama
+OLLAMA_HOST=localhost              # IP/hostname del server Ollama (es. http://192.168.1.55)
 OLLAMA_PORT=11434
-OLLAMA_MODEL=qwen3.5:4b           # Modello SLM per capitoli (L2) e OCR
-OLLAMA_MODEL_GLOBAL=              # Modello per sinossi globale (L0), se vuoto usa OLLAMA_MODEL
-                                   # Consigliato: qwen3.5:8b o superiore per L0
+OLLAMA_MODEL=qwen3.5:9b           # Modello SLM unificato per tutte le fasi (pulizia e riassunti)
 
 # ── NER ───────────────────────────────────────────────────
 NER_MODEL_NAME=aendriu/bert-ner-italian-historical
@@ -715,7 +709,7 @@ I Promessi Sposi/
 {
   "book_name": "promessi_sposi",
   "method": "embed",
-  "model": "qwen3.5:2b",
+  "model": "qwen3.5:9b",
   "created_at": "2026-07-12T10:00:00",
   "total_sections": 115,
   "avg_ner_retention": 72.4,
@@ -745,14 +739,14 @@ I Promessi Sposi/
 |---|---|---|
 | **Backend API** | FastAPI + Uvicorn | Server REST asincrono |
 | **Database** | SQLite + SQLAlchemy | Storage libri, capitoli, riassunti |
-| **Pulizia OCR (AI)** | Ollama + Qwen 3.5 2B | Correzione contestuale errori OCR |
+| **Pulizia OCR (AI)** | Ollama + Qwen 3.5 9B | Correzione contestuale errori OCR |
 | **Pulizia OCR (regole)** | C nativo (gcc) | Euristiche deterministiche ad alte prestazioni |
 | **NER** | BERT fine-tuned (`aendriu/bert-ner-italian-historical`) | Estrazione entità storiche italiane |
-| **Embeddings** | SentenceTransformer (MiniLM-L12-v2) | Segmentazione semantica del testo |
-| **Riassunti** | Ollama + Qwen 3.5 2B | Hierarchical Summarization locale |
+| **Embeddings** | Ollama + BGE-M3 | Segmentazione semantica del testo |
+| **Riassunti** | Ollama + Qwen 3.5 9B | Hierarchical Summarization |
 | **Frontend** | Angular 21 (standalone, signals) | Interfaccia web SPA |
 | **Grafici** | Chart.js 4.5 | Visualizzazione distribuzione entità |
 | **Web Server** | Nginx | Serving SPA + reverse proxy API |
-| **Container** | Docker Compose | Deploy con 3 servizi orchestrati |
+| **Container** | Docker Compose | Deploy con 2 servizi orchestrati |
 | **ML Runtime** | PyTorch + HuggingFace Transformers | Inferenza modello NER |
 | **Testing Gold** | Anthropic Claude (solo script offline) | Generazione gold standard per valutazione |

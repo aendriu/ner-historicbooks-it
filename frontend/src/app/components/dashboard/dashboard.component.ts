@@ -222,6 +222,41 @@ import { Subscription, timer } from 'rxjs';
         </div>
       </div>
     </div>
+
+    <!-- Missing Models Modal -->
+    <div *ngIf="showMissingModelsModal()" class="modal-overlay">
+      <div class="modal-content" style="width: 500px;">
+        <h2 class="text-xl font-bold" style="color: #ef4444;">⚠️ Modelli AI Mancanti</h2>
+        <p class="text-sm mt-2" style="color: var(--text-muted); line-height: 1.6;">
+          Il server Ollama è raggiungibile, ma <strong>non ha installato i modelli richiesti</strong>.
+          Le fasi di Chunking Semantico e Riassunto AI falliranno se non intervieni.
+        </p>
+
+        <div class="mt-4" style="background: rgba(239,68,68,0.05); border: 1px solid rgba(239,68,68,0.2); border-radius: 8px; padding: 1rem;">
+          <h3 class="text-sm font-bold" style="color: #ef4444; margin-bottom: 0.5rem;">Modelli mancanti:</h3>
+          <ul class="text-sm" style="color: var(--text-primary); list-style-type: disc; padding-left: 1.5rem; margin-bottom: 1rem;">
+            <li *ngFor="let m of missingModels()">{{ m }}</li>
+          </ul>
+
+          <h3 class="text-sm font-bold" style="color: var(--text-primary); margin-bottom: 0.5rem;">Modelli trovati sul server:</h3>
+          <div class="text-xs" style="color: var(--text-muted); font-family: monospace; word-wrap: break-word;">
+            {{ installedModels().length > 0 ? installedModels().join(', ') : 'Nessun modello installato.' }}
+          </div>
+        </div>
+
+        <div class="mt-4 text-xs" style="color: var(--text-muted);">
+          Puoi risolvere il problema aprendo un terminale sul server ed eseguendo:<br>
+          <code style="background: var(--bg-base); padding: 2px 4px; border-radius: 4px; display: inline-block; margin-top: 4px;">ollama pull qwen3.5:9b && ollama pull bge-m3</code>
+        </div>
+
+        <div class="flex justify-end mt-6">
+          <button class="w-btn" style="width:auto; background: #ef4444; color: white; border: none;" (click)="showMissingModelsModal.set(false)">
+            Ho capito
+          </button>
+        </div>
+      </div>
+    </div>
+
   </div>
   `
 })
@@ -256,6 +291,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
   showSummaryModal = signal(false);
   selectedSummaryMethod = signal<'embed' | 'ner'>('embed');
 
+  // Missing Models state
+  showMissingModelsModal = signal(false);
+  missingModels = signal<string[]>([]);
+  installedModels = signal<string[]>([]);
+
   constructor(
     public state: BookStateService,
     private api: ApiService,
@@ -281,11 +321,17 @@ export class DashboardComponent implements OnInit, OnDestroy {
   useLocal() {
     this.testingVpn.set(true);
     this.api.setOllamaSettings('localhost', '11434').subscribe({
-      next: () => {
+      next: (res) => {
         localStorage.setItem('vpn_checked', 'local');
         this.showVpnWizard.set(false);
         this.testingVpn.set(false);
         this.showToast('Impostato server Ollama locale.');
+        
+        if (res.missing_models && res.missing_models.length > 0) {
+          this.missingModels.set(res.missing_models);
+          this.installedModels.set(res.installed_models || []);
+          this.showMissingModelsModal.set(true);
+        }
       },
       error: () => {
         localStorage.setItem('vpn_checked', 'local');
@@ -304,6 +350,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
           localStorage.setItem('vpn_checked', 'remote');
           this.showVpnWizard.set(false);
           this.showToast('Connesso al server aziendale!');
+          
+          if (res.missing_models && res.missing_models.length > 0) {
+            this.missingModels.set(res.missing_models);
+            this.installedModels.set(res.installed_models || []);
+            this.showMissingModelsModal.set(true);
+          }
         } else {
           this.vpnError.set(res.message || 'Errore sconosciuto. Passaggio a locale...');
           setTimeout(() => this.useLocal(), 2000);

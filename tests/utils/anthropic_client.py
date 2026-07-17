@@ -22,12 +22,12 @@ class AnthropicJudge:
         
         self.client = anthropic.Anthropic(api_key=self.api_key)
 
-    def generate_json_response(self, system_prompt: str, user_prompt: str) -> Optional[Dict[str, Any]]:
+    def generate_json_response(self, system_prompt: str, user_prompt: str, max_tokens: int = 2048) -> Optional[Dict[str, Any]]:
         """Chiama Anthropic forzando una risposta JSON strutturata."""
         try:
             message = self.client.messages.create(
                 model=self.model,
-                max_tokens=2048,
+                max_tokens=max_tokens,
                 system=system_prompt,
                 messages=[
                     {

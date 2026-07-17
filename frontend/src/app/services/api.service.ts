@@ -133,8 +133,8 @@ export class ApiService {
   }
 
   /** Save Ollama settings to backend */
-  setOllamaSettings(host: string, port: string): Observable<{ status: string; message?: string; host?: string; port?: string }> {
-    return this.http.post<{ status: string; message?: string; host?: string; port?: string }>(`${API_BASE}/settings/ollama`, { host, port });
+  setOllamaSettings(host: string, port: string): Observable<{ status: string; message?: string; host?: string; port?: string; missing_models?: string[]; installed_models?: string[] }> {
+    return this.http.post<{ status: string; message?: string; host?: string; port?: string; missing_models?: string[]; installed_models?: string[] }>(`${API_BASE}/settings/ollama`, { host, port });
   }
 
   /** Fetch the chunking comparison report (embed vs NER) */

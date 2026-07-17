@@ -1,23 +1,25 @@
 """
-Hierarchical Summarization — Map-Reduce Gerarchico
+Hierarchical Summarization — Map-Reduce Gerarchico a 4 Livelli
 Strategia a piramide adattiva per SLM locali (via Ollama).
 
-Architettura a 3 fasi:
+Architettura a 4 livelli:
 
-  Fase 1 — Riassunti delle Sezioni Semantiche (Livello 0):
+  Livello 1 — Riassunti delle Sezioni Semantiche:
     Per ogni sezione semantica (= capitolo), genera un resoconto
-    esaustivo e dettagliato. Se la sezione è troppo lunga, la divide
-    in batch, genera sub-resoconti, e li fonde in un unico testo.
+    narrativo fedele al testo (~50% compressione). Se la sezione è
+    troppo lunga, la divide in batch e fonde i sub-resoconti.
 
-  Fase 2 — Macro-Capitoli (solo per libri lunghi, >MACRO_THRESHOLD capitoli):
-    Raggruppa i resoconti delle sezioni in blocchi di MACRO_BATCH_SIZE
-    (es. 6) e genera un riassunto intermedio per ogni blocco.
-    Questo evita di sovraccaricare l'LLM con decine di resoconti
-    nella fase finale, preservando dettagli e personaggi secondari.
+  Livello 2 — Macro-Capitoli (solo per libri lunghi, >MACRO_THRESHOLD sezioni):
+    Raggruppa i riassunti in blocchi di MACRO_BATCH_SIZE e genera
+    un riassunto intermedio per ogni blocco.
 
-  Fase 3 — Sinossi Globale:
-    Prende i macro-riassunti (o i resoconti diretti se il libro è
-    breve) e genera la sinossi finale dell'intera opera.
+  Livello 3 — Sinossi Parziali (solo se >GLOBAL_BATCH_SIZE macro-capitoli):
+    Raggruppa i macro-capitoli in blocchi di GLOBAL_BATCH_SIZE e genera
+    segmenti narrativi indipendenti per evitare il recency bias.
+
+  Livello 4 — Sinossi Globale:
+    Concatenazione dei segmenti parziali (o sinossi diretta se il libro
+    è breve) per produrre la sinossi finale dell'intera opera.
 
 Controllo NER: cerca le entità originali (PER, LOC) nel testo
 del riassunto via semplice text matching (nessun overhead NLP).
@@ -40,15 +42,16 @@ MAX_CHARS_PER_CALL = 20_000   # max caratteri di input per singola chiamata LLM
 
 # Lv 0 — resoconti delle sezioni semantiche (verbosità massima)
 NUM_CTX_SECTION     = 16_384  # contesto ampio per permettere output prolisso
-NUM_PREDICT_SECTION =  6_144  # output esplicito: nessun troncamento prematuro
+NUM_PREDICT_SECTION =  -1  # -1 = illimitato (nessun troncamento prematuro)
 
 # Lv 1/2 — macro-capitoli e sinossi globale
-NUM_CTX_GLOBAL     = 32_768
-NUM_PREDICT_GLOBAL =  8_192
+NUM_CTX_GLOBAL     = 65_536
+NUM_PREDICT_GLOBAL =  -1   # -1 = illimitato
 
 # Map-Reduce: soglia e dimensione dei macro-capitoli
 MACRO_THRESHOLD  = 10   # numero minimo di sezioni per attivare la fase intermedia
-MACRO_BATCH_SIZE =  6   # quante sezioni raggruppare in un macro-capitolo
+MACRO_BATCH_SIZE = 10   # quante sezioni raggruppare in un macro-capitolo
+GLOBAL_BATCH_SIZE = 4   # quanti macro-capitoli processare per ogni riassunto parziale
 
 # ─── Ollama helper ────────────────────────────────────────────────────────────
 
@@ -119,30 +122,59 @@ def _call_ollama(
         return ""
 
 
+def _strip_markdown(text: str) -> str:
+    """Rimuove aggressivamente qualsiasi formattazione markdown dall'output LLM.
+
+    Questa funzione è necessaria perché i modelli SLM piccoli (es. Qwen 9B)
+    tendono a ignorare le istruzioni di formato e producono comunque
+    intestazioni, grassetti, elenchi puntati, ecc.
+    """
+    if not text:
+        return text
+    # Rimuovi intestazioni markdown (# ## ### ecc.)
+    text = re.sub(r'^#{1,6}\s+', '', text, flags=re.MULTILINE)
+    # Rimuovi grassetti e corsivi (**testo**, *testo*, __testo__, _testo_)
+    text = re.sub(r'\*{1,3}([^*]+)\*{1,3}', r'\1', text)
+    text = re.sub(r'_{1,3}([^_]+)_{1,3}', r'\1', text)
+    # Rimuovi elenchi puntati (- testo, * testo, • testo)
+    text = re.sub(r'^\s*[-*•►]\s+', '', text, flags=re.MULTILINE)
+    # Rimuovi elenchi numerati (1. testo, 2. testo ecc.)
+    text = re.sub(r'^\s*\d+\.\s+', '', text, flags=re.MULTILINE)
+    # Rimuovi separatori markdown (---, ***)
+    text = re.sub(r'^[-*_]{3,}\s*$', '', text, flags=re.MULTILINE)
+    # Collassa righe vuote consecutive (max 2)
+    text = re.sub(r'\n{3,}', '\n\n', text)
+    return text.strip()
+
+
 # ─── Prompt builder ───────────────────────────────────────────────────────────
 
 def _prompt_section_batch(text: str, entities_str: str) -> str:
-    """Prompt per il resoconto esaustivo di un frammento di testo (Livello 0).
+    """Prompt per il riassunto di un frammento di testo (Livello 1).
 
-    Obiettivo: massima verbosità e fedeltà informativa. Il modello deve
-    documentare minuziosamente ogni evento, dialogo e sfumatura presente
-    nel testo, senza omettere nulla di significativo.
+    Obiettivo: comprimere il testo al ~50% della lunghezza originale,
+    mantenendo gli eventi principali, i personaggi e la trama.
     """
-    return f"""Sei un analista letterario esperto in letteratura italiana storica.
-Produci un resoconto estremamente dettagliato, discorsivo ed esaustivo di questo frammento di testo.
+    target_chars = max(len(text) // 2, 300)
+    return f"""Sei un narratore fedele al testo. Il tuo unico compito è riassumere questo frammento.
 
 Personaggi e luoghi presenti nel testo: {entities_str}
 
-REGOLE:
-- Il tuo obiettivo primario è preservare l'intera ricchezza informativa del testo originale. Non omettere nulla.
-- Documenta ogni evento nell'ordine in cui avviene, con tutti i dettagli narrativi e descrittivi.
-- Per ogni personaggio presente, descrivi con precisione le sue azioni, le sue parole, i suoi pensieri e il suo stato d'animo.
-- Per ogni luogo citato, descrivi il contesto ambientale e gli eventi che vi si svolgono.
-- Includi ogni dialogo rilevante, ogni scambio di battute, ogni reazione emotiva dei personaggi.
-- Descrivi anche gli elementi secondari, i dettagli di colore, le atmosfere e le situazioni di contorno.
-- Non inventare eventi o dettagli non presenti nel testo.
-- Scrivi in prosa continua e fluida, organizzata in paragrafi. Non usare elenchi puntati, titoli o simboli markdown.
-- Rispondi SOLO con il testo del resoconto, senza preamboli, senza titoli, senza note finali.
+REGOLA 1 — ANTI-ALLUCINAZIONE (la più importante):
+- Usa SOLO i nomi di personaggi, luoghi ed eventi che compaiono nel testo qui sotto.
+- Copia i nomi ESATTAMENTE come sono scritti. Non inventare varianti, soprannomi o nomi nuovi.
+- Se un fatto non è nel testo, NON includerlo.
+
+REGOLA 2 — VIETATO FARE ANALISI LETTERARIA:
+- Non scrivere frasi come "il testo esplora", "simboleggia", "l'autore vuole dimostrare",
+  "questo episodio rappresenta", "funge da specchio", "il narratore riflette".
+- Racconta SOLO cosa succede: chi fa cosa, dove, quando e perché.
+
+REGOLA 3 — FORMATO:
+- COMPRIMI il testo: il tuo riassunto deve essere circa {target_chars} caratteri (circa il 50% del testo originale).
+- Scrivi in prosa continua e fluida.
+- VIETATO: elenchi puntati, titoli, grassetti, corsivi, cancelletti, simboli markdown.
+- Rispondi SOLO con il testo del riassunto, senza preamboli.
 
 TESTO:
 {text}
@@ -150,19 +182,26 @@ TESTO:
 
 
 def _prompt_merge_summaries(summaries: list[str], title: str) -> str:
-    """Prompt per unificare resoconti parziali di una sezione."""
+    """Prompt per unificare riassunti parziali di una sezione."""
     joined = "\n\n".join(f"Parte {i+1}:\n{s}" for i, s in enumerate(summaries))
-    return f"""Sei un assistente editoriale esperto in letteratura italiana storica.
-Unifica i seguenti resoconti parziali della sezione "{title}" in un unico testo coeso e completo.
+    return f"""Sei un narratore fedele al testo. Unifica i seguenti riassunti parziali della sezione "{title}" in un unico testo coeso.
 
-REGOLE:
-- Mantieni TUTTI i nomi di personaggi e luoghi.
-- Mantieni TUTTI gli eventi descritti, nell'ordine narrativo corretto.
-- Elimina solo le ripetizioni letterali.
-- Il risultato deve essere lungo e dettagliato quanto la somma delle parti.
-- Rispondi SOLO con il testo unificato, senza preamboli o titoli.
+REGOLA 1 — ANTI-ALLUCINAZIONE:
+- Usa SOLO i nomi e i fatti presenti nei riassunti qui sotto.
+- Non aggiungere eventi, personaggi o dettagli inventati.
+- Copia i nomi ESATTAMENTE come sono scritti.
 
-RESOCONTI PARZIALI:
+REGOLA 2 — VIETATO FARE ANALISI LETTERARIA:
+- Non scrivere "il testo esplora", "simboleggia", "l'autore vuole dimostrare".
+- Racconta SOLO i fatti.
+
+REGOLA 3 — FORMATO:
+- Mantieni gli eventi nell'ordine narrativo corretto.
+- Elimina ripetizioni. Il risultato deve essere più breve della somma delle parti.
+- VIETATO: elenchi, trattini, titoli, grassetti, corsivi, cancelletti, markdown.
+- Rispondi SOLO con il testo unificato, senza preamboli.
+
+RIASSUNTI PARZIALI:
 {joined}
 """
 
@@ -173,65 +212,118 @@ def _clean_book_name(book_name: str) -> str:
     return clean.replace('_', ' ').replace('.txt', '').replace('.json', '').strip().title()
 
 
-def _prompt_global_summary(book_name: str, chapter_summaries: list[str]) -> str:
+def _prompt_global_summary(book_name: str, chapter_summaries: list[str], original_total_chars: int = 0) -> str:
     """Prompt per la sinossi globale dell'intera opera.
 
     Riceve i riassunti dei macro-capitoli (o delle sezioni dirette se il libro
     è breve) e chiede all'LLM di produrre una panoramica fedele e narrativa.
     """
     clean_name = _clean_book_name(book_name)
-    joined = "\n\n".join(f"--- Sezione {i+1} ---\n{s}" for i, s in enumerate(chapter_summaries))
-    return f"""Sei un critico letterario esperto in letteratura italiana.
-Scrivi il RIASSUNTO NARRATIVO COMPLETO dell'opera "{clean_name}".
+    n = len(chapter_summaries)
+    joined = "\n\n".join(f"--- Sezione {i+1}/{n} ---\n{s}" for i, s in enumerate(chapter_summaries))
+    # 33% del libro originale, con floor di 5000 caratteri
+    min_output_chars = max(original_total_chars // 3, 5000) if original_total_chars else max(sum(len(s) for s in chapter_summaries) // 2, 5000)
+    return f"""Sei un narratore esperto. Il tuo unico compito è raccontare la trama dell'opera "{clean_name}" in prosa continua.
 
-REGOLA FONDAMENTALE — ANTI-ALLUCINAZIONE:
-- Scrivi SOLO eventi, personaggi e luoghi che compaiono esplicitamente nei
-  riassunti forniti qui sotto. Non inventare nulla.
-- Se un evento non è menzionato nei riassunti, NON includerlo.
+REGOLA 1 — ANTI-ALLUCINAZIONE (la più importante):
+- Usa SOLO i nomi di personaggi, luoghi ed eventi che compaiono esplicitamente nei riassunti qui sotto.
+- Copia i nomi ESATTAMENTE come sono scritti. Non modificarli, non accorciarli, non inventare varianti.
+- Se un fatto non è nei riassunti, NON includerlo.
 
-FORMATO:
-- Scrivi SOLO in prosa continua, organizzata in paragrafi.
-- NON usare titoli, intestazioni, elenchi puntati o numerati.
-- NON usare asterischi, trattini o simboli markdown.
-- Segui l'ordine narrativo cronologico.
-- Rispondi SOLO con il testo del riassunto, senza preamboli.
+REGOLA 2 — VIETATO FARE ANALISI LETTERARIA:
+- Non scrivere frasi come "il romanzo esplora", "la figura di X simboleggia", "l'autore vuole dimostrare",
+  "questo episodio rappresenta", "il testo offre un'analisi", "funge da specchio".
+- Racconta i FATTI della trama in ordine cronologico, come un narratore, non come un critico letterario.
 
-RIASSUNTI DELLE SEZIONI (questa è l'unica fonte da cui puoi attingere):
+REGOLA 3 — COPERTURA OBBLIGATORIA DI TUTTE LE {n} SEZIONI:
+- Devi coprire TUTTE le {n} sezioni nell'ordine in cui sono numerate (dalla Sezione 1 alla Sezione {n}).
+- PARTI DALLA SEZIONE 1 e procedi in ordine fino alla Sezione {n}. Non saltare le prime sezioni.
+- Ogni sezione deve produrre almeno un paragrafo nel testo finale.
+- Il riassunto deve essere lungo almeno {min_output_chars} caratteri.
+
+RIASSUNTI DELLE SEZIONI (unica fonte autorizzata):
 {joined}
+
+FORMATO (rispettare tassativamente):
+- Prosa narrativa continua, paragrafi separati da righe vuote.
+- VIETATO: elenchi, trattini, titoli, grassetti, corsivi, cancelletti, simboli markdown.
+- Inizia subito con il racconto, senza preamboli o introduzioni.
 """
 
 
 def _prompt_macro_chapter(book_name: str, chapter_summaries: list[str],
                            part_num: int, total_parts: int) -> str:
-    """Prompt per il riassunto di un macro-capitolo.
-
-    Un macro-capitolo è un gruppo di sezioni consecutive (es. le sezioni 7-12).
-    L'LLM deve fondere i resoconti delle singole sezioni in un unico testo
-    coerente, senza perdere personaggi o eventi secondari.
-
-    Args:
-        book_name:         nome grezzo del libro (con hash).
-        chapter_summaries: lista dei resoconti delle sezioni in questo gruppo.
-        part_num:          numero progressivo del macro-capitolo (1-based).
-        total_parts:       numero totale di macro-capitoli.
-    """
+    """Prompt per il riassunto di un macro-capitolo."""
     clean_name = _clean_book_name(book_name)
     joined = "\n\n".join(f"--- Sezione {i+1} ---\n{s}" for i, s in enumerate(chapter_summaries))
-    return f"""Sei un critico letterario esperto in letteratura italiana.
-Scrivi il riassunto dettagliato della PARTE {part_num} di {total_parts} dell'opera "{clean_name}".
+    return f"""Sei un narratore esperto. Scrivi il riassunto della PARTE {part_num} di {total_parts} dell'opera "{clean_name}".
 
-Questa parte comprende {len(chapter_summaries)} sezioni consecutive del libro.
+Questa parte comprende {len(chapter_summaries)} sezioni consecutive.
 
 REGOLE:
-- Mantieni TUTTI i personaggi citati nelle sezioni, inclusi quelli secondari.
-- Mantieni TUTTI i luoghi e gli eventi nell'ordine narrativo corretto.
-- Scrivi in prosa continua e fluida, senza elenchi puntati, senza titoli, senza headers.
-- NON usare asterischi, trattini o simboli per creare liste.
-- Il riassunto deve essere lungo e dettagliato: non omettere nulla di significativo.
-- Rispondi SOLO con il testo del riassunto, senza preamboli o titoli.
+- Usa SOLO i nomi di personaggi, luoghi ed eventi presenti nei riassunti qui sotto.
+- Copia i nomi ESATTAMENTE come scritti. Non inventare varianti o soprannomi.
+- Racconta i FATTI in ordine cronologico. Non fare analisi letteraria.
+- Ogni sezione deve avere almeno un paragrafo nel tuo riassunto.
+- Il riassunto deve essere lungo e dettagliato.
 
-RESOCONTI DELLE SEZIONI:
+RIASSUNTI DELLE SEZIONI:
 {joined}
+
+FORMATO:
+- Prosa narrativa continua, paragrafi separati da righe vuote.
+- VIETATO: elenchi, trattini, titoli, grassetti, corsivi, cancelletti, markdown.
+- Inizia subito col racconto.
+"""
+
+
+def _prompt_partial_global(book_name: str, macro_summaries: list[str],
+                            part_num: int, total_parts: int,
+                            global_section_start: int, global_section_end: int) -> str:
+    """Prompt per un segmento del riassunto globale.
+
+    Invece di generare l'intera sinossi in una chiamata, il riassunto
+    viene costruito a blocchi di macro-capitoli. Ogni blocco produce
+    un segmento narrativo autonomo che verrà poi concatenato.
+    """
+    clean_name = _clean_book_name(book_name)
+    n = len(macro_summaries)
+    joined = "\n\n".join(
+        f"--- Macro-capitolo {global_section_start + i} ---\n{s}"
+        for i, s in enumerate(macro_summaries)
+    )
+
+    if part_num == 1:
+        position = "INIZIALE"
+    elif part_num == total_parts:
+        position = "FINALE"
+    else:
+        position = "CENTRALE"
+
+    return f"""Sei un narratore esperto. Stai scrivendo il riassunto dell'opera "{clean_name}".
+Questa è la PARTE {part_num} di {total_parts} (porzione {position} dell'opera).
+
+Racconta in modo dettagliato e cronologico tutti i fatti contenuti nei macro-capitoli qui sotto.
+
+REGOLA 1 — ANTI-ALLUCINAZIONE:
+- Usa SOLO i nomi che trovi nei riassunti. Non inventare, non modificare, non fondere nomi di personaggi.
+- Se un nome è "Renzo Tramaglino", scrivi "Renzo Tramaglino", non "Lorenzo", non "Antonio", non varianti.
+
+REGOLA 2 — VIETATA L'ANALISI LETTERARIA:
+- Non scrivere "il romanzo esplora", "simboleggia", "l'autore vuole dimostrare".
+- Racconta solo cosa SUCCEDE ai personaggi.
+
+REGOLA 3 — DETTAGLIO:
+- Ogni macro-capitolo deve produrre diversi paragrafi.
+- Non omettere eventi, dialoghi importanti o personaggi secondari.
+
+MACRO-CAPITOLI (unica fonte autorizzata):
+{joined}
+
+FORMATO:
+- Prosa narrativa continua, paragrafi separati da righe vuote.
+- VIETATO: elenchi, trattini, titoli, grassetti, corsivi, cancelletti, markdown.
+- Inizia subito col racconto.
 """
 
 
@@ -301,7 +393,7 @@ def _summarize_section(chunks: list[dict]) -> str:
     # ── Caso semplice: testo breve → 1 sola chiamata ──
     if len(full_text) <= MAX_CHARS_PER_CALL:
         logger.info(f"  → Invio sezione a Ollama: {len(full_text)} char")
-        return _call_ollama(_prompt_section_batch(full_text, entities_str))
+        return _strip_markdown(_call_ollama(_prompt_section_batch(full_text, entities_str)))
 
     # ── Caso piramide: testo lungo → batch → merge ──
     batches: list[list[dict]] = []
@@ -325,7 +417,7 @@ def _summarize_section(chunks: list[dict]) -> str:
     for batch in batches:
         batch_text = "\n\n".join(c.get("text", "") for c in batch)
         e_str = _extract_entities_str(batch)
-        sub   = _call_ollama(_prompt_section_batch(batch_text, e_str))
+        sub   = _strip_markdown(_call_ollama(_prompt_section_batch(batch_text, e_str)))
         if sub:
             sub_summaries.append(sub)
 
@@ -336,7 +428,7 @@ def _summarize_section(chunks: list[dict]) -> str:
 
     # L2: merge dei sub-resoconti
     title  = chunks[0].get("topic_hint", "Sezione").replace(" (parte)", "")
-    merged = _call_ollama(_prompt_merge_summaries(sub_summaries, title))
+    merged = _strip_markdown(_call_ollama(_prompt_merge_summaries(sub_summaries, title)))
     return merged or " ".join(sub_summaries)
 
 
@@ -391,8 +483,24 @@ def run_hierarchical_summarization(
             sections.append({"topic": base_topic, "chunks": [chunk_data]})
 
     total_sections = len(sections)
+    
+    total_macros_est = 0
+    total_global_batches_est = 1
+    if total_sections > MACRO_THRESHOLD:
+        total_macros_est = (total_sections + MACRO_BATCH_SIZE - 1) // MACRO_BATCH_SIZE
+        if total_macros_est > GLOBAL_BATCH_SIZE:
+            total_global_batches_est = (total_macros_est + GLOBAL_BATCH_SIZE - 1) // GLOBAL_BATCH_SIZE
+    total_steps = total_sections + total_macros_est + total_global_batches_est
+
     if progress_cb:
-        progress_cb(0, total_sections, f"Trovate {total_sections} sezioni semantiche.")
+        progress_cb(0, total_steps, f"Trovate {total_sections} sezioni semantiche.")
+
+    # Calcola il totale dei caratteri originali del libro (per il target del riassunto globale)
+    original_total_chars = sum(
+        len(c.get("text", ""))
+        for sec in sections
+        for c in sec["chunks"]
+    )
 
     # ── Percorso di output (nome file include il modello, per confronto tra LLM) ──
     _safe_model = re.sub(r"[^\w\-]", "_", settings.OLLAMA_MODEL)
@@ -414,7 +522,7 @@ def run_hierarchical_summarization(
             if already_done > 0:
                 logger.info(f"Resume: trovate {already_done}/{total_sections} sezioni già completate — le salto.")
                 if progress_cb:
-                    progress_cb(already_done, total_sections,
+                    progress_cb(already_done, total_steps,
                                 f"Resume: {already_done}/{total_sections} sezioni già completate.")
         except Exception as e:
             logger.warning(f"Impossibile caricare resoconti parziali esistenti: {e}")
@@ -448,7 +556,7 @@ def run_hierarchical_summarization(
 
         if section_results[idx] is not None:
             if progress_cb:
-                progress_cb(idx + 1, total_sections,
+                progress_cb(idx + 1, total_steps,
                             f"[già fatto] Sezione {idx+1}/{total_sections}: {sec['topic']}")
             continue
 
@@ -456,7 +564,7 @@ def run_hierarchical_summarization(
         chunks = sec["chunks"]
 
         if progress_cb:
-            progress_cb(idx + 1, total_sections, f"Sezione {idx+1}/{total_sections}: {topic}")
+            progress_cb(idx + 1, total_steps, f"Sezione {idx+1}/{total_sections}: {topic}")
 
         try:
             summary = _summarize_section(chunks)
@@ -498,7 +606,7 @@ def run_hierarchical_summarization(
     # ══════════════════════════════════════════════════════════════════════════
 
     if progress_cb:
-        progress_cb(total_sections, total_sections, "Generazione Sinossi Globale...")
+        progress_cb(total_sections, total_steps, "Analisi sezioni completata...")
 
     chapter_summaries = [
         r["summary"] for r in section_results
@@ -508,7 +616,7 @@ def run_hierarchical_summarization(
     if len(chapter_summaries) <= MACRO_THRESHOLD:
         logger.info(f"Libro breve ({len(chapter_summaries)} sezioni ≤ {MACRO_THRESHOLD}): sinossi diretta.")
         if progress_cb:
-            progress_cb(total_sections, total_sections,
+            progress_cb(total_sections, total_steps,
                         f"Sinossi diretta da {len(chapter_summaries)} sezioni...")
         input_summaries = chapter_summaries
     else:
@@ -524,17 +632,17 @@ def run_hierarchical_summarization(
             part_num = i // MACRO_BATCH_SIZE + 1
 
             if progress_cb:
-                progress_cb(total_sections, total_sections,
+                progress_cb(total_sections + part_num, total_steps,
                             f"Macro-capitolo {part_num}/{total_macros} "
                             f"(sezioni {i+1}–{i+len(batch)})...")
 
-            macro = _call_ollama(
+            macro = _strip_markdown(_call_ollama(
                 _prompt_macro_chapter(book_name, batch, part_num, total_macros),
                 num_ctx=NUM_CTX_GLOBAL,
                 num_predict=NUM_PREDICT_GLOBAL,
-                temperature=0.2,
+                temperature=0.05,
                 timeout=600,
-            )
+            ))
             if macro:
                 macro_summaries.append(macro)
                 logger.info(f"Macro-capitolo {part_num}/{total_macros} completato ({len(macro)} char).")
@@ -543,13 +651,68 @@ def run_hierarchical_summarization(
 
         input_summaries = macro_summaries
 
-    global_summary = _call_ollama(
-        _prompt_global_summary(book_name, input_summaries),
-        num_ctx=NUM_CTX_GLOBAL,
-        num_predict=NUM_PREDICT_GLOBAL,
-        temperature=0.2,
-        timeout=600,
-    )
+    # ══════════════════════════════════════════════════════════════════════════
+    # FASE FINALE: Generazione riassunto globale A BLOCCHI
+    # Invece di una singola chiamata con tutti i macro-capitoli (che causa
+    # recency bias e perdita dei primi capitoli), generiamo riassunti parziali
+    # per gruppi di macro-capitoli e li concateniamo.
+    # ══════════════════════════════════════════════════════════════════════════
+
+    if len(input_summaries) <= GLOBAL_BATCH_SIZE:
+        # Pochi macro-capitoli: una sola chiamata basta
+        logger.info(f"Sinossi diretta da {len(input_summaries)} macro-capitoli.")
+        if progress_cb:
+            progress_cb(total_sections + total_macros_est + 1, total_steps,
+                        "Generazione sinossi globale...")
+        global_summary = _strip_markdown(_call_ollama(
+            _prompt_global_summary(book_name, input_summaries, original_total_chars),
+            num_ctx=NUM_CTX_GLOBAL,
+            num_predict=NUM_PREDICT_GLOBAL,
+            temperature=0.05,
+            timeout=900,
+        ))
+    else:
+        # Molti macro-capitoli: generiamo a blocchi e concateniamo
+        total_global_batches = (len(input_summaries) + GLOBAL_BATCH_SIZE - 1) // GLOBAL_BATCH_SIZE
+        logger.info(
+            f"Sinossi a blocchi: {len(input_summaries)} macro-capitoli → "
+            f"{total_global_batches} riassunti parziali (batch da {GLOBAL_BATCH_SIZE})."
+        )
+
+        partial_summaries: list[str] = []
+        for gi in range(0, len(input_summaries), GLOBAL_BATCH_SIZE):
+            gbatch = input_summaries[gi:gi + GLOBAL_BATCH_SIZE]
+            gpart  = gi // GLOBAL_BATCH_SIZE + 1
+
+            if progress_cb:
+                progress_cb(
+                    total_sections + total_macros_est + gpart, total_steps,
+                    f"Sinossi parziale {gpart}/{total_global_batches} "
+                    f"(macro-capitoli {gi+1}–{gi+len(gbatch)})..."
+                )
+
+            partial = _strip_markdown(_call_ollama(
+                _prompt_partial_global(
+                    book_name, gbatch, gpart, total_global_batches,
+                    global_section_start=gi + 1,
+                    global_section_end=gi + len(gbatch),
+                ),
+                num_ctx=NUM_CTX_GLOBAL,
+                num_predict=NUM_PREDICT_GLOBAL,
+                temperature=0.05,
+                timeout=600,
+            ))
+            if partial:
+                partial_summaries.append(partial)
+                logger.info(
+                    f"Sinossi parziale {gpart}/{total_global_batches} completata "
+                    f"({len(partial)} char)."
+                )
+            else:
+                logger.warning(f"Sinossi parziale {gpart}/{total_global_batches} vuota.")
+
+        global_summary = "\n\n".join(partial_summaries)
+
     logger.info(
         f"Sinossi globale finale: {len(global_summary)} char, "
         f"{len(global_summary.split())} parole."
@@ -600,7 +763,7 @@ def run_hierarchical_summarization(
     with open(out_path, "w", encoding="utf-8") as f:
         json.dump(output, f, ensure_ascii=False, indent=2)
 
-    if progress_cb:
-        progress_cb(total_sections, total_sections, "✅ Completato.")
+    if global_summary and progress_cb:
+        progress_cb(total_steps, total_steps, "Completato!")
 
     return output

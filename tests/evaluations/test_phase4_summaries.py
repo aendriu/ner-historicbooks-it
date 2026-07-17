@@ -55,12 +55,7 @@ def test_summary_quality():
     assert response is not None, "Anthropic non ha restituito JSON"
     assert "coherence_score" in response, "Chiave mancante"
     
-    print("\n--- RISULTATI SUMMARIZATION ---")
-    print(f"Coerenza: {response['coherence_score']}/5")
-    print(f"Assenza di Allucinazioni: {response['hallucination_score']}/5")
-    print(f"Ritenzione Entità: {response['entity_recall_score']}/5")
-    print(f"Feedback: {response['feedback']}")
-    
+
     # Assicuriamoci che gli score siano accettabili per la tesi (minimo 3/5)
     assert response["coherence_score"] >= 3
     assert response["hallucination_score"] >= 3

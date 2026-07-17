@@ -1,0 +1,89 @@
+{
+  "per_label": {
+    "PER": {
+      "precision": 0.775,
+      "recall": 0.866,
+      "f1": 0.818,
+      "tp": 369,
+      "fp": 107,
+      "fn": 57
+    },
+    "LOC": {
+      "precision": 0.614,
+      "recall": 0.806,
+      "f1": 0.697,
+      "tp": 191,
+      "fp": 120,
+      "fn": 46
+    },
+    "ORG": {
+      "precision": 0.385,
+      "recall": 0.625,
+      "f1": 0.476,
+      "tp": 55,
+      "fp": 88,
+      "fn": 33
+    },
+    "DATE": {
+      "precision": 0.633,
+      "recall": 0.893,
+      "f1": 0.741,
+      "tp": 50,
+      "fp": 29,
+      "fn": 6
+    },
+    "WORK": {
+      "precision": 0.642,
+      "recall": 0.8,
+      "f1": 0.712,
+      "tp": 52,
+      "fp": 29,
+      "fn": 13
+    },
+    "EVENT": {
+      "precision": 0.566,
+      "recall": 0.729,
+      "f1": 0.637,
+      "tp": 43,
+      "fp": 33,
+      "fn": 16
+    },
+    "TIT": {
+      "precision": 0.685,
+      "recall": 0.656,
+      "f1": 0.67,
+      "tp": 137,
+      "fp": 63,
+      "fn": 72
+    },
+    "REL": {
+      "precision": 0.429,
+      "recall": 0.225,
+      "f1": 0.295,
+      "tp": 42,
+      "fp": 56,
+      "fn": 145
+    },
+    "FANT": {
+      "precision": 0.72,
+      "recall": 0.261,
+      "f1": 0.383,
+      "tp": 36,
+      "fp": 14,
+      "fn": 102
+    }
+  },
+  "aggregate": {
+    "precision": 0.644,
+    "recall": 0.666,
+    "f1": 0.655,
+    "total_tp": 975,
+    "total_fp": 539,
+    "total_fn": 490
+  },
+  "breakdown": {
+    "real_samples": 72,
+    "synthetic_samples": 105,
+    "total_samples": 177
+  }
+}

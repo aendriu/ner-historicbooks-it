@@ -3,6 +3,7 @@ from pydantic import BaseModel
 import logging
 import os
 import re
+import requests
 
 from app.config import settings
 
@@ -62,8 +63,33 @@ def update_ollama_settings(config: OllamaConfig):
     except Exception as e:
         logger.warning(f"Impossibile scrivere nel .env: {e}")
 
-    return {"status": "ok", "host": host, "port": config.port,
-            "model": model, "embed_model": embed_model}
+    # Check installed models on Ollama
+    installed_models = []
+    missing_models = []
+    base_url = host if host.startswith("http") else f"http://{host}:{config.port}"
+    try:
+        r = requests.get(f"{base_url}/api/tags", timeout=5)
+        r.raise_for_status()
+        data = r.json()
+        installed_models = [m["name"] for m in data.get("models", [])]
+        
+        required_models = [model, embed_model]
+        for req in required_models:
+            # We do a loose check (e.g. if 'qwen3.5:9b' is in 'qwen3.5:9b:latest')
+            if not any(req in m for m in installed_models):
+                missing_models.append(req)
+    except Exception as e:
+        logger.warning(f"Impossibile verificare i modelli su Ollama: {e}")
+
+    return {
+        "status": "ok", 
+        "host": host, 
+        "port": config.port,
+        "model": model, 
+        "embed_model": embed_model,
+        "missing_models": missing_models,
+        "installed_models": installed_models
+    }
 
 @router.get("/api/settings/ollama")
 def get_ollama_settings():
