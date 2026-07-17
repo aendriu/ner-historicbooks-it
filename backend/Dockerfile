@@ -1,6 +1,8 @@
 # ── Stage 1: Build C binary ──
 FROM python:3.10-slim AS builder
-RUN apt-get update && apt-get install -y gcc make && rm -rf /var/lib/apt/lists/*
+RUN apt-get update --fix-missing && \
+    apt-get install -y --no-install-recommends gcc make libc6-dev && \
+    rm -rf /var/lib/apt/lists/*
 WORKDIR /build
 COPY app/pipeline/c_cleaner/ ./app/pipeline/c_cleaner/
 RUN cd app/pipeline/c_cleaner && make clean && make
