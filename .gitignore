@@ -63,3 +63,4 @@ frontend/.angular/
 *.log
 crash.log
 backend/tmp_*/
+start.sh
