@@ -94,7 +94,7 @@ const API_BASE = 'http://localhost:8000/api';
 })
 export class ApiConfigComponent implements OnInit {
   isVisible = false;
-  ollamaUrl         = '';
+  ollamaUrl         = 'http://host.docker.internal:11434';
   ollamaModel       = 'qwen2.5:3b';
 
   ollamaEmbedModel  = 'bge-m3';
@@ -119,7 +119,7 @@ export class ApiConfigComponent implements OnInit {
   }
 
   openModal() {
-    this.ollamaUrl         = localStorage.getItem('OLLAMA_BASE_URL')       || '';
+    this.ollamaUrl         = localStorage.getItem('OLLAMA_BASE_URL')       || 'http://host.docker.internal:11434';
     this.ollamaModel       = localStorage.getItem('OLLAMA_MODEL')           || 'qwen2.5:3b';
 
     this.ollamaEmbedModel  = localStorage.getItem('OLLAMA_EMBED_MODEL')    || 'bge-m3';
