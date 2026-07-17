@@ -43,6 +43,7 @@ historicbooks.db
 # Dati e Pesi del Modello
 backend/data/*
 !backend/data/raw/
+!backend/data/**/.gitkeep
 model/data/
 *.pt
 *.bin
