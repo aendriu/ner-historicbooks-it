@@ -31,14 +31,14 @@ class OllamaConfig(BaseModel):
     """Schema di validazione per la configurazione Ollama ricevuta dal frontend."""
     host: str
     port: str
-    model: str = "qwen2.5:3b"
+    model: str = "qwen3.5:9b"
     embed_model: str = "bge-m3"
 
 @router.post("/api/settings/ollama")
 def update_ollama_settings(config: OllamaConfig):
     """Aggiorna la configurazione Ollama in memoria e persiste le modifiche nel file .env."""
     host = config.host.strip().rstrip('/')
-    model = config.model.strip() or "qwen2.5:3b"
+    model = config.model.strip() or "qwen3.5:9b"
     embed_model = config.embed_model.strip() or "bge-m3"
 
     settings.OLLAMA_HOST         = host
@@ -97,7 +97,7 @@ def get_ollama_settings():
     return {
         "host":         settings.OLLAMA_HOST,
         "port":         settings.OLLAMA_PORT,
-        "model":        getattr(settings, "OLLAMA_MODEL",        "qwen2.5:3b"),
+        "model":        getattr(settings, "OLLAMA_MODEL",        "qwen3.5:9b"),
         "embed_model":  getattr(settings, "EMBED_MODEL",         "bge-m3"),
         "ner_model":    os.getenv("NER_MODEL_NAME", "aendriu/bert-ner-italian-historical"),
     }

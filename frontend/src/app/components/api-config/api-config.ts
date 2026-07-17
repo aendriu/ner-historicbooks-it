@@ -41,7 +41,7 @@ const API_BASE = 'http://localhost:8000/api';
           class="config-input"
           [(ngModel)]="ollamaModel"
           (keyup.enter)="testAndSave()"
-          placeholder="Es. qwen2.5:7b">
+          placeholder="Es. qwen3.5:9b">
           <span class="field-hint">Modello usato per riassumere ogni singolo capitolo semantico (deve essere già scaricato con <code>ollama pull</code>).</span>
         </div>
 
@@ -95,7 +95,7 @@ const API_BASE = 'http://localhost:8000/api';
 export class ApiConfigComponent implements OnInit {
   isVisible = false;
   ollamaUrl         = 'http://host.docker.internal:11434';
-  ollamaModel       = 'qwen2.5:3b';
+  ollamaModel       = 'qwen3.5:9b';
 
   ollamaEmbedModel  = 'bge-m3';
   nerModel = 'aendriu/bert-ner-italian-historical';
@@ -120,7 +120,7 @@ export class ApiConfigComponent implements OnInit {
 
   openModal() {
     this.ollamaUrl         = localStorage.getItem('OLLAMA_BASE_URL')       || 'http://host.docker.internal:11434';
-    this.ollamaModel       = localStorage.getItem('OLLAMA_MODEL')           || 'qwen2.5:3b';
+    this.ollamaModel       = localStorage.getItem('OLLAMA_MODEL')           || 'qwen3.5:9b';
 
     this.ollamaEmbedModel  = localStorage.getItem('OLLAMA_EMBED_MODEL')    || 'bge-m3';
     this.isVisible = true;
