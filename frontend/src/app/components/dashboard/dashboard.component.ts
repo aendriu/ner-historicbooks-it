@@ -34,9 +34,7 @@ import { Subscription, timer } from 'rxjs';
 
       <!-- Pipeline Group -->
       <div class="pipeline-group">
-        <button class="w-btn w-btn-primary" [disabled]="running() || !state.hasBook()" (click)="runAll()">
-          Pipeline completa
-        </button>
+
         <button class="w-btn w-btn-primary" [disabled]="running() || !state.hasBook()" (click)="runPhase('clean')">
           Pulizia OCR
         </button>
