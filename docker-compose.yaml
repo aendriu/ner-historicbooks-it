@@ -2,7 +2,6 @@ services:
   backend:
     build:
       context: ./backend
-      network: host
     container_name: tirocinio-backend
     ports:
       - "8000:8000"
@@ -15,7 +14,6 @@ services:
   frontend:
     build:
       context: ./frontend
-      network: host
     container_name: tirocinio-frontend
     ports:
       - "80:80"
