@@ -476,7 +476,7 @@ Produce il binario `backend/app/pipeline/c_cleaner/bin/ocr_cleaner`.
 #### 3. Configura le variabili d'ambiente
 
 ```bash
-cp .env.example .env
+cp env.example .env
 # Modifica .env con il tuo editor
 ```
 
@@ -531,6 +531,7 @@ L'applicazione sarà disponibile su:
 ### Avvio con Docker Compose (Produzione)
 
 ```bash
+cp env.example .env       # crea il file .env (modifica OLLAMA_HOST se necessario)
 docker compose up --build
 ```
 
