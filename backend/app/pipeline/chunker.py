@@ -230,7 +230,14 @@ def find_semantic_boundaries(paragraphs):
         return []
     texts = [p["text"] for p in paragraphs]
     logger.info(f"Calcolo embedding per {len(texts)} paragrafi con {settings.EMBED_MODEL} via Ollama...")
-    embeddings = _get_ollama_embeddings(texts)
+    
+    try:
+        embeddings = _get_ollama_embeddings(texts)
+    except Exception as e:
+        logger.warning(f"Impossibile calcolare gli embedding semantici (Ollama non disponibile o errore): {e}")
+        logger.warning("Fallback: verranno utilizzati solo i confini espliciti (capitoli) o chunk di default.")
+        return []
+
     boundaries = []
     for i in range(len(embeddings) - 1):
         v1, v2 = embeddings[i], embeddings[i + 1]
