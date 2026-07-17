@@ -531,11 +531,18 @@ L'applicazione sarà disponibile su:
 ### Avvio con Docker Compose (Produzione)
 
 ```bash
-cp env.example .env       # crea il file .env (modifica OLLAMA_HOST se necessario)
 docker compose up --build
 ```
 
-L'architettura in Docker Compose non include più il container gigante di Ollama per mantenere snello il deploy. Ollama deve essere in esecuzione separatamente (sulla stessa macchina host, in LAN o tramite Cloudflare Tunnel). Assicurati che l'indirizzo in `.env` sia corretto.
+Funziona subito, senza configurazione. Tutte le variabili d'ambiente hanno valori di default nel `docker-compose.yaml`.
+
+> **⚙️ Personalizzazione (opzionale):** Se Ollama è su un altro PC in rete, crea un file `.env` per sovrascrivere i default:
+> ```bash
+> cp env.example .env
+> # Modifica OLLAMA_HOST con l'IP del server Ollama
+> ```
+
+L'architettura in Docker Compose non include Ollama per mantenere snello il deploy. Ollama deve essere in esecuzione separatamente (sulla stessa macchina, in LAN o in remoto).
 
 | Servizio | URL |
 |---|---|
