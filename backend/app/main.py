@@ -41,6 +41,16 @@ async def lifespan(app: FastAPI):
         logger.error(f"Errore durante la scansione iniziale: {e}")
     finally:
         db.close()
+
+    logger.info("")
+    logger.info("══════════════════════════════════════════════")
+    logger.info("  ✅ NER HistoricBooks IT — Pronto!")
+    logger.info("")
+    logger.info("  🌐 Frontend:  http://localhost")
+    logger.info("  📡 API:       http://localhost:8000")
+    logger.info("  📖 Docs:      http://localhost:8000/docs")
+    logger.info("══════════════════════════════════════════════")
+    logger.info("")
     yield
 
 app = FastAPI(title="Historic Books Pipeline API", lifespan=lifespan)
