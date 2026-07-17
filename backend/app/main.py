@@ -15,6 +15,10 @@ async def lifespan(app: FastAPI):
     init_db()
     db = SessionLocal()
     try:
+        # Crea tutte le cartelle necessarie prima di iniziare
+        for d in ["raw", "cleaned", "ner", "semantic", "chapters", "summaries"]:
+            os.makedirs(os.path.join(DATA_DIR, d), exist_ok=True)
+            
         raw_dir = os.path.join(DATA_DIR, "raw")
         if os.path.exists(raw_dir):
             for filename in os.listdir(raw_dir):
