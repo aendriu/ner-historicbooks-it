@@ -432,7 +432,7 @@ ner-historicbooks-it/
 │       └── anthropic_client.py       # Client Anthropic per la generazione gold
 │
 ├── docker-compose.yml                # 2 servizi: backend + frontend
-└── start.sh                          # Script avvio locale (sviluppo)
+
 ```
 
 ---
@@ -510,13 +510,16 @@ cd ..
 
 #### 6. Avvia
 
-Puoi avviare contemporaneamente backend e frontend con il comodo script:
+Avvia backend e frontend in due terminali separati:
 
 ```bash
-bash start.sh
-```
+# Terminale 1 — Backend
+cd backend && source .venv/bin/activate
+uvicorn app.main:app --host 0.0.0.0 --port 8000
 
-*(In alternativa, puoi avviare i servizi separatamente in due terminali: `uvicorn app.main:app` nel backend e `npm start` nel frontend).*
+# Terminale 2 — Frontend
+cd frontend && npm start
+```
 
 L'applicazione sarà disponibile su:
 
